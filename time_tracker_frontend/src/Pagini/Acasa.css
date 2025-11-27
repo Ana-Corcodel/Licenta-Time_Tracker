@@ -1,0 +1,17 @@
+.pagina-acasa {
+  padding: 25px;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.pagina-acasa h1 {
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #006d83;
+}
+
+.pagina-acasa p {
+  font-size: 16px;
+  opacity: 0.8;
+}

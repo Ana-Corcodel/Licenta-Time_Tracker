@@ -1,0 +1,50 @@
+.Aplicatie {
+  background-color: #ffffff;
+}
+
+.container-aplicatie {
+  height: 100vh;
+  background-color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.zona-pagini {
+  background-color: #ffffff;
+  margin: 15px;
+  border-radius: 8px;
+  flex: 1;
+  box-sizing: border-box;
+
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+
+  height: calc(100vh - 110px);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.zona-pagini::-webkit-scrollbar {
+  display: none;
+}
+
+.layout-principal {
+  background-color: transparent;
+  margin: 15px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 110px);
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.layout-principal::-webkit-scrollbar {
+  display: none;
+}

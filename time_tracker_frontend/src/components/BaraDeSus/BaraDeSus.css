@@ -1,0 +1,144 @@
+.bara-sus {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+
+.sectiune-logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 90px;
+  margin-right: 5px;
+}
+
+.titlu {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  line-height: 1;
+}
+
+.titlu-time {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0b2e3c;
+}
+
+.titlu-tracker {
+  font-size: 28px;
+  font-weight: 700;
+  color: #00a6b4;
+}
+
+.nume-aplicatie h2 {
+  margin: 0;
+  font-size: 16px;
+  color: gray;
+}
+
+.sectiune-utilizator {
+  display: flex;
+  align-items: center;
+}
+
+.container-notificari {
+  position: relative;
+  margin-right: 15px;
+}
+
+.buton-notificare {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.indicator-notificari {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  background: red;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+}
+
+.lista-notificari {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  width: 250px;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+.notificare-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.text-notificare {
+  font-size: 13px;
+}
+
+.icon-sterge {
+  color: red;
+  cursor: pointer;
+}
+
+.fara-notificari {
+  padding: 10px;
+  text-align: center;
+}
+
+.utilizator {
+  display: flex;
+  align-items: center;
+}
+
+.buton-meniu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .logo {
+    width: 70px;
+  }
+
+  .titlu-time,
+  .titlu-tracker {
+    font-size: 20px;
+  }
+
+  .buton-meniu {
+    display: block;
+    margin-right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .utilizator p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .utilizator p {
+    display: none;
+  }
+}
