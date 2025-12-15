@@ -1,11 +1,20 @@
 .bara-sus {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 100px; /* IMPORTANT – trebuie să fie fix */
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
+
   background-color: #ffffff;
   border-bottom: 1px solid #ddd;
+  z-index: 1000;
 }
+
 
 .sectiune-logo {
   display: flex;
