@@ -73,6 +73,18 @@
   margin-right: 8px;
 }
 
+.link-meniu {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  padding: 10px 16px;
+}
+
+.link-meniu.activ {
+  background-color: #e3f2fd;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .bara-laterala {
     display: none;

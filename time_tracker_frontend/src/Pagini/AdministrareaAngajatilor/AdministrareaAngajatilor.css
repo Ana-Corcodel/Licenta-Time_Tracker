@@ -1,0 +1,70 @@
+.admin-angajati {
+  height: 100vh;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+  margin-left: 225px;
+}
+
+.admin-angajati-container {
+  width: 100%;
+  background: #fff;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+}
+
+.admin-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.admin-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.admin-count {
+  font-size: 1rem;
+  color: #555;
+  margin-left: 6px;
+}
+
+.admin-toolbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-input .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.btn-new {
+  background-color: #1976d2;
+  color: white;
+  height: 36px;
+  text-transform: none;
+}
+
+.tabel-container {
+  margin-top: 10px;
+}
+
+.MuiDataGrid-root {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.MuiDataGrid-columnHeaders {
+  background-color: #d6d6d6;
+  font-weight: bold;
+}
