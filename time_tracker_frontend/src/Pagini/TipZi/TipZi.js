@@ -131,7 +131,7 @@ const TipZi = () => {
               startIcon={<Add />}
               className="new-btn"
             >
-              New
+              ADAUGĂ
             </Button>
           </Box>
         </Box>

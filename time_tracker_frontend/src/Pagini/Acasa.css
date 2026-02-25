@@ -25,3 +25,41 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+
+
+
+
+
+
+
+
+
+.pagina-acasa p {
+  margin-top: 0;
+}
+
+.acasa-card {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.acasa-card-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.muted {
+  margin: 6px 0 0;
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+.acasa-chart {
+  margin-top: 14px;
+  height: 320px;
+}

@@ -200,7 +200,7 @@ const Pontaj = () => {
               variant="contained"
               startIcon={<Add />}
             >
-              New
+              ADAUGĂ
             </Button>
           </Box>
         </Box>
