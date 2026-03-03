@@ -31,7 +31,7 @@ const useTipZi = () => {
   const fetchTipuriZi = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get('/tip-zi/');
+      const res = await axiosInstance.get('/tipuri-zile/');
       setTipuriZi(res.data || []);
     } catch (err) {
       console.error('fetchTipuriZi error:', err);

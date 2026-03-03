@@ -39,7 +39,7 @@ const usePontaje = () => {
 
       const angMap = {};
       angRes.data.forEach(a => {
-        angMap[a.id] = `${a.first_name} ${a.last_name}`;
+        angMap[a.id] = `${a.nume} ${a.prenume}`;
       });
 
       const tipMap = {};

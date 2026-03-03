@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import './Meniu.css'; // Asigură-te că importi Menu.css, nu Meniu.css
+import './Meniu.css';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import TrackChangesSharpIcon from '@mui/icons-material/TrackChangesSharp';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 // Grupări în meniu conform structurii noi
 const grupuriMeniu = [
@@ -57,21 +54,12 @@ const grupuriMeniu = [
 ];
 
 const Meniu = ({ esteDeschis, seteazaDeschis }) => {
-  const [openMenus, setOpenMenus] = useState({});
   const navigate = useNavigate();
 
   // Funcție de logout
   const delogare = () => {
     localStorage.clear();
     navigate('/');
-  };
-
-  // Funcție de gestionare a submeniurilor (pentru viitoare extensii)
-  const toggleSubmenu = (menuName) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [menuName]: !prev[menuName],
-    }));
   };
 
   // Închide meniul pe ferestre mici
@@ -101,7 +89,7 @@ const Meniu = ({ esteDeschis, seteazaDeschis }) => {
                   }
                 >
                   {item.icon}
-                  <span>{item.nume || item.name}</span>
+                  <span>{item.name}</span>
                 </NavLink>
               </li>
             ))}

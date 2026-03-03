@@ -1,21 +1,16 @@
-/* TipZi.css - identic ca layout cu AdministrareaAngajatilor */
+/* TipZi.css - identic ca layout/stil cu Pontaj.css si AdministrareaAngajatilor.css */
 
-.tipzipage {
-  background-color: #f0f0f0;
-  display: flex;
-  justify-content: center;
-}
+
 
 .tipzi-page {
   width: 100%;
   background: #fff;
-  padding: 24px;
+  padding-left: 3px;
   display: flex;
   flex-direction: column;
   border-radius: 12px;
+  padding-top: 25px;
 }
-
-/* TOOLBAR */
 
 .tipzi-toolbar {
   display: flex;
@@ -49,33 +44,33 @@
   border-radius: 8px;
 }
 
-.new-btn {
+.tipzi-toolbar-right button {
   background-color: #1976d2;
   color: white;
   height: 36px;
   text-transform: none;
 }
 
-/* TABLE */
-
 .table-container {
   margin-top: 10px;
 }
 
-.MuiDataGrid-root {
+.tipzipage .MuiDataGrid-root {
   background-color: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #ddd;
 }
 
-.MuiDataGrid-columnHeaders {
+.tipzipage .MuiDataGrid-columnHeaders {
   background-color: #d6d6d6;
   font-weight: bold;
 }
-/* RESPONSIVE */
+
+/* RESPONSIVE - exact ca la Pontaj */
 
 @media (max-width: 480px) {
     .tipzipage {
+        padding: 0;
         height: auto;
         overflow-y: auto;
     }
@@ -83,20 +78,96 @@
     .tipzipage .tipzi-page {
         padding: 12px;
         border-radius: 0;
+        height: auto;
+        overflow-y: visible;
     }
 
     .tipzipage .tipzi-toolbar {
         flex-direction: column;
+        align-items: stretch;
         gap: 10px;
+    }
+
+    .tipzipage .title {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .tipzipage .title-count {
+        font-size: 0.9rem;
     }
 
     .tipzipage .tipzi-toolbar-right {
         flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .tipzipage .search-input {
         width: 100%;
     }
 
     .tipzipage .new-btn {
         width: 100%;
         height: 40px;
+        font-size: 14px;
+    }
+
+    .tipzipage .table-container {
+        margin-top: 12px;
+        overflow-x: auto;
+    }
+
+    .tipzipage .MuiDataGrid-root {
+        font-size: 12px;
+        border-radius: 6px;
+    }
+
+    .tipzipage .MuiDataGrid-columnHeaders {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tipzipage .tipzi-page {
+        padding: 16px;
+    }
+
+    .tipzipage .tipzi-toolbar {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .tipzipage .tipzi-toolbar-right {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .tipzipage .search-input {
+        flex: 1;
+        min-width: 180px;
+    }
+
+    .tipzipage .new-btn {
+        flex-shrink: 0;
+        height: 38px;
+    }
+
+    .tipzipage .MuiDataGrid-root {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .tipzipage .tipzi-page {
+        padding: 20px;
+    }
+
+    .tipzipage .tipzi-toolbar {
+        gap: 14px;
+    }
+
+    .tipzipage .search-input {
+        flex: 1;
     }
 }
