@@ -11,13 +11,60 @@
   overflow-y: hidden;
   overflow-x: hidden;
   padding-top: 50px;
-  /* cât e înălțimea reală a topbar-ului */
 }
 
 .sidebar:hover {
   overflow-y: auto;
 }
 
+/* Stiluri pentru meniul mobil - suprapus peste pagină */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 60px; /* înălțimea topbar-ului */
+    left: 0;
+    width: 80%;
+    max-width: 280px;
+    height: calc(100vh - 60px);
+    z-index: 999;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    padding-top: 10px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Overlay pentru a întuneca fundalul când meniul este deschis */
+  .menu-overlay {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  }
+
+  .menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .section-title {
+    margin-right: 0;
+    font-size: 13px;
+  }
+
+  .menu-link {
+    font-size: 13px;
+  }
+}
 
 .meniu {
   list-style: none;
@@ -100,42 +147,10 @@
   padding: 4px 8px;
   color: white;
   background-color: #1976d2;
-  /* albastru */
   border-radius: 4px;
   margin-top: 12px;
 }
 
 .section-title .section-icon {
   margin-right: 8px;
-}
-
-
-@media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-
-  .sidebar.open {
-    display: block;
-    width: 100%;
-    position: fixed;
-    z-index: 999;
-  }
-
-  .section-title {
-    margin-right: 30px;
-    font-size: 13px;
-  }
-
-  .menu-link {
-    font-size: 13px;
-  }
-
-  .menu-link.active {
-    margin-right: 30px;
-  }
-
-  .menu-link:hover {
-    margin-right: 30px;
-  }
 }
