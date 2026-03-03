@@ -1,59 +1,80 @@
-import './Meniu.css';
-import { NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import './Meniu.css'; // Asigură-te că importi Menu.css, nu Meniu.css
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
-import PeopleIcon from '@mui/icons-material/People'; // Icon pentru angajați
+import PeopleIcon from '@mui/icons-material/People';
+import TrackChangesSharpIcon from '@mui/icons-material/TrackChangesSharp';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
+// Grupări în meniu conform structurii noi
 const grupuriMeniu = [
   {
-    sectiune: 'General',
-    icon: <HomeIcon className="icon" />,
-    pagini: [
-      {
-        nume: 'Acasă',
-        ruta: '/'
+    section: 'General',
+    icon: <HomeIcon className="icon section-icon" />,
+    items: [
+      { 
+        name: 'Acasă', 
+        url: '/', 
+        icon: <TrackChangesSharpIcon className="icon" /> 
       }
     ]
   },
   {
-    sectiune: 'Administrare',
-    icon: <PeopleIcon className="icon" />, // Icon pentru secțiunea de administrare
-    pagini: [
-      {
-        nume: 'Angajați',
-        ruta: '/administrare-angajati'
+    section: 'Administrare',
+    icon: <PeopleIcon className="icon section-icon" />,
+    items: [
+      { 
+        name: 'Angajați', 
+        url: '/administrare-angajati', 
+        icon: <TrackChangesSharpIcon className="icon" /> 
       }
     ]
   },
   {
-    sectiune: 'Pontaje',
-    icon: <PeopleIcon className="icon" />, // Icon pentru secțiunea de administrare
-    pagini: [
-      {
-        nume: 'Pontaje',
-        ruta: '/pontaje'
+    section: 'Pontaje',
+    icon: <PeopleIcon className="icon section-icon" />,
+    items: [
+      { 
+        name: 'Pontaje', 
+        url: '/pontaje', 
+        icon: <TrackChangesSharpIcon className="icon" /> 
       }
     ]
   },
   {
-    sectiune: 'Tipuri de zile',
-    icon: <PeopleIcon className="icon" />, // Icon pentru secțiunea de administrare
-    pagini: [
-      {
-        nume: 'Tipuri de zile',
-        ruta: '/tipuri-zile'
+    section: 'Tipuri de zile',
+    icon: <PeopleIcon className="icon section-icon" />,
+    items: [
+      { 
+        name: 'Tipuri de zile', 
+        url: '/tipuri-zile', 
+        icon: <TrackChangesSharpIcon className="icon" /> 
       }
     ]
   }
 ];
 
 const Meniu = ({ esteDeschis, seteazaDeschis }) => {
+  const [openMenus, setOpenMenus] = useState({});
+  const navigate = useNavigate();
 
+  // Funcție de logout
   const delogare = () => {
     localStorage.clear();
-    window.location.href = '/';
+    navigate('/');
   };
 
+  // Funcție de gestionare a submeniurilor (pentru viitoare extensii)
+  const toggleSubmenu = (menuName) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menuName]: !prev[menuName],
+    }));
+  };
+
+  // Închide meniul pe ferestre mici
   const handleClick = () => {
     if (window.innerWidth <= 768) {
       seteazaDeschis(false);
@@ -61,35 +82,34 @@ const Meniu = ({ esteDeschis, seteazaDeschis }) => {
   };
 
   return (
-    <div className={`bara-laterala ${esteDeschis ? 'deschis' : ''}`}>
-      <ul className="lista-meniu">
-
+    <div className={`sidebar ${esteDeschis ? 'open' : ''}`}>
+      <ul className="meniu">
         {grupuriMeniu.map((grup) => (
-          <div key={grup.sectiune}>
-            <div className="titlu-sectiune">
+          <div key={grup.section}>
+            <div className="section-title">
               {grup.icon}
-              <span>{grup.sectiune}</span>
+              <span>{grup.section}</span>
             </div>
 
-            {grup.pagini.map((pagina) => (
-              <li key={pagina.nume} className="element-meniu">
+            {grup.items.map((item, index) => (
+              <li key={index} className="menu-item">
                 <NavLink
-                  to={pagina.ruta}
+                  to={item.url}
                   onClick={handleClick}
-                  className={({ isActive }) =>
-                    isActive ? 'link-meniu activ' : 'link-meniu'
+                  className={({ isActive }) => 
+                    isActive ? 'menu-link active' : 'menu-link'
                   }
                 >
-                  {pagina.nume}
+                  {item.icon}
+                  <span>{item.nume || item.name}</span>
                 </NavLink>
               </li>
             ))}
           </div>
         ))}
-
       </ul>
 
-      <button className="buton-logout" onClick={delogare}>
+      <button className="settings-button" onClick={delogare}>
         <LogoutIcon className="icon" />
         Delogare
       </button>

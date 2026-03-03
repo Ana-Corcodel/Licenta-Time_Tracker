@@ -1,58 +1,62 @@
-.bara-laterala {
-  position: fixed;
-  top: 100px; /* exact cât bara de sus */
-  left: 0;
-
+.sidebar {
   width: 220px;
-  height: calc(100vh - 100px);
-
   background-color: #ffffff;
+  height: calc(95vh - 95px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
   border-right: 1px solid #e0e0e0;
   padding: 10px 15px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-
-  overflow: hidden; /* NU mai este scrollabil */
-  z-index: 999;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  padding-top: 50px;
+  /* cât e înălțimea reală a topbar-ului */
 }
 
-
-.bara-laterala:hover {
+.sidebar:hover {
   overflow-y: auto;
 }
 
-.lista-meniu {
+
+.meniu {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.titlu-sectiune {
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  padding: 4px 8px;
-  color: white;
-  background-color: #1976d2;
-  border-radius: 4px;
-  margin-top: 12px;
-}
-
-.titlu-sectiune .section-icon {
-  margin-right: 8px;
-}
-
-.sectiune-goala {
-  padding: 6px 10px;
-  font-size: 13px;
-  color: #999;
+.menu-item {
   margin-bottom: 10px;
 }
 
-.buton-logout {
+.menu-link {
+  display: flex;
+  align-items: center;
+  padding: 4px 15px;
+  margin-top: 3px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 14px;
+  color: #080808;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.menu-link:hover {
+  background-color: #f0f0f0;
+}
+
+.menu-link.active {
+  background-color: #e7e7e8;
+  color: #000000;
+  font-weight: bold;
+}
+
+.menu-link .icon {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.settings-button {
   background-color: #ffffff;
   color: #333333;
   border: none;
@@ -62,47 +66,76 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  margin-top: 20px;
 }
 
-.buton-logout:hover {
+.settings-button:hover {
   background-color: #f5f5f5;
 }
 
-.buton-logout .icon {
+.settings-button .icon {
   margin-right: 8px;
 }
 
-.link-meniu {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  padding: 10px 16px;
+.submenu {
+  margin-left: -1.5rem;
+  padding-top: 0.25rem;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  list-style-type: none;
 }
 
-.link-meniu.activ {
-  background-color: #e3f2fd;
-  font-weight: 600;
+.submenu-item {
+  margin: 0.2rem 0;
 }
+
+.submenu-arrow {
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  padding: 4px 8px;
+  color: white;
+  background-color: #1976d2;
+  /* albastru */
+  border-radius: 4px;
+  margin-top: 12px;
+}
+
+.section-title .section-icon {
+  margin-right: 8px;
+}
+
 
 @media (max-width: 768px) {
-  .bara-laterala {
+  .sidebar {
     display: none;
   }
 
-  .bara-laterala.deschis {
+  .sidebar.open {
     display: block;
     width: 100%;
     position: fixed;
     z-index: 999;
   }
 
-  .titlu-sectiune {
+  .section-title {
     margin-right: 30px;
     font-size: 13px;
   }
 
-  .sectiune-goala {
+  .menu-link {
+    font-size: 13px;
+  }
+
+  .menu-link.active {
+    margin-right: 30px;
+  }
+
+  .menu-link:hover {
     margin-right: 30px;
   }
 }

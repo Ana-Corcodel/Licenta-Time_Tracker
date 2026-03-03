@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './BaraDeSus.css';
+import './BaraDeSus.css'; // Asigură-te că importi TopBar.css, nu BaraDeSus.css
 import logo from '../../Imagini/logoTime.png';
 import NotificationsIcon from '@mui/icons-material/NotificationsNone';
 import UserIcon from '@mui/icons-material/AccountBoxRounded';
@@ -57,73 +57,73 @@ const BaraDeSus = ({ comutaMeniu }) => {
   const stergeNotificare = async (id) => {
     try {
       await axiosInstance.delete(`/delete_notification/${id}/`);
-      setNotificari(notificari.filter(n => n.id !== id));
+      const notificariActualizate = notificari.filter(n => n.id !== id);
+      setNotificari(notificariActualizate);
     } catch (err) {
       console.error('Eroare la ștergerea notificării:', err);
     }
   };
 
   return (
-    <div className="bara-sus">
-      <div className="sectiune-logo">
-        <img src={logo} alt="Logo" className="logo" />
-
-        <div className="nume-aplicatie">
-          <h1 className="titlu">
-            <span className="titlu-time">Time</span>
-            <span className="titlu-tracker">Tracker</span>
-          </h1>
-
+    <div className="topbar">
+      <div className="logo_section">
+        <div className="logo">
+          <img src={logo} alt="Logo" className="logo" />
+        </div>
+        <div className="app-name">
+          <h1>TimeTracker</h1>
           <h2>{departament}</h2>
         </div>
       </div>
 
-      <div className="sectiune-utilizator">
-
+      <div className="user-section">
         {/* Buton meniu */}
-        <button className="buton-meniu" onClick={comutaMeniu}>
-          <MenuIcon fontSize="medium" />
+        <button className="menu-button" onClick={comutaMeniu}>
+          <MenuIcon fontSize="medium" style={{ marginRight: '6px' }} />
         </button>
 
         {/* Notificări */}
-        <div className="container-notificari">
-          <button className="buton-notificare" onClick={comutaNotificari}>
-            <NotificationsIcon fontSize="medium" />
+        <div className="notification-container">
+          <button className="notification" onClick={comutaNotificari}>
+            <NotificationsIcon fontSize="medium" style={{ marginRight: '4px' }} />
             {notificari.length > 0 && (
-              <span className="indicator-notificari">{notificari.length}</span>
+              <span className="notification-badge">{notificari.length}</span>
             )}
           </button>
 
           {afiseazaNotificari && (
-            <div className="lista-notificari">
+            <div className="notification-dropdown">
               {notificari.length > 0 ? (
                 notificari.map((n) => (
-                  <div key={n.id} className="notificare-item">
-                    <p className="text-notificare">
-                      {n.description} — {new Date(n.date).toLocaleDateString()}
+                  <div key={n.id} className="notification-item">
+                    <p className="notification-text">
+                      {n.description} {new Date(n.date).toLocaleDateString()}
                     </p>
-
                     <CloseIcon
-                      className="icon-sterge"
+                      className="close-icon"
                       onClick={() => stergeNotificare(n.id)}
                     />
                   </div>
                 ))
               ) : (
-                <p className="fara-notificari">Nu ai notificări!</p>
+                <p className="no-notifications">Nu ai notificări!</p>
               )}
             </div>
           )}
         </div>
 
         {/* User info */}
-        <div className="utilizator">
+        <div className="user">
           <p>{numeUtilizator}</p>
-          <UserIcon className="icon-utilizator" fontSize="medium" />
+          <UserIcon 
+            className="User_icon" 
+            fontSize="medium" 
+            style={{ marginRight: '6px', marginLeft: '6px' }} 
+          />
         </div>
       </div>
     </div>
   );
 };
-  
+
 export default BaraDeSus;

@@ -17,7 +17,8 @@ function Aplicatie() {
 
   return (
     <Router>
-      <div className="Aplicatie">
+      <div className="App">
+        <div className="app-container">
         {/* Bara de sus */}
         <BaraDeSus comutaMeniu={comutaMeniul} />
 
@@ -29,7 +30,7 @@ function Aplicatie() {
           />
 
           {/* Zona paginilor */}
-          <div className="zona-pagini" style={{ flex: 1, marginTop: '70px' }}>
+          <div className="page-wrapper" style={{ flex: 1, marginTop: '60px' }}>
             {/* DOAR UN SINGUR <Routes> */}
             <Routes>
               <Route path="/" element={<Acasa />} />
@@ -39,6 +40,7 @@ function Aplicatie() {
             </Routes>
           </div>
         </div>
+      </div>
       </div>
     </Router>
   );

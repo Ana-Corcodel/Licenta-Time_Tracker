@@ -1,107 +1,72 @@
+/* Pontaj.css - identic ca layout/stil cu AdministrareaAngajatilor.css */
+
 .pontajpage {
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
-    background-color: #f0f0f0;
-    font-family: 'Arial', sans-serif;
-    margin-top: 60px;
-    margin-left: 225px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
 }
 
-.pontajpage .pontaj-page {
-    background-color: #fff;
-    height: auto;
-    width: 100%;
-    max-width: 100%;
-    padding: 24px;
-    border-radius: 12px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+.pontaj-page {
+  width: 100%;
+  background: #fff;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
 }
 
-/* TOOLBAR */
-
-.pontajpage .pontaj-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 30px;
+.pontaj-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
 }
 
-.pontajpage .title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0;
-    color: #1a1a1a;
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
 }
 
-.pontajpage .title-count {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #555;
+.title-count {
+  font-size: 1rem;
+  color: #555;
+  margin-left: 6px;
+  font-weight: normal;
 }
 
-.pontajpage .pontaj-toolbar-right {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
+.pontaj-toolbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
-.pontajpage .search-input .MuiOutlinedInput-root {
-    background-color: #fff;
-    border-radius: 8px;
+.search-input .MuiOutlinedInput-root {
+  border-radius: 8px;
 }
 
-.pontajpage .new-btn {
-    border: 1px solid #1976d2;
-    border-radius: 5px;
-    color: #ffffff;
-    background-color: #1976d2;
-    padding: 6px 14px;
-    height: 36px;
-    text-transform: none;
+.pontaj-toolbar-right button {
+  background-color: #1976d2;
+  color: white;
+  height: 36px;
+  text-transform: none;
 }
 
-/* TABLE */
-
-.pontajpage .table-container {
-    margin-top: 10px;
-    overflow: visible;
+.table-container {
+  margin-top: 10px;
 }
 
 .pontajpage .MuiDataGrid-root {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
 .pontajpage .MuiDataGrid-columnHeaders {
-    background-color: #d6d6d6;
-    color: #424242;
-    font-size: 16px;
-    font-weight: bold;
-    border-bottom: 2px solid #b0b0b0;
-}
-
-.pontajpage .MuiDataGrid-columnHeaderTitle {
-    font-weight: bold !important;
-    color: #000000 !important;
-}
-
-.pontajpage .MuiDataGrid-cell {
-    font-size: 14px;
-    color: #333;
-}
-
-.pontajpage .MuiDataGrid-footerContainer {
-    background-color: #f1f1f1;
+  background-color: #d6d6d6;
+  font-weight: bold;
 }
 
 /* RESPONSIVE */
