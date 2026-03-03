@@ -17,11 +17,11 @@
   overflow-y: auto;
 }
 
-/* Stiluri pentru meniul mobil - suprapus peste pagină */
+
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
-    top: 60px; /* înălțimea topbar-ului */
+    top: 60px;
     left: 0;
     width: 80%;
     max-width: 280px;
@@ -36,7 +36,6 @@
     transform: translateX(0);
   }
 
-  /* Overlay pentru a întuneca fundalul când meniul este deschis */
   .menu-overlay {
     position: fixed;
     top: 60px;

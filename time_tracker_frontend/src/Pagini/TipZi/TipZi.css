@@ -1,7 +1,3 @@
-/* TipZi.css - identic ca layout/stil cu Pontaj.css si AdministrareaAngajatilor.css */
-
-
-
 .tipzi-page {
   width: 100%;
   background: #fff;
@@ -66,7 +62,7 @@
   font-weight: bold;
 }
 
-/* RESPONSIVE - exact ca la Pontaj */
+/* RESPONSIVE*/
 
 @media (max-width: 480px) {
     .tipzipage {

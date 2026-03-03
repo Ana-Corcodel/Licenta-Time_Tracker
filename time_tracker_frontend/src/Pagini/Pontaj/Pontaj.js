@@ -10,7 +10,6 @@ import './Pontaj.css';
 const SEARCH_DEBOUNCE_MS = 300;
 const DEFAULT_PAGE_SIZE = 10;
 
-/* debounce hook */
 const useDebounce = (value, delay) => {
   const [debounced, setDebounced] = useState(value);
 
@@ -22,7 +21,6 @@ const useDebounce = (value, delay) => {
   return debounced;
 };
 
-/* hook pontaje */
 const usePontaje = () => {
   const [pontaje, setPontaje] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -1,6 +1,6 @@
 .App {
   background-color: #ffffff;
-  padding-top: 70px; /* cât e înălțimea reală a topbar-ului */
+  padding-top: 70px;
 }
 
 .app-container {
@@ -10,18 +10,6 @@
   padding: 0;  
 }
 
-
-/* .page-wrapper {
-  background-color: #ffffff;   
-  margin: 15px;
-  border-radius: 8px;          
-  flex: 1;
-  box-sizing: border-box;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: 20px;
-  height: calc(100vh - 110px); 
-} */
  .page-wrapper {
   background-color: #ffffff;   
   margin: 15px;

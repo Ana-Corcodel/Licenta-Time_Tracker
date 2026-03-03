@@ -14,7 +14,6 @@ import './AdministrareaAngajatilor.css';
 const PAGINA_DEFAULT = 10;
 const DEBOUNCE_MS = 300;
 
-/* 🔹 Hook debounce */
 const useDebounce = (value, delay) => {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -31,7 +30,6 @@ const AdministrareaAngajatilor = () => {
 
   const searchDebounced = useDebounce(search, DEBOUNCE_MS);
 
-  /* 🔹 Fetch angajați */
   const fetchAngajati = useCallback(async () => {
     try {
       setLoading(true);
@@ -54,7 +52,6 @@ const AdministrareaAngajatilor = () => {
     fetchAngajati();
   }, [fetchAngajati]);
 
-  /* 🔹 Filtrare */
   const randuriFiltrate = useMemo(() => {
     let lista = [...angajati];
 
@@ -74,7 +71,6 @@ const AdministrareaAngajatilor = () => {
     }));
   }, [angajati, searchDebounced]);
 
-  /* 🔹 Coloane tabel */
   const coloane = useMemo(() => [
     {
       field: 'nume_complet',
@@ -156,7 +152,6 @@ const AdministrareaAngajatilor = () => {
     <div className="admin-angajati">
       <div className="admin-angajati-container">
 
-        {/* 🔹 Toolbar */}
         <Box className="admin-toolbar">
           <h2 className="admin-title">
             ADMINISTRAREA ANGAJAȚILOR
@@ -191,7 +186,6 @@ const AdministrareaAngajatilor = () => {
           </Box>
         </Box>
 
-        {/* 🔹 Tabel */}
         <div className="tabel-container">
           <DataGrid
             rows={randuriFiltrate}

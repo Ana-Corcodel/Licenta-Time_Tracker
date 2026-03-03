@@ -5,7 +5,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import TrackChangesSharpIcon from '@mui/icons-material/TrackChangesSharp';
 
-// Grupări în meniu conform structurii noi
 const grupuriMeniu = [
   {
     section: 'General',

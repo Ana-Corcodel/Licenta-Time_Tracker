@@ -13,7 +13,6 @@
   z-index: 1000;
 }
 
-
 .logo_section {
   display: flex;
   align-items: center;
@@ -67,36 +66,34 @@
   margin-left: 10px;
 }
 
-/* Butonul de meniu, vizibil doar pe ecranele mici */
 .menu-button {
   display: none;
 }
 
-/* Media query pentru a reduce dimensiunile pe ecrane mici  */
 @media (max-width: 768px) {
   .logo {
-    width: 70px; /* Micșorează logo-ul pe ecrane mici */
+    width: 70px; 
   }
 
   .app-name h1 {
-    font-size: 20px; /* Diminuează dimensiunea fontului pe mobil */
+    font-size: 20px; 
   }
 
   .app-name h2 {
-    font-size: 14px; /* Diminuează dimensiunea fontului pentru departament */
+    font-size: 14px;
   }
 
   .notification .icon {
-    width: 20px; /* Micșorează iconul de notificare */
+    width: 20px; 
     height: 20px;
   }
 
   .user p {
-    font-size: 14px; /* Diminuează fontul numelui utilizatorului */
+    font-size: 14px; 
   }
 
   .user-icon {
-    height: 30px; /* Micșorează iconul utilizatorului */
+    height: 30px;
     width: 30px;
   }
 
@@ -111,7 +108,7 @@
 
 @media (max-width: 360px) {
   .user p {
-    display: none; /* Ascunde numele utilizatorului pe ecrane mici */
+    display: none;
   }
 }
 

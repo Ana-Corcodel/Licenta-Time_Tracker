@@ -11,7 +11,6 @@ import './TipZi.css';
 const SEARCH_DEBOUNCE_MS = 300;
 const DEFAULT_PAGE_SIZE = 10;
 
-/* debounce hook */
 const useDebounce = (value, delay) => {
   const [debounced, setDebounced] = useState(value);
 
@@ -23,7 +22,6 @@ const useDebounce = (value, delay) => {
   return debounced;
 };
 
-/* hook TipZi */
 const useTipZi = () => {
   const [tipuriZi, setTipuriZi] = useState([]);
   const [loading, setLoading] = useState(true);

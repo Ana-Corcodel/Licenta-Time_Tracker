@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './BaraDeSus.css'; // Asigură-te că importi TopBar.css, nu BaraDeSus.css
+import './BaraDeSus.css'; 
 import logo from '../../Imagini/logoTime.png';
 import NotificationsIcon from '@mui/icons-material/NotificationsNone';
 import UserIcon from '@mui/icons-material/AccountBoxRounded';
