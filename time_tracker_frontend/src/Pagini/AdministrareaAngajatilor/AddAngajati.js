@@ -10,6 +10,13 @@ import "./AddAngajati.css";
 registerLocale("ro", ro);
 
 const AddAngajati = ({ open, onClose }) => {
+    // Opțiuni statice pentru status (conform STATUS_CHOICES din model)
+    const statusOptions = [
+        { value: 'active', label: 'Active' },
+        { value: 'inactive', label: 'Inactive' },
+        { value: 'suspended', label: 'Suspended' },
+    ];
+
     // Date inițiale pentru formular
     const initialFormData = useMemo(
         () => ({
@@ -22,64 +29,28 @@ const AddAngajati = ({ open, onClose }) => {
             ora_incepere: "09:00",
             ora_sfarsit: "17:00",
             ora_pauza: 30,
-            status: "",
+            status: "active", // Setăm default 'active'
         }),
         []
     );
 
     // State-uri principale
     const [formData, setFormData] = useState(initialFormData);
-    const [statusOptions, setStatusOptions] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [statusLoading, setStatusLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [showToast, setShowToast] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
 
-    // Abort controller pentru request-uri
-    const abortControllerRef = useRef();
-
-    const fetchStatuses = useCallback(async () => {
-        try {
-            setStatusLoading(true);
-
-            abortControllerRef.current?.abort();
-            abortControllerRef.current = new AbortController();
-
-            const res = await axiosInstance.get("status-angajati/", {
-                signal: abortControllerRef.current.signal,
-            });
-
-            console.log("Statusuri primite de la API:", res.data);
-
-            const options = (res.data || []).map((s) => ({
-                value: Number(s.id),
-                label: s.descriere,
-            }));
-
-            setStatusOptions(options);
-        } catch (err) {
-            // axios cu AbortController de obicei aruncă ERR_CANCELED, nu "AbortError"
-            if (err?.code !== "ERR_CANCELED") {
-                console.error("Eroare la încărcarea statusurilor:", err);
-                setError("Failed to load statuses");
-            }
-        } finally {
-            setStatusLoading(false);
-        }
-    }, []);
-
-    // Când se deschide modalul, resetăm formularul și încărcăm statusurile
+    // Când se deschide modalul, resetăm formularul
     useEffect(() => {
         if (open) {
             setFormData(initialFormData);
             setError("");
             setSuccess("");
             setFieldErrors({});
-            fetchStatuses();
         }
-    }, [open, initialFormData, fetchStatuses]);
+    }, [open, initialFormData]);
 
     // Gestionare modificare câmpuri de formular
     const handleChange = useCallback(
@@ -179,7 +150,7 @@ const AddAngajati = ({ open, onClose }) => {
         }
     }, [formData, validateForm, onClose]);
 
-    // Stiluri pentru react-select
+    // Stiluri pentru react-select (același cod ca înainte)
     const getCustomSelectStyles = (fieldName) => ({
         control: (base, state) => ({
             ...base,
@@ -335,27 +306,24 @@ const AddAngajati = ({ open, onClose }) => {
                                     <div className="form-field">
                                         <label className="label-left">Status <span className="required">*</span></label>
 
-                                        {statusLoading ? (
-                                            <div className="skeleton"></div>
-                                        ) : (
-                                            <Select
-                                                name="status"
-                                                value={statusOptions.find(option => option.value === formData.status)}
-                                                onChange={handleStatusChange}
-                                                options={statusOptions}
-                                                placeholder="Selectează status"
-                                                className={`multiselect-field ${fieldErrors.status ? 'select-error' : ''}`}
-                                                classNamePrefix="select"
-                                                isSearchable={true}
-                                                isClearable={true}
-                                                styles={getCustomSelectStyles("status")}
-                                            />
-                                        )}
+                                        <Select
+                                            name="status"
+                                            value={statusOptions.find(option => option.value === formData.status)}
+                                            onChange={handleStatusChange}
+                                            options={statusOptions}
+                                            placeholder="Selectează status"
+                                            className={`multiselect-field ${fieldErrors.status ? 'select-error' : ''}`}
+                                            classNamePrefix="select"
+                                            isSearchable={true}
+                                            isClearable={true}
+                                            styles={getCustomSelectStyles("status")}
+                                        />
 
                                         {fieldErrors.status && <span className="field-error error-left">{fieldErrors.status}</span>}
                                     </div>
                                 </div>
 
+                                {/* Restul codului rămâne identic... */}
                                 {/* Telefon + Email */}
                                 <div className="form-row">
                                     <div className="form-field phone-field">
@@ -448,7 +416,7 @@ const AddAngajati = ({ open, onClose }) => {
                                     <button
                                         className={`submit-btn ${loading ? "disabled" : ""}`}
                                         onClick={!loading ? handleSubmit : undefined}
-                                        disabled={loading || statusLoading}
+                                        disabled={loading}
                                     >
                                         {loading ? "Se salvează..." : "Salvează"}
                                     </button>

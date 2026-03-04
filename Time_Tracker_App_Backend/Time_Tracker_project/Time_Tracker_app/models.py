@@ -11,6 +11,12 @@ class Status(models.Model):
 
 
 class Angajat(models.Model):
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('suspended', 'Suspended'),
+    ]
+    
     nume = models.CharField(max_length=100)
     prenume = models.CharField(max_length=100)
     functie = models.CharField(max_length=100)
@@ -21,7 +27,11 @@ class Angajat(models.Model):
     ora_incepere = models.TimeField()
     ora_sfarsit = models.TimeField()
     ora_pauza = models.IntegerField(help_text="Durata pauzei în minute")
-    status = models.ForeignKey(Status, on_delete=models.CASCADE, related_name="angajati")
+    status = models.CharField(
+        max_length=10, 
+        choices=STATUS_CHOICES, 
+        default='active'
+    )
 
     def folder_path(self):
         """Returnează calea completă a folderului angajatului"""

@@ -10,6 +10,13 @@ import "./AddAngajati.css"; // Folosim același CSS ca la Add
 registerLocale("ro", ro);
 
 const EditAngajati = ({ open, employeeData, onClose }) => {
+    // Opțiuni statice pentru status (conform STATUS_CHOICES din model)
+    const statusOptions = [
+        { value: 'active', label: 'Active' },
+        { value: 'inactive', label: 'Inactive' },
+        { value: 'suspended', label: 'Suspended' },
+    ];
+
     // Date inițiale pentru formular
     const initialFormData = useMemo(
         () => ({
@@ -22,54 +29,19 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             ora_incepere: "09:00",
             ora_sfarsit: "17:00",
             ora_pauza: 30,
-            status: "",
+            status: "active", // Setăm default 'active'
         }),
         []
     );
 
     // State-uri principale
     const [formData, setFormData] = useState(initialFormData);
-    const [statusOptions, setStatusOptions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(false);
-    const [statusLoading, setStatusLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [showToast, setShowToast] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
-
-    // Abort controller pentru request-uri
-    const abortControllerRef = useRef();
-
-    // Funcție care preia statusurile din backend
-    const fetchStatuses = useCallback(async () => {
-        try {
-            setStatusLoading(true);
-
-            abortControllerRef.current?.abort();
-            abortControllerRef.current = new AbortController();
-
-            const res = await axiosInstance.get("status-angajati/", {
-                signal: abortControllerRef.current.signal,
-            });
-
-            console.log("Statusuri primite de la API:", res.data);
-
-            const options = (res.data || []).map((s) => ({
-                value: Number(s.id),
-                label: s.descriere,
-            }));
-
-            setStatusOptions(options);
-        } catch (err) {
-            if (err?.code !== "ERR_CANCELED") {
-                console.error("Eroare la încărcarea statusurilor:", err);
-                setError("Failed to load statuses");
-            }
-        } finally {
-            setStatusLoading(false);
-        }
-    }, []);
 
     // Funcție care preia datele angajatului pentru editare
     const fetchEmployeeDetails = useCallback(async () => {
@@ -80,6 +52,21 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             const res = await axiosInstance.get(`/angajati/${employeeData.id}/`);
             
             const employee = res.data;
+            
+            // Determinăm valoarea statusului - poate veni ca string direct sau ca obiect cu id
+            let statusValue = employee.status;
+            if (employee.status && typeof employee.status === 'object' && employee.status.value) {
+                statusValue = employee.status.value;
+            } else if (employee.status && typeof employee.status === 'object' && employee.status.id) {
+                // Dacă vine ca obiect cu id, încercăm să mapăm la valorile noastre
+                const statusMap = {
+                    1: 'active',
+                    2: 'inactive',
+                    3: 'suspended'
+                };
+                statusValue = statusMap[employee.status.id] || 'active';
+            }
+
             setFormData({
                 nume: employee.nume || "",
                 prenume: employee.prenume || "",
@@ -90,7 +77,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 ora_incepere: employee.ora_incepere || "09:00",
                 ora_sfarsit: employee.ora_sfarsit || "17:00",
                 ora_pauza: employee.ora_pauza || 30,
-                status: employee.status?.id || employee.status || "",
+                status: statusValue || "active",
             });
         } catch (err) {
             console.error("Eroare la încărcarea detaliilor angajatului:", err);
@@ -100,13 +87,12 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         }
     }, [employeeData]);
 
-    // Când se deschide modalul, resetăm formularul și încărcăm statusurile și datele
+    // Când se deschide modalul, resetăm formularul și încărcăm datele
     useEffect(() => {
         if (open) {
             setError("");
             setSuccess("");
             setFieldErrors({});
-            fetchStatuses();
             
             if (employeeData?.id) {
                 fetchEmployeeDetails();
@@ -114,7 +100,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 setFormData(initialFormData);
             }
         }
-    }, [open, employeeData, initialFormData, fetchStatuses, fetchEmployeeDetails]);
+    }, [open, employeeData, initialFormData, fetchEmployeeDetails]);
 
     // Gestionare modificare câmpuri de formular
     const handleChange = useCallback(
@@ -375,23 +361,19 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                     <div className="form-field">
                                         <label className="label-left">Status <span className="required">*</span></label>
 
-                                        {statusLoading ? (
-                                            <div className="skeleton"></div>
-                                        ) : (
-                                            <Select
-                                                name="status"
-                                                value={statusOptions.find(option => option.value === formData.status)}
-                                                onChange={handleStatusChange}
-                                                options={statusOptions}
-                                                placeholder="Selectează status"
-                                                className={`multiselect-field ${fieldErrors.status ? 'select-error' : ''}`}
-                                                classNamePrefix="select"
-                                                isSearchable={true}
-                                                isClearable={true}
-                                                isDisabled={fetchLoading}
-                                                styles={getCustomSelectStyles("status")}
-                                            />
-                                        )}
+                                        <Select
+                                            name="status"
+                                            value={statusOptions.find(option => option.value === formData.status)}
+                                            onChange={handleStatusChange}
+                                            options={statusOptions}
+                                            placeholder="Selectează status"
+                                            className={`multiselect-field ${fieldErrors.status ? 'select-error' : ''}`}
+                                            classNamePrefix="select"
+                                            isSearchable={true}
+                                            isClearable={true}
+                                            isDisabled={fetchLoading}
+                                            styles={getCustomSelectStyles("status")}
+                                        />
 
                                         {fieldErrors.status && <span className="field-error error-left">{fieldErrors.status}</span>}
                                     </div>
@@ -501,7 +483,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                     <button
                                         className={`submit-btn ${(loading || fetchLoading) ? "disabled" : ""}`}
                                         onClick={!loading && !fetchLoading ? handleSubmit : undefined}
-                                        disabled={loading || fetchLoading || statusLoading}
+                                        disabled={loading || fetchLoading}
                                     >
                                         {loading ? "Se salvează..." : "Salvează modificările"}
                                     </button>
