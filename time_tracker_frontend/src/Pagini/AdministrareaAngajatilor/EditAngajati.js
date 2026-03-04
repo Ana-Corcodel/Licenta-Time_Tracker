@@ -12,9 +12,9 @@ registerLocale("ro", ro);
 const EditAngajati = ({ open, employeeData, onClose }) => {
     // Opțiuni statice pentru status (conform STATUS_CHOICES din model)
     const statusOptions = [
-        { value: 'active', label: 'Active' },
-        { value: 'inactive', label: 'Inactive' },
-        { value: 'suspended', label: 'Suspended' },
+        { value: 'activ', label: 'Activ' },
+        { value: 'inactiv', label: 'Inactiv' },
+        { value: 'suspendat', label: 'Suspendat' },
     ];
 
     // Date inițiale pentru formular
@@ -29,7 +29,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             ora_incepere: "09:00",
             ora_sfarsit: "17:00",
             ora_pauza: 30,
-            status: "active", // Setăm default 'active'
+            status: "activ", // Setăm default 'active'
         }),
         []
     );
@@ -60,11 +60,11 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             } else if (employee.status && typeof employee.status === 'object' && employee.status.id) {
                 // Dacă vine ca obiect cu id, încercăm să mapăm la valorile noastre
                 const statusMap = {
-                    1: 'active',
-                    2: 'inactive',
-                    3: 'suspended'
+                    1: 'activ',
+                    2: 'inactiv',
+                    3: 'suspendat'
                 };
-                statusValue = statusMap[employee.status.id] || 'active';
+                statusValue = statusMap[employee.status.id] || 'activ';
             }
 
             setFormData({
@@ -77,7 +77,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 ora_incepere: employee.ora_incepere || "09:00",
                 ora_sfarsit: employee.ora_sfarsit || "17:00",
                 ora_pauza: employee.ora_pauza || 30,
-                status: statusValue || "active",
+                status: statusValue || "activ",
             });
         } catch (err) {
             console.error("Eroare la încărcarea detaliilor angajatului:", err);
@@ -270,7 +270,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             color: state.isSelected ? '#006ce4' : '#1a1a1a',
             fontSize: '14px',
             textAlign: 'left',
-            '&:active': {
+            '&:activ': {
                 backgroundColor: '#e6f2ff',
             }
         }),

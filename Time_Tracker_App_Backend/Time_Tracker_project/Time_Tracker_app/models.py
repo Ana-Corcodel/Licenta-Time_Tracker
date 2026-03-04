@@ -12,9 +12,9 @@ class Status(models.Model):
 
 class Angajat(models.Model):
     STATUS_CHOICES = [
-        ('active', 'Active'),
-        ('inactive', 'Inactive'),
-        ('suspended', 'Suspended'),
+        ('activ', 'Activ'),
+        ('inactiv', 'Inactiv'),
+        ('suspendat', 'Suspendat'),
     ]
     
     nume = models.CharField(max_length=100)
@@ -24,13 +24,13 @@ class Angajat(models.Model):
     adresa = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     locatie = models.TextField(blank=True, null=True)
-    ora_incepere = models.TimeField()
-    ora_sfarsit = models.TimeField()
+    ora_incepere = models.TimeField(blank=False, null=False)
+    ora_sfarsit = models.TimeField(blank=False, null=False)
     ora_pauza = models.IntegerField(help_text="Durata pauzei în minute")
     status = models.CharField(
         max_length=10, 
         choices=STATUS_CHOICES, 
-        default='active'
+        default='activ'
     )
 
     def folder_path(self):

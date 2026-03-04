@@ -12,9 +12,9 @@ registerLocale("ro", ro);
 const AddAngajati = ({ open, onClose }) => {
     // Opțiuni statice pentru status (conform STATUS_CHOICES din model)
     const statusOptions = [
-        { value: 'active', label: 'Active' },
-        { value: 'inactive', label: 'Inactive' },
-        { value: 'suspended', label: 'Suspended' },
+        { value: 'activ', label: 'Activ' },
+        { value: 'inactiv', label: 'Inactiv' },
+        { value: 'suspendat', label: 'Suspendat' },
     ];
 
     // Date inițiale pentru formular
@@ -29,7 +29,7 @@ const AddAngajati = ({ open, onClose }) => {
             ora_incepere: "09:00",
             ora_sfarsit: "17:00",
             ora_pauza: 30,
-            status: "active", // Setăm default 'active'
+            status: "activ", // Setăm default 'active'
         }),
         []
     );
@@ -92,6 +92,10 @@ const AddAngajati = ({ open, onClose }) => {
         if (!formData.functie.trim()) errors.functie = "Funcția este obligatorie";
         if (!formData.telefon.trim()) errors.telefon = "Telefonul este obligatoriu";
         if (!formData.status) errors.status = "Statusul este obligatoriu";
+        
+        // Validare ore - acum sunt obligatorii
+        if (!formData.ora_incepere) errors.ora_incepere = "Ora de începere este obligatorie";
+        if (!formData.ora_sfarsit) errors.ora_sfarsit = "Ora de sfârșit este obligatorie";
 
         // Validare email (opțional)
         if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -220,7 +224,7 @@ const AddAngajati = ({ open, onClose }) => {
             color: state.isSelected ? '#006ce4' : '#1a1a1a',
             fontSize: '14px',
             textAlign: 'left',
-            '&:active': {
+            '&:activ': {
                 backgroundColor: '#e6f2ff',
             }
         }),
@@ -371,26 +375,38 @@ const AddAngajati = ({ open, onClose }) => {
                                     />
                                 </div>
 
-                                {/* Program: Ora începere + Ora sfârșit */}
+                                {/* Program: Ora începere + Ora sfârșit - ACUM AMBELE SUNT OBLIGATORII */}
                                 <div className="form-row">
                                     <div className="form-field">
-                                        <label className="label-left">Ora începere</label>
+                                        <label className="label-left">
+                                            Ora începere <span className="required">*</span>
+                                        </label>
                                         <input
                                             type="time"
                                             value={formData.ora_incepere}
                                             onChange={handleChange("ora_incepere")}
-                                            className="input-left"
+                                            className={`input-left ${fieldErrors.ora_incepere ? "field-error-border" : ""}`}
+                                            required
                                         />
+                                        {fieldErrors.ora_incepere && (
+                                            <span className="field-error error-left">{fieldErrors.ora_incepere}</span>
+                                        )}
                                     </div>
 
                                     <div className="form-field">
-                                        <label className="label-left">Ora sfârșit</label>
+                                        <label className="label-left">
+                                            Ora sfârșit <span className="required">*</span>
+                                        </label>
                                         <input
                                             type="time"
                                             value={formData.ora_sfarsit}
                                             onChange={handleChange("ora_sfarsit")}
-                                            className="input-left"
+                                            className={`input-left ${fieldErrors.ora_sfarsit ? "field-error-border" : ""}`}
+                                            required
                                         />
+                                        {fieldErrors.ora_sfarsit && (
+                                            <span className="field-error error-left">{fieldErrors.ora_sfarsit}</span>
+                                        )}
                                     </div>
                                 </div>
 

@@ -19,16 +19,16 @@ const DEBOUNCE_MS = 300;
 
 // 1) Mapare status -> cum arată în UI (chei string)
 const STATUS_MAP = {
-  active: { label: 'Active', color: '#4caf50', bgColor: '#e8f5e8' },
-  inactive: { label: 'Inactive', color: '#ff9800', bgColor: '#fff3e0' },
-  suspended: { label: 'Suspended', color: '#f44336', bgColor: '#ffebee' },
+  active: { label: 'Activ', color: '#4caf50', bgColor: '#e8f5e8' },
+  inactive: { label: 'Inactiv', color: '#ff9800', bgColor: '#fff3e0' },
+  suspended: { label: 'Suspendat', color: '#f44336', bgColor: '#ffebee' },
 };
 
 // 2) Mapare ID numeric -> key din STATUS_MAP (MODIFICĂ dacă id-urile tale sunt diferite)
 const STATUS_BY_ID = {
-  1: 'active',
-  2: 'inactive',
-  3: 'suspended',
+  1: 'activ',
+  2: 'inactiv',
+  3: 'suspendat',
 };
 
 const useDebounce = (value, delay) => {
