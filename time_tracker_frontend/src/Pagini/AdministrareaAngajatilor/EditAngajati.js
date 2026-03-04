@@ -185,12 +185,12 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 4000);
 
-                onClose(true, "Angajat modificat cu succes!");
+                onClose(true, "Angajat editat cu succes!");
             } else {
                 setError("Răspuns neașteptat de la server");
             }
         } catch (err) {
-            let message = "Eroare la modificarea angajatului";
+            let message = "Eroare la editarea angajatului";
             if (err.response?.data?.detail) message = err.response.data.detail;
             else if (err.response?.data?.message) message = err.response.data.message;
             setError(message);
@@ -281,7 +281,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
     return (
         <>
             {/* Toast global succes */}
-            {showToast && <div className="global-toast">✅ Angajat modificat cu succes!</div>}
+            {showToast && <div className="global-toast">✅ Angajat editat cu succes!</div>}
 
             <div className="page-addangajat">
                 <div className="add-angajat-page">
@@ -289,7 +289,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                         <div className="modal">
                             {/* Header modal */}
                             <div className="modal-header">
-                                <h2>Modifică Angajat</h2>
+                                <h2>Editează Angajat</h2>
                                 <button className="close-btn" onClick={handleCancel}>×</button>
                             </div>
 
@@ -300,7 +300,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                 <div className="loading-overlay">
                                     <div className="loader"></div>
                                     <span>
-                                        {fetchLoading ? "Se încarcă datele..." : "Se salvează modificările..."}
+                                        {fetchLoading ? "Se încarcă datele..." : "Se salvează editările..."}
                                     </span>
                                 </div>
                             )}
@@ -485,7 +485,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                         onClick={!loading && !fetchLoading ? handleSubmit : undefined}
                                         disabled={loading || fetchLoading}
                                     >
-                                        {loading ? "Se salvează..." : "Salvează modificările"}
+                                        {loading ? "Se salvează..." : "Actualizează"}
                                     </button>
                                 </div>
 

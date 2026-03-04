@@ -4,6 +4,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import TrackChangesSharpIcon from '@mui/icons-material/TrackChangesSharp';
+import AccessTimeIcon from '@mui/icons-material/AccessTime'; // Pentru Pontaje
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'; // Pentru Tipuri de zile
 
 const grupuriMeniu = [
   {
@@ -30,7 +32,7 @@ const grupuriMeniu = [
   },
   {
     section: 'Pontaje',
-    icon: <PeopleIcon className="icon section-icon" />,
+    icon: <AccessTimeIcon className="icon section-icon" />, // Am înlocuit PeopleIcon cu AccessTimeIcon
     items: [
       { 
         name: 'Pontaje', 
@@ -41,7 +43,7 @@ const grupuriMeniu = [
   },
   {
     section: 'Tipuri de zile',
-    icon: <PeopleIcon className="icon section-icon" />,
+    icon: <CalendarMonthIcon className="icon section-icon" />, // Am înlocuit PeopleIcon cu CalendarMonthIcon
     items: [
       { 
         name: 'Tipuri de zile', 

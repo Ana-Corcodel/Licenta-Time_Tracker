@@ -91,11 +91,6 @@
   background-color: #f2f2f2;
 }
 
-.page-addangajat .header-divider {
-  border: none;
-  border-bottom: 1px solid #e5e7eb;
-  margin: 2px 0 20px 0;
-}
 
 .page-addangajat .form {
   flex: 1;
