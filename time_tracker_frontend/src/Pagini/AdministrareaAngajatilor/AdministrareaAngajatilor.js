@@ -17,11 +17,13 @@ import './AdministrareaAngajatilor.css';
 const PAGINA_DEFAULT = 10;
 const DEBOUNCE_MS = 300;
 
-// 1) Mapare status -> cum arată în UI (chei string)
+// Asigură-te că ai cheile exact așa cum vin din backend
 const STATUS_MAP = {
   active: { label: 'Activ', color: '#4caf50', bgColor: '#e8f5e8' },
-  inactive: { label: 'Inactiv', color: '#ff9800', bgColor: '#fff3e0' },
-  suspended: { label: 'Suspendat', color: '#f44336', bgColor: '#ffebee' },
+  inactive: { label: 'Inactiv', color: '#f44336', bgColor: '#ffebee' },
+  suspended: { label: 'Suspendat', color: '#ff9800', bgColor: '#fff3e0' },
+  // Dacă vine cu diacritice sau alt format, adaugă și variante:
+  suspendat: { label: 'Suspendat', color: '#ff9800', bgColor: '#fff3e0' },
 };
 
 // 2) Mapare ID numeric -> key din STATUS_MAP (MODIFICĂ dacă id-urile tale sunt diferite)
