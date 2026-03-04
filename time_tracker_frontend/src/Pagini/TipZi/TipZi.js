@@ -4,8 +4,9 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Search, Add, Edit } from '@mui/icons-material';
-
 import axiosInstance from '../../Config/axiosInstance';
+import AddTipZi from './AddTipZi';
+import EditTipZi from './EditTipZi'; // Adaugă acest import
 import './TipZi.css';
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -43,13 +44,23 @@ const useTipZi = () => {
 
 const TipZi = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedTip, setSelectedTip] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  
   const debouncedSearch = useDebounce(searchTerm, SEARCH_DEBOUNCE_MS);
-
   const { tipuriZi, loading, fetchTipuriZi } = useTipZi();
 
   useEffect(() => {
     fetchTipuriZi();
   }, [fetchTipuriZi]);
+
+  const handleEditTip = useCallback((tip) => {
+    setSelectedTip(tip);
+    setOpenEditModal(true);
+  }, []);
 
   /* filtrare */
   const filteredRows = useMemo(() => {
@@ -85,21 +96,27 @@ const TipZi = () => {
     },
     {
       field: 'action',
-      headerName: 'Action',
+      headerName: 'Acțiuni',
       width: 100,
       sortable: false,
       disableColumnMenu: true,
-      renderCell: () => (
-        <IconButton sx={{ color: '#1976d2' }}>
+      renderCell: (params) => (
+        <IconButton 
+          sx={{ color: '#1976d2' }}
+          onClick={() => handleEditTip(params.row)}
+        >
           <Edit />
         </IconButton>
       ),
     },
-  ], []);
+  ], [handleEditTip]);
 
   return (
     <div className="tipzipage">
       <div className="tipzi-page">
+
+        {/* Toast pentru notificări */}
+        {showToast && <div className="global-toast">{toastMessage}</div>}
 
         {/* TOOLBAR */}
         <Box className="tipzi-toolbar">
@@ -128,6 +145,7 @@ const TipZi = () => {
               variant="contained"
               startIcon={<Add />}
               className="new-btn"
+              onClick={() => setOpenAddModal(true)}
             >
               ADAUGĂ
             </Button>
@@ -165,6 +183,40 @@ const TipZi = () => {
         </div>
 
       </div>
+
+      {/* Modal Adăugare Tip Zi */}
+      <AddTipZi
+        open={openAddModal}
+        onClose={(shouldReload, message) => {
+          setOpenAddModal(false);
+          if (shouldReload) {
+            fetchTipuriZi();
+            if (message) {
+              setToastMessage(message);
+              setShowToast(true);
+              setTimeout(() => setShowToast(false), 4000);
+            }
+          }
+        }}
+      />
+
+      {/* Modal Editare Tip Zi */}
+      <EditTipZi
+        open={openEditModal}
+        tipData={selectedTip}
+        onClose={(shouldReload, message) => {
+          setOpenEditModal(false);
+          setSelectedTip(null);
+          if (shouldReload) {
+            fetchTipuriZi();
+            if (message) {
+              setToastMessage(message);
+              setShowToast(true);
+              setTimeout(() => setShowToast(false), 4000);
+            }
+          }
+        }}
+      />
     </div>
   );
 };
