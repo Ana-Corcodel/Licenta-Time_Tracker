@@ -9,6 +9,8 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import { Search, Visibility, Edit, Add } from '@mui/icons-material';
 import axiosInstance from '../../Config/axiosInstance';
+import AddAngajati from './AddAngajati';
+import EditAngajati from './EditAngajati'; // Import Edit component
 import './AdministrareaAngajatilor.css';
 
 const PAGINA_DEFAULT = 10;
@@ -27,6 +29,11 @@ const AdministrareaAngajatilor = () => {
   const [angajati, setAngajati] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   const searchDebounced = useDebounce(search, DEBOUNCE_MS);
 
@@ -47,10 +54,20 @@ const AdministrareaAngajatilor = () => {
     }
   }, []);
 
-
   useEffect(() => {
     fetchAngajati();
   }, [fetchAngajati]);
+
+  const handleEditEmployee = useCallback((employee) => {
+    setSelectedEmployee(employee);
+    setOpenEditModal(true);
+  }, []);
+
+  const handleViewDetails = useCallback((employee) => {
+    // Implement view details functionality
+    console.log('View details:', employee);
+    // You can navigate to a details page or open a view modal
+  }, []);
 
   const randuriFiltrate = useMemo(() => {
     let lista = [...angajati];
@@ -113,21 +130,24 @@ const AdministrareaAngajatilor = () => {
       flex: 1.1,
       minWidth: 160,
       renderCell: (params) =>
-        `${params.row.ora_incepere} - ${params.row.ora_sfarsit}`,
+        `${params.row.ora_incepere || '09:00'} - ${params.row.ora_sfarsit || '17:00'}`,
     },
     {
       field: 'ora_pauza',
       headerName: 'Pauză (min)',
       flex: 0.8,
       minWidth: 120,
+      renderCell: (params) => params.value || '30',
     },
     {
       field: 'status',
       headerName: 'Status',
       flex: 1,
       minWidth: 140,
-      renderCell: (params) =>
-        params.row.status?.denumire || params.row.status || '–',
+      renderCell: (params) => {
+        const status = params.row.status;
+        return status?.denumire || status || '–';
+      },
     },
     {
       field: 'actiuni',
@@ -135,21 +155,30 @@ const AdministrareaAngajatilor = () => {
       width: 120,
       sortable: false,
       disableColumnMenu: true,
-      renderCell: () => (
+      renderCell: (params) => (
         <div style={{ display: 'flex', gap: 8 }}>
-          <IconButton sx={{ color: '#093d71' }}>
+          <IconButton 
+            sx={{ color: '#093d71' }}
+            onClick={() => handleViewDetails(params.row)}
+          >
             <Visibility />
           </IconButton>
-          <IconButton sx={{ color: '#1976d2' }}>
+          <IconButton 
+            sx={{ color: '#1976d2' }}
+            onClick={() => handleEditEmployee(params.row)}
+          >
             <Edit />
           </IconButton>
         </div>
       ),
     },
-  ], []);
+  ], [handleViewDetails, handleEditEmployee]);
 
   return (
     <div className="admin-angajati">
+      {/* Toast notification */}
+      {showToast && <div className="employees-toast">{toastMessage}</div>}
+
       <div className="admin-angajati-container">
 
         <Box className="admin-toolbar">
@@ -180,6 +209,7 @@ const AdministrareaAngajatilor = () => {
               variant="contained"
               startIcon={<Add />}
               className="btn-new"
+              onClick={() => setOpenAddModal(true)}
             >
               Adaugă
             </Button>
@@ -207,6 +237,40 @@ const AdministrareaAngajatilor = () => {
           />
         </div>
       </div>
+
+      {/* Add Employee Modal */}
+      <AddAngajati
+        open={openAddModal}
+        onClose={(shouldReload, message) => {
+          setOpenAddModal(false);
+          if (shouldReload) {
+            fetchAngajati();
+            if (message) {
+              setToastMessage(message);
+              setShowToast(true);
+              setTimeout(() => setShowToast(false), 4000);
+            }
+          }
+        }}
+      />
+
+      {/* Edit Employee Modal */}
+      <EditAngajati
+        open={openEditModal}
+        employeeData={selectedEmployee}
+        onClose={(shouldReload, message) => {
+          setOpenEditModal(false);
+          setSelectedEmployee(null);
+          if (shouldReload) {
+            fetchAngajati();
+            if (message) {
+              setToastMessage(message);
+              setShowToast(true);
+              setTimeout(() => setShowToast(false), 4000);
+            }
+          }
+        }}
+      />
     </div>
   );
 };

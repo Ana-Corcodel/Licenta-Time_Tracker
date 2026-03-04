@@ -2,10 +2,44 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Angajat, Pontaj, TipZi
-from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer
+from .models import Angajat, Pontaj, TipZi, Status
+from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer, StatusSerializer
 from django.shortcuts import get_object_or_404
 
+
+# În views.py, adaugă:
+
+class StatusView(APIView):
+    def get(self, request, pk=None):
+        if pk:
+            status_obj = get_object_or_404(Status, pk=pk)
+            serializer = StatusSerializer(status_obj)
+            return Response(serializer.data)
+        else:
+            statusuri = Status.objects.all()
+            serializer = StatusSerializer(statusuri, many=True)
+            return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = StatusSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Status creat cu succes", "data": serializer.data}, 
+                           status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, pk):
+        status_obj = get_object_or_404(Status, pk=pk)
+        serializer = StatusSerializer(status_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Status actualizat", "data": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        status_obj = get_object_or_404(Status, pk=pk)
+        status_obj.delete()
+        return Response({"message": "Status șters cu succes"}, status=status.HTTP_204_NO_CONTENT)
 
 class AngajatView(APIView):
     def get(self, request, pk=None):

@@ -7,6 +7,8 @@ class StatusSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 class AngajatSerializer(serializers.ModelSerializer):
+    status = serializers.StringRelatedField()
+    
     class Meta:
         model = Angajat
         fields = '__all__'
