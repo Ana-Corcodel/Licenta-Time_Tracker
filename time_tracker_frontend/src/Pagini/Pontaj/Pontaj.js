@@ -5,6 +5,8 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import { Search, Add, Edit } from '@mui/icons-material';
 import axiosInstance from '../../Config/axiosInstance';
+import AddPontaj from './AddPontaj';
+import EditPontaj from './EditPontaj'; // Adaugă acest import
 import './Pontaj.css';
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -42,7 +44,8 @@ const usePontaje = () => {
 
       const tipMap = {};
       tipRes.data.forEach(t => {
-        tipMap[t.id] = t.prescurtare || t.name;
+        // Afișăm prescurtarea dacă există, altfel tip_zi
+        tipMap[t.id] = t.prescurtare || t.tip_zi;
       });
 
       const mapped = pontajRes.data.map((p, idx) => ({
@@ -50,6 +53,10 @@ const usePontaje = () => {
         ...p,
         angajat_nume: angMap[p.angajat] || '-',
         tip_zi: tipMap[p.tip] || '-',
+        // Format data pentru afișare
+        data_display: p.data ? new Date(p.data).toLocaleDateString('ro-RO') : '-',
+        // Extragem anul din câmpul an (care e date)
+        an_display: p.an ? new Date(p.an).getFullYear() : '-',
       }));
 
       setPontaje(mapped);
@@ -65,31 +72,42 @@ const usePontaje = () => {
 
 const Pontaj = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearch = useDebounce(searchTerm, SEARCH_DEBOUNCE_MS);
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedPontaj, setSelectedPontaj] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
+  const debouncedSearch = useDebounce(searchTerm, SEARCH_DEBOUNCE_MS);
   const { pontaje, loading, fetchPontaje } = usePontaje();
 
   useEffect(() => {
     fetchPontaje();
   }, [fetchPontaje]);
 
-  /* filtrare */
+  const handleEditPontaj = useCallback((pontaj) => {
+    setSelectedPontaj(pontaj);
+    setOpenEditModal(true);
+  }, []);
+
+  // Filtrare
   const filteredRows = useMemo(() => {
     let list = [...pontaje];
 
     if (debouncedSearch) {
       const s = debouncedSearch.toLowerCase();
       list = list.filter(p =>
-        p.angajat_nume.toLowerCase().includes(s) ||
+        p.angajat_nume?.toLowerCase().includes(s) ||
         p.luna?.toLowerCase().includes(s) ||
-        p.tip_zi?.toLowerCase().includes(s)
+        p.tip_zi?.toLowerCase().includes(s) ||
+        p.data_display?.includes(s)
       );
     }
 
     return list;
   }, [pontaje, debouncedSearch]);
 
-  /* coloane */
+  // Coloane
   const columns = useMemo(() => [
     {
       field: 'angajat_nume',
@@ -98,12 +116,10 @@ const Pontaj = () => {
       minWidth: 180,
     },
     {
-      field: 'data',
+      field: 'data_display',
       headerName: 'Data',
       flex: 1,
       minWidth: 130,
-      renderCell: (params) =>
-        new Date(params.value).toLocaleDateString('ro-RO'),
     },
     {
       field: 'luna',
@@ -112,12 +128,10 @@ const Pontaj = () => {
       minWidth: 120,
     },
     {
-      field: 'an',
+      field: 'an_display',
       headerName: 'An',
       flex: 0.9,
       minWidth: 120,
-      renderCell: (params) =>
-        new Date(params.value).getFullYear(),
     },
     {
       field: 'ora_start',
@@ -157,20 +171,26 @@ const Pontaj = () => {
     },
     {
       field: 'action',
-      headerName: 'Action',
+      headerName: 'Acțiuni',
       width: 100,
       sortable: false,
-      renderCell: () => (
-        <IconButton sx={{ color: '#1976d2' }}>
+      renderCell: (params) => (
+        <IconButton
+          sx={{ color: '#1976d2' }}
+          onClick={() => handleEditPontaj(params.row)}
+        >
           <Edit />
         </IconButton>
       ),
     },
-  ], []);
+  ], [handleEditPontaj]);
 
   return (
     <div className="pontajpage">
       <div className="pontaj-page">
+
+        {/* Toast pentru notificări */}
+        {showToast && <div className="global-toast">{toastMessage}</div>}
 
         <Box className="pontaj-toolbar">
           <h2 className="title">
@@ -197,6 +217,7 @@ const Pontaj = () => {
             <Button
               variant="contained"
               startIcon={<Add />}
+              onClick={() => setOpenAddModal(true)}
             >
               ADAUGĂ
             </Button>
@@ -225,6 +246,40 @@ const Pontaj = () => {
         </div>
 
       </div>
+
+      {/* Modal Adăugare Pontaj */}
+      <AddPontaj
+        open={openAddModal}
+        onClose={(shouldReload, message) => {
+          setOpenAddModal(false);
+          if (shouldReload) {
+            fetchPontaje();
+            if (message) {
+              setToastMessage(message);
+              setShowToast(true);
+              setTimeout(() => setShowToast(false), 4000);
+            }
+          }
+        }}
+      />
+
+      {/* Modal Editare Pontaj */}
+      <EditPontaj
+        open={openEditModal}
+        pontajData={selectedPontaj}
+        onClose={(shouldReload, message) => {
+          setOpenEditModal(false);
+          setSelectedPontaj(null);
+          if (shouldReload) {
+            fetchPontaje();
+            if (message) {
+              setToastMessage(message);
+              setShowToast(true);
+              setTimeout(() => setShowToast(false), 4000);
+            }
+          }
+        }}
+      />
     </div>
   );
 };
