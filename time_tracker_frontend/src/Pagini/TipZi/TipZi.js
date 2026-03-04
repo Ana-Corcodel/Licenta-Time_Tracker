@@ -111,7 +111,7 @@ const TipZi = () => {
           <Box className="tipzi-toolbar-right">
             <TextField
               size="small"
-              placeholder="Search tip zi..."
+              placeholder="Caută tip zi..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axiosInstance from "../../Config/axiosInstance";
-import DatePicker, { registerLocale } from "react-datepicker";
+import { registerLocale } from "react-datepicker";
 import { ro } from "date-fns/locale";
 import "react-datepicker/dist/react-datepicker.css";
 import Select from "react-select";
@@ -323,7 +323,6 @@ const AddAngajati = ({ open, onClose }) => {
                                     </div>
                                 </div>
 
-                                {/* Restul codului rămâne identic... */}
                                 {/* Telefon + Email */}
                                 <div className="form-row">
                                     <div className="form-field phone-field">

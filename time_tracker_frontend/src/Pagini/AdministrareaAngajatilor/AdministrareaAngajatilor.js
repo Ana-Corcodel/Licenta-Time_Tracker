@@ -8,7 +8,7 @@ import {
   Chip
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Search, Visibility, Edit, Add } from '@mui/icons-material';
+import { Search, Edit, Add } from '@mui/icons-material';
 import axiosInstance from '../../Config/axiosInstance';
 import AddAngajati from './AddAngajati';
 import EditAngajati from './EditAngajati';
@@ -133,10 +133,6 @@ const AdministrareaAngajatilor = () => {
     setOpenEditModal(true);
   }, []);
 
-  const handleViewDetails = useCallback((employee) => {
-    console.log('View details:', employee);
-  }, []);
-
   const randuriFiltrate = useMemo(() => {
     let lista = [...angajati];
 
@@ -245,17 +241,11 @@ const AdministrareaAngajatilor = () => {
       {
         field: 'actiuni',
         headerName: 'Acțiuni',
-        width: 120,
+        width: 80,
         sortable: false,
         disableColumnMenu: true,
         renderCell: (params) => (
           <div style={{ display: 'flex', gap: 8 }}>
-            <IconButton
-              sx={{ color: '#093d71' }}
-              onClick={() => handleViewDetails(params.row)}
-            >
-              <Visibility />
-            </IconButton>
             <IconButton
               sx={{ color: '#1976d2' }}
               onClick={() => handleEditEmployee(params.row)}
@@ -266,7 +256,7 @@ const AdministrareaAngajatilor = () => {
         ),
       },
     ],
-    [handleViewDetails, handleEditEmployee]
+    [handleEditEmployee]
   );
 
   return (
