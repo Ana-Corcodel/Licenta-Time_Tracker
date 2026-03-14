@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../../Config/axiosInstance";
 import DatePicker from "react-datepicker";
 import { registerLocale } from "react-datepicker";
@@ -15,7 +15,7 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
     const [angajati, setAngajati] = useState([]);
     const [tipuriZi, setTipuriZi] = useState([]);
     const [loadingOptions, setLoadingOptions] = useState(false);
-    
+
     // State-uri principale
     const [formData, setFormData] = useState({
         angajat: null,
@@ -29,7 +29,7 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         ore_lucrate: 8,
         ore_lucru_suplimentare: 0,
     });
-    
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -42,13 +42,6 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
             fetchOptions();
         }
     }, [open]);
-
-    // Inițializăm formularul cu datele existente când se deschide modalul
-    useEffect(() => {
-        if (open && pontajData) {
-            initializeForm();
-        }
-    }, [open, pontajData]);
 
     // Inițializează formularul cu datele pontajului
     const initializeForm = useCallback(async () => {
@@ -64,13 +57,13 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
 
             // Găsim angajatul selectat în lista de opțiuni
             const angajatSelectat = angajati.find(a => a.value === pontajData.angajat) || null;
-            
+
             // Găsim tipul de zi selectat în lista de opțiuni
             const tipSelectat = tipuriZi.find(t => t.value === pontajData.tip) || null;
 
             // Parsăm data din string în obiect Date
             const dataObj = pontajData.data ? new Date(pontajData.data) : new Date();
-            
+
             // Parsăm anul din string în obiect Date
             const anObj = pontajData.an ? new Date(pontajData.an) : new Date();
 
@@ -91,6 +84,13 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
             setError("Nu s-au putut încărca datele pentru editare");
         }
     }, [pontajData, angajati, tipuriZi]);
+
+    // Inițializăm formularul cu datele existente când se deschide modalul
+    useEffect(() => {
+        if (open && pontajData) {
+            initializeForm();
+        }
+    }, [open, pontajData, initializeForm]);
 
     // Fetch angajati si tipuri zi
     const fetchOptions = async () => {
@@ -127,16 +127,16 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
     // Calculează luna și orele lucrate automat
     const calculateOreLucrate = useCallback((start, sfarsit, pauza) => {
         if (!start || !sfarsit) return 0;
-        
+
         const [startH, startM] = start.split(':').map(Number);
         const [sfarsitH, sfarsitM] = sfarsit.split(':').map(Number);
-        
+
         const startMinutes = startH * 60 + startM;
         const sfarsitMinutes = sfarsitH * 60 + sfarsitM;
-        
+
         let totalMinutes = sfarsitMinutes - startMinutes;
         if (totalMinutes < 0) totalMinutes += 24 * 60; // trecere peste miezul nopții
-        
+
         const oreLucrate = (totalMinutes - (pauza || 0)) / 60;
         return Math.max(0, Math.round(oreLucrate * 10) / 10); // rotunjim la 1 zecimală
     }, []);
@@ -214,19 +214,19 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         if (!formData.ora_start) errors.ora_start = "Ora de început este obligatorie";
         if (!formData.ora_sfarsit) errors.ora_sfarsit = "Ora de sfârșit este obligatorie";
         if (!formData.tip) errors.tip = "Tipul de zi este obligatoriu";
-        
+
         if (formData.pauza_masa < 0) errors.pauza_masa = "Pauza nu poate fi negativă";
         if (formData.ore_lucru_suplimentare < 0) errors.ore_lucru_suplimentare = "Orele suplimentare nu pot fi negative";
-        
+
         // Verificăm dacă ora de sfârșit este după ora de început
         if (formData.ora_start && formData.ora_sfarsit) {
             const [startH, startM] = formData.ora_start.split(':').map(Number);
             const [sfarsitH, sfarsitM] = formData.ora_sfarsit.split(':').map(Number);
-            
+
             const startMinutes = startH * 60 + startM;
             const sfarsitMinutes = sfarsitH * 60 + sfarsitM;
-            
-            if (sfarsitMinutes <= startMinutes && sfarsitMinutes + 24*60 - startMinutes > 12*60) {
+
+            if (sfarsitMinutes <= startMinutes && sfarsitMinutes + 24 * 60 - startMinutes > 12 * 60) {
                 errors.ora_sfarsit = "Intervalul pare prea lung pentru trecerea peste noapte";
             }
         }
@@ -269,7 +269,7 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         try {
             // Formatăm data pentru trimitere (YYYY-MM-DD)
             const dataFormatted = formData.data.toISOString().split('T')[0];
-            
+
             // Formatăm anul ca dată (prima zi a anului)
             const anFormatted = `${formData.an.getFullYear()}-01-01`;
 
