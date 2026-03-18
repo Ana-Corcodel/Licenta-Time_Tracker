@@ -5,96 +5,9 @@ from rest_framework import status
 from .models import Angajat, Pontaj, TipZi, Status
 from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer, StatusSerializer
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from django.conf import settings
-from django.middleware.csrf import get_token
-from django.http import JsonResponse
 
-from .serializers import CustomTokenObtainPairSerializer
 
-class CustomAuthTokenView(TokenObtainPairView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = CustomTokenObtainPairSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        user = serializer.validated_data['user']
-        refresh = RefreshToken.for_user(user)
-
-        refresh_token = str(refresh)
-        access_token = str(refresh.access_token)
-
-        response = Response({
-            "message": "Login successful"
-        })
-
-        response.set_cookie(
-            key=settings.SIMPLE_JWT["AUTH_COOKIE_ACCESS"],
-            value=access_token,
-            domain=settings.SIMPLE_JWT["AUTH_COOKIE_DOMAIN"],
-            path=settings.SIMPLE_JWT["AUTH_COOKIE_PATH"],
-            expires=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
-            secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-            httponly=settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
-            samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-            max_age=int(settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds()),  # MODIFICAT
-        )
-
-        response.set_cookie(
-            key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
-            value=refresh_token,
-            domain=settings.SIMPLE_JWT["AUTH_COOKIE_DOMAIN"],
-            path=settings.SIMPLE_JWT["AUTH_COOKIE_PATH"],
-            expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-            secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-            httponly=settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
-            samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-            max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),  # MODIFICAT
-        )
-
-        get_token(request)
-        return response
-    
-class CookieTokenRefreshView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get('refresh_token')
-
-        if not refresh_token:
-            return Response(
-                {'error': 'No refresh token provided'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        serializer = self.get_serializer(data={'refresh': refresh_token})
-        serializer.is_valid(raise_exception=True)
-
-        token_data = serializer.validated_data
-        access_token = token_data['access']
-
-        response = Response({'success': True})
-        response.set_cookie(
-            key=settings.SIMPLE_JWT["AUTH_COOKIE_ACCESS"],
-            value=access_token,
-            domain=settings.SIMPLE_JWT["AUTH_COOKIE_DOMAIN"],
-            path=settings.SIMPLE_JWT["AUTH_COOKIE_PATH"],
-            expires=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
-            secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-            httponly=settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
-            samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-        )
-        return response
-    
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def check_auth(request):
-    return JsonResponse({
-        'authenticated': request.user.is_authenticated,
-        'username': request.user.username if request.user.is_authenticated else None,
-    })
+# În views.py, adaugă:
 
 class StatusView(APIView):
     def get(self, request, pk=None):
