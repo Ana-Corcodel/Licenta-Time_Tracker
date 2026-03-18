@@ -2,7 +2,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
-from .views import AngajatView, PontajView, TipZiView, StatusView
+from .views import AngajatView, PontajView, TipZiView, StatusView, delogare, logare, pagina_protejata, utilizator_curent
 
 
 router = DefaultRouter()
@@ -19,4 +19,8 @@ urlpatterns += [
     path('pontaje/<int:pk>/', PontajView.as_view(), name='pontaje-detail'),
     path('tipuri-zile/', TipZiView.as_view(), name='tipuri-zile-list'),
     path('tipuri-zile/<int:pk>/', TipZiView.as_view(), name='tipuri-zile-detail'),
+    path("logare/", logare),
+    path("delogare/", delogare),
+    path("utilizator-curent/", utilizator_curent),
+    path("pagina-protejata/", pagina_protejata),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

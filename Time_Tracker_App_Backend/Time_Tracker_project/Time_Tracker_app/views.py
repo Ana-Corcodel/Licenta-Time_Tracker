@@ -5,8 +5,9 @@ from rest_framework import status
 from .models import Angajat, Pontaj, TipZi, Status
 from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer, StatusSerializer
 from django.shortcuts import get_object_or_404
-
-
+from django.contrib.auth import login, logout, get_user_model
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 # În views.py, adaugă:
 
 class StatusView(APIView):
@@ -135,3 +136,72 @@ class PontajView(APIView):
         pontaj = get_object_or_404(Pontaj, pk=pk)
         pontaj.delete()
         return Response({"message": "Pontaj șters cu succes"}, status=status.HTTP_204_NO_CONTENT)
+    
+User = get_user_model()
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def logare(request):
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    if not email or not password:
+        return Response(
+            {"message": "Email și parolă obligatorii"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response(
+            {"message": "Email sau parolă greșite"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    if not user.check_password(password):
+        return Response(
+            {"message": "Email sau parolă greșite"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    login(request, user)
+
+    return Response({
+        "message": "Login reușit",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username
+        }
+    })
+
+
+@api_view(["POST"])
+def delogare(request):
+    logout(request)
+    return Response({"message": "Logout reușit"})
+
+
+@api_view(["GET"])
+def utilizator_curent(request):
+    if request.user.is_authenticated:
+        return Response({
+            "autentificat": True,
+            "user": {
+                "id": request.user.id,
+                "email": request.user.email,
+                "username": request.user.username
+            }
+        })
+
+    return Response({"autentificat": False}, status=401)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def pagina_protejata(request):
+    return Response({
+        "message": f"Salut {request.user.email}, ești logat!"
+    })

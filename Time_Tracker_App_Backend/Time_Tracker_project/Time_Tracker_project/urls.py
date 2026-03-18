@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from Time_Tracker_app.views import AngajatView, PontajView, TipZiView
 
 
@@ -27,6 +27,7 @@ urlpatterns = [
     path('pontaje/<int:pk>/', PontajView.as_view(), name='pontaje-detail'),
     path('tipuri-zile/', TipZiView.as_view(), name='tipuri-zile-list'),
     path('tipuri-zile/<int:pk>/', TipZiView.as_view(), name='tipuri-zile-detail'),
+    path('api/', include('Time_Tracker_app.urls')),
 ]
 
 
