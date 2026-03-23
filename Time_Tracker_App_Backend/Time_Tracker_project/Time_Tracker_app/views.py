@@ -8,6 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, logout, get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
 # În views.py, adaugă:
 
 class StatusView(APIView):
@@ -170,6 +173,7 @@ def logare(request):
 
     return Response({
         "message": "Login reușit",
+        "autentificat": True,
         "user": {
             "id": user.id,
             "email": user.email,
@@ -178,13 +182,25 @@ def logare(request):
     })
 
 
-@api_view(["POST"])
-def delogare(request):
-    logout(request)
-    return Response({"message": "Logout reușit"})
+@csrf_exempt
+def logout_view(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Metoda nepermisă"}, status=405)
+
+    try:
+        logout(request)
+        return JsonResponse({
+            "message": "Logout reușit",
+            "autentificat": False
+        })
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def utilizator_curent(request):
     if request.user.is_authenticated:
         return Response({
@@ -196,7 +212,10 @@ def utilizator_curent(request):
             }
         })
 
-    return Response({"autentificat": False}, status=401)
+    return Response({
+        "autentificat": False,
+        "user": None
+    })
 
 
 @api_view(["GET"])

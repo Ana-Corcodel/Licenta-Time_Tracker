@@ -4,18 +4,19 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import TrackChangesSharpIcon from '@mui/icons-material/TrackChangesSharp';
-import AccessTimeIcon from '@mui/icons-material/AccessTime'; // Pentru Pontaje
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'; // Pentru Tipuri de zile
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import axiosInstance from '../../Config/axiosInstance';
 
 const grupuriMeniu = [
   {
     section: 'General',
     icon: <HomeIcon className="icon section-icon" />,
     items: [
-      { 
-        name: 'Acasă', 
-        url: '/', 
-        icon: <TrackChangesSharpIcon className="icon" /> 
+      {
+        name: 'Acasă',
+        url: '/',
+        icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
   },
@@ -23,47 +24,56 @@ const grupuriMeniu = [
     section: 'Administrare',
     icon: <PeopleIcon className="icon section-icon" />,
     items: [
-      { 
-        name: 'Angajați', 
-        url: '/administrare-angajati', 
-        icon: <TrackChangesSharpIcon className="icon" /> 
+      {
+        name: 'Angajați',
+        url: '/administrare-angajati',
+        icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
   },
   {
     section: 'Pontaje',
-    icon: <AccessTimeIcon className="icon section-icon" />, // Am înlocuit PeopleIcon cu AccessTimeIcon
+    icon: <AccessTimeIcon className="icon section-icon" />,
     items: [
-      { 
-        name: 'Pontaje', 
-        url: '/pontaje', 
-        icon: <TrackChangesSharpIcon className="icon" /> 
+      {
+        name: 'Pontaje',
+        url: '/pontaje',
+        icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
   },
   {
     section: 'Tipuri de zile',
-    icon: <CalendarMonthIcon className="icon section-icon" />, // Am înlocuit PeopleIcon cu CalendarMonthIcon
+    icon: <CalendarMonthIcon className="icon section-icon" />,
     items: [
-      { 
-        name: 'Tipuri de zile', 
-        url: '/tipuri-zile', 
-        icon: <TrackChangesSharpIcon className="icon" /> 
+      {
+        name: 'Tipuri de zile',
+        url: '/tipuri-zile',
+        icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
   }
 ];
 
-const Meniu = ({ esteDeschis, seteazaDeschis }) => {
+const Meniu = ({ esteDeschis, seteazaDeschis, seteazaEsteAutentificat }) => {
   const navigate = useNavigate();
 
-  // Funcție de logout
-  const delogare = () => {
-    localStorage.clear();
-    navigate('/');
+  const delogare = async () => {
+    try {
+      const raspuns = await axiosInstance.post('/api/logout/');
+      console.log('Logout reusit:', raspuns.data);
+
+      localStorage.clear();
+      seteazaEsteAutentificat(false);
+      navigate('/logare', { replace: true });
+    } catch (error) {
+      console.error('Eroare la delogare:', error);
+      console.error('Status:', error.response?.status);
+      console.error('Data:', error.response?.data);
+      alert(`Logout-ul a eșuat. Status: ${error.response?.status || 'necunoscut'}`);
+    }
   };
 
-  // Închide meniul pe ferestre mici
   const handleClick = () => {
     if (window.innerWidth <= 768) {
       seteazaDeschis(false);
@@ -85,7 +95,7 @@ const Meniu = ({ esteDeschis, seteazaDeschis }) => {
                 <NavLink
                   to={item.url}
                   onClick={handleClick}
-                  className={({ isActive }) => 
+                  className={({ isActive }) =>
                     isActive ? 'menu-link active' : 'menu-link'
                   }
                 >

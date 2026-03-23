@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import BaraDeSus from './components/BaraDeSus/BaraDeSus';
 import Meniu from './components/Meniu/Meniu';
@@ -23,11 +23,7 @@ function Aplicatie() {
     const verificaLogin = async () => {
       try {
         const raspuns = await axiosInstance.get('/api/utilizator-curent/');
-        if (raspuns.data.autentificat === true) {
-          seteazaEsteAutentificat(true);
-        } else {
-          seteazaEsteAutentificat(false);
-        }
+        seteazaEsteAutentificat(raspuns.data.autentificat === true);
       } catch (error) {
         seteazaEsteAutentificat(false);
       } finally {
@@ -42,42 +38,54 @@ function Aplicatie() {
     return <div>Se încarcă...</div>;
   }
 
-  if (!esteAutentificat) {
-    return (
-      <Router>
-        <Routes>
-          <Route
-            path="*"
-            element={<Logare seteazaEsteAutentificat={seteazaEsteAutentificat} />}
-          />
-        </Routes>
-      </Router>
-    );
-  }
-
   return (
     <Router>
-      <div className="App">
-        <div className="app-container">
-          <BaraDeSus comutaMeniu={comutaMeniul} />
+      <Routes>
+        {/* Ruta de login */}
+        <Route
+          path="/logare"
+          element={
+            esteAutentificat ? (
+              <Navigate to="/" replace />
+            ) : (
+              <Logare seteazaEsteAutentificat={seteazaEsteAutentificat} />
+            )
+          }
+        />
 
-          <div style={{ display: 'flex' }}>
-            <Meniu
-              esteDeschis={meniulEsteDeschis}
-              seteazaDeschis={seteazaMeniulEsteDeschis}
-            />
+        {/* Rute protejate */}
+        <Route
+          path="/*"
+          element={
+            esteAutentificat ? (
+              <div className="App">
+                <div className="app-container">
+                  <BaraDeSus comutaMeniu={comutaMeniul} />
 
-            <div className="page-wrapper" style={{ flex: 1, marginTop: '60px' }}>
-              <Routes>
-                <Route path="/" element={<Acasa />} />
-                <Route path="/administrare-angajati" element={<AdministrareaAngajatilor />} />
-                <Route path="/pontaje" element={<Pontaje />} />
-                <Route path="/tipuri-zile" element={<TipuriDeZile />} />
-              </Routes>
-            </div>
-          </div>
-        </div>
-      </div>
+                  <div style={{ display: 'flex' }}>
+                    <Meniu
+                      esteDeschis={meniulEsteDeschis}
+                      seteazaDeschis={seteazaMeniulEsteDeschis}
+                      seteazaEsteAutentificat={seteazaEsteAutentificat}
+                    />
+
+                    <div className="page-wrapper" style={{ flex: 1, marginTop: '60px' }}>
+                      <Routes>
+                        <Route path="/" element={<Acasa />} />
+                        <Route path="/administrare-angajati" element={<AdministrareaAngajatilor />} />
+                        <Route path="/pontaje" element={<Pontaje />} />
+                        <Route path="/tipuri-zile" element={<TipuriDeZile />} />
+                      </Routes>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Navigate to="/logare" replace />
+            )
+          }
+        />
+      </Routes>
     </Router>
   );
 }
