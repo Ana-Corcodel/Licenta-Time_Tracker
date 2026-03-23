@@ -213,7 +213,9 @@ const AdministrareaAngajatilor = () => {
         field: 'status',
         headerName: 'Status',
         flex: 1,
-        minWidth: 140,
+        minWidth: 150,
+        align: 'center',
+        headerAlign: 'center',
         renderCell: (params) => {
           const rawStatus = params.row.status;
 
@@ -221,8 +223,19 @@ const AdministrareaAngajatilor = () => {
           const cfg = statusKey ? STATUS_MAP[statusKey] : null;
 
           if (!cfg) {
-            // fallback: arată ce vine din backend (dar nu ca chip colorat)
-            return <span>{getStatusLabelFallback(rawStatus) || '–'}</span>;
+            return (
+              <Box
+                sx={{
+                  width: '120px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                <span style={{ textAlign: 'center', width: '100%' }}>
+                  {getStatusLabelFallback(rawStatus) || '–'}
+                </span>
+              </Box>
+            );
           }
 
           return (
@@ -230,13 +243,20 @@ const AdministrareaAngajatilor = () => {
               label={cfg.label}
               size="small"
               sx={{
+                width: '120px', // 🔥 TOATE la fel
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
                 backgroundColor: cfg.bgColor,
                 color: cfg.color,
-                fontWeight: 500,
+                fontWeight: 600,
                 fontSize: '0.75rem',
-                height: '24px',
+                height: '28px',
+                borderRadius: '8px',
                 '& .MuiChip-label': {
-                  px: 1,
+                  width: '100%',
+                  textAlign: 'center',
+                  padding: 0,
                 },
               }}
             />

@@ -7,10 +7,10 @@
 .pontaj-page {
   width: 100%;
   background: #fff;
-  padding: 24px;
+  padding-left: 3px;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  padding-top: 25px;
 }
 
 .pontaj-toolbar {
