@@ -17,7 +17,6 @@ import './AdministrareaAngajatilor.css';
 const PAGINA_DEFAULT = 10;
 const DEBOUNCE_MS = 300;
 
-// Asigură-te că ai cheile exact așa cum vin din backend
 const STATUS_MAP = {
   active: { label: 'Activ', color: '#4caf50', bgColor: '#e8f5e8' },
   activ: { label: 'Activ', color: '#4caf50', bgColor: '#e8f5e8' },
@@ -29,7 +28,6 @@ const STATUS_MAP = {
   suspendat: { label: 'Suspendat', color: '#ff9800', bgColor: '#fff3e0' },
 };
 
-// 2) Mapare ID numeric -> key din STATUS_MAP (MODIFICĂ dacă id-urile tale sunt diferite)
 const STATUS_BY_ID = {
   1: 'activ',
   2: 'inactiv',
@@ -38,21 +36,18 @@ const STATUS_BY_ID = {
 
 const useDebounce = (value, delay) => {
   const [debounced, setDebounced] = useState(value);
+
   useEffect(() => {
     const t = setTimeout(() => setDebounced(value), delay);
     return () => clearTimeout(t);
   }, [value, delay]);
+
   return debounced;
 };
 
-// Normalizează statusul indiferent cum vine din backend:
-// - number (id)
-// - string (active/inactive/suspended)
-// - object ({id, code, denumire, name, label})
 const normalizeStatusKey = (status) => {
   if (status == null) return null;
 
-  // dacă vine ca obiect
   if (typeof status === 'object') {
     const possible =
       status.code ??
@@ -63,7 +58,6 @@ const normalizeStatusKey = (status) => {
       status.denumire ??
       status.label;
 
-    // dacă obiectul are id numeric
     if (status.id != null && STATUS_BY_ID[Number(status.id)]) {
       return STATUS_BY_ID[Number(status.id)];
     }
@@ -76,20 +70,17 @@ const normalizeStatusKey = (status) => {
     return null;
   }
 
-  // dacă vine ca id numeric (sau string numeric)
   const asNumber = Number(status);
   if (!Number.isNaN(asNumber) && STATUS_BY_ID[asNumber]) {
     return STATUS_BY_ID[asNumber];
   }
 
-  // dacă vine ca string
   const s = String(status).trim().toLowerCase();
   if (STATUS_MAP[s]) return s;
 
   return null;
 };
 
-// Dacă vrei să afișezi fallback text (ex: denumirea venită din backend)
 const getStatusLabelFallback = (status) => {
   if (status == null) return '–';
   if (typeof status === 'object') {
@@ -218,7 +209,6 @@ const AdministrareaAngajatilor = () => {
         headerAlign: 'center',
         renderCell: (params) => {
           const rawStatus = params.row.status;
-
           const statusKey = normalizeStatusKey(rawStatus);
           const cfg = statusKey ? STATUS_MAP[statusKey] : null;
 
@@ -243,7 +233,7 @@ const AdministrareaAngajatilor = () => {
               label={cfg.label}
               size="small"
               sx={{
-                width: '120px', // 🔥 TOATE la fel
+                width: '120px',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -335,8 +325,10 @@ const AdministrareaAngajatilor = () => {
               },
             }}
             rowHeight={50}
+            autoHeight={false}
             sx={{
               borderRadius: '8px',
+              height: '100%',
               '& .MuiDataGrid-cell': {
                 alignItems: 'center',
                 display: 'flex',

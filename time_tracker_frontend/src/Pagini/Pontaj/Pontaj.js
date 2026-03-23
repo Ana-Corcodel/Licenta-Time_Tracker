@@ -6,7 +6,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Search, Add, Edit } from '@mui/icons-material';
 import axiosInstance from '../../Config/axiosInstance';
 import AddPontaj from './AddPontaj';
-import EditPontaj from './EditPontaj'; // Adaugă acest import
+import EditPontaj from './EditPontaj';
 import './Pontaj.css';
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -38,13 +38,12 @@ const usePontaje = () => {
       ]);
 
       const angMap = {};
-      angRes.data.forEach(a => {
+      angRes.data.forEach((a) => {
         angMap[a.id] = `${a.nume} ${a.prenume}`;
       });
 
       const tipMap = {};
-      tipRes.data.forEach(t => {
-        // Afișăm prescurtarea dacă există, altfel tip_zi
+      tipRes.data.forEach((t) => {
         tipMap[t.id] = t.prescurtare || t.tip_zi;
       });
 
@@ -53,9 +52,7 @@ const usePontaje = () => {
         ...p,
         angajat_nume: angMap[p.angajat] || '-',
         tip_zi: tipMap[p.tip] || '-',
-        // Format data pentru afișare
         data_display: p.data ? new Date(p.data).toLocaleDateString('ro-RO') : '-',
-        // Extragem anul din câmpul an (care e date)
         an_display: p.an ? new Date(p.an).getFullYear() : '-',
       }));
 
@@ -90,108 +87,108 @@ const Pontaj = () => {
     setOpenEditModal(true);
   }, []);
 
-  // Filtrare
   const filteredRows = useMemo(() => {
     let list = [...pontaje];
 
     if (debouncedSearch) {
       const s = debouncedSearch.toLowerCase();
-      list = list.filter(p =>
+      list = list.filter((p) =>
         p.angajat_nume?.toLowerCase().includes(s) ||
         p.luna?.toLowerCase().includes(s) ||
         p.tip_zi?.toLowerCase().includes(s) ||
-        p.data_display?.includes(s)
+        p.data_display?.toLowerCase().includes(s)
       );
     }
 
     return list;
   }, [pontaje, debouncedSearch]);
 
-  // Coloane
-  const columns = useMemo(() => [
-    {
-      field: 'angajat_nume',
-      headerName: 'Angajat',
-      flex: 1.4,
-      minWidth: 180,
-    },
-    {
-      field: 'data_display',
-      headerName: 'Data',
-      flex: 1,
-      minWidth: 130,
-    },
-    {
-      field: 'luna',
-      headerName: 'Luna',
-      flex: 0.9,
-      minWidth: 120,
-    },
-    {
-      field: 'an_display',
-      headerName: 'An',
-      flex: 0.9,
-      minWidth: 120,
-    },
-    {
-      field: 'ora_start',
-      headerName: 'Ora start',
-      flex: 0.8,
-      minWidth: 110,
-    },
-    {
-      field: 'ora_sfarsit',
-      headerName: 'Ora sfârșit',
-      flex: 0.8,
-      minWidth: 120,
-    },
-    {
-      field: 'pauza_masa',
-      headerName: 'Pauză (min)',
-      flex: 0.9,
-      minWidth: 120,
-    },
-    {
-      field: 'ore_lucrate',
-      headerName: 'Ore lucrate',
-      flex: 0.9,
-      minWidth: 120,
-    },
-    {
-      field: 'ore_lucru_suplimentare',
-      headerName: 'Ore supl.',
-      flex: 0.9,
-      minWidth: 110,
-    },
-    {
-      field: 'tip_zi',
-      headerName: 'Tip zi',
-      flex: 0.9,
-      minWidth: 110,
-    },
-    {
-      field: 'action',
-      headerName: 'Acțiuni',
-      width: 100,
-      sortable: false,
-      renderCell: (params) => (
-        <IconButton
-          sx={{ color: '#1976d2' }}
-          onClick={() => handleEditPontaj(params.row)}
-        >
-          <Edit />
-        </IconButton>
-      ),
-    },
-  ], [handleEditPontaj]);
+  const columns = useMemo(
+    () => [
+      {
+        field: 'angajat_nume',
+        headerName: 'Angajat',
+        flex: 1.4,
+        minWidth: 180,
+      },
+      {
+        field: 'data_display',
+        headerName: 'Data',
+        flex: 1,
+        minWidth: 130,
+      },
+      {
+        field: 'luna',
+        headerName: 'Luna',
+        flex: 0.9,
+        minWidth: 120,
+      },
+      {
+        field: 'an_display',
+        headerName: 'An',
+        flex: 0.9,
+        minWidth: 120,
+      },
+      {
+        field: 'ora_start',
+        headerName: 'Ora start',
+        flex: 0.8,
+        minWidth: 110,
+      },
+      {
+        field: 'ora_sfarsit',
+        headerName: 'Ora sfârșit',
+        flex: 0.8,
+        minWidth: 120,
+      },
+      {
+        field: 'pauza_masa',
+        headerName: 'Pauză (min)',
+        flex: 0.9,
+        minWidth: 120,
+      },
+      {
+        field: 'ore_lucrate',
+        headerName: 'Ore lucrate',
+        flex: 0.9,
+        minWidth: 120,
+      },
+      {
+        field: 'ore_lucru_suplimentare',
+        headerName: 'Ore supl.',
+        flex: 0.9,
+        minWidth: 110,
+      },
+      {
+        field: 'tip_zi',
+        headerName: 'Tip zi',
+        flex: 0.9,
+        minWidth: 110,
+      },
+      {
+        field: 'action',
+        headerName: 'Acțiuni',
+        width: 100,
+        sortable: false,
+        disableColumnMenu: true,
+        renderCell: (params) => (
+          <IconButton
+            sx={{ color: '#1976d2' }}
+            onClick={() => handleEditPontaj(params.row)}
+          >
+            <Edit />
+          </IconButton>
+        ),
+      },
+    ],
+    [handleEditPontaj]
+  );
 
   return (
     <div className="pontajpage">
+      {showToast && <div className="global-toast">{toastMessage}</div>}
+
       <div className="pontaj-page">
-
-        {/* Toast pentru notificări */}
-        {showToast && <div className="global-toast">{toastMessage}</div>}
-
         <Box className="pontaj-toolbar">
           <h2 className="title">
             PONTAJ
@@ -217,6 +214,7 @@ const Pontaj = () => {
             <Button
               variant="contained"
               startIcon={<Add />}
+              className="new-btn"
               onClick={() => setOpenAddModal(true)}
             >
               ADAUGĂ
@@ -237,17 +235,22 @@ const Pontaj = () => {
               },
             }}
             rowHeight={40}
+            autoHeight={false}
             sx={{
+              height: '100%',
               borderRadius: '8px',
-              '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' },
-              '& .MuiDataGrid-cell:focus': { outline: 'none' },
+              '& .MuiDataGrid-cell': {
+                display: 'flex',
+                alignItems: 'center',
+              },
+              '& .MuiDataGrid-cell:focus': {
+                outline: 'none',
+              },
             }}
           />
         </div>
-
       </div>
 
-      {/* Modal Adăugare Pontaj */}
       <AddPontaj
         open={openAddModal}
         onClose={(shouldReload, message) => {
@@ -263,7 +266,6 @@ const Pontaj = () => {
         }}
       />
 
-      {/* Modal Editare Pontaj */}
       <EditPontaj
         open={openEditModal}
         pontajData={selectedPontaj}

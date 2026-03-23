@@ -6,7 +6,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Search, Add, Edit } from '@mui/icons-material';
 import axiosInstance from '../../Config/axiosInstance';
 import AddTipZi from './AddTipZi';
-import EditTipZi from './EditTipZi'; // Adaugă acest import
+import EditTipZi from './EditTipZi';
 import './TipZi.css';
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -49,7 +49,7 @@ const TipZi = () => {
   const [selectedTip, setSelectedTip] = useState(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  
+
   const debouncedSearch = useDebounce(searchTerm, SEARCH_DEBOUNCE_MS);
   const { tipuriZi, loading, fetchTipuriZi } = useTipZi();
 
@@ -62,13 +62,12 @@ const TipZi = () => {
     setOpenEditModal(true);
   }, []);
 
-  /* filtrare */
   const filteredRows = useMemo(() => {
     let list = [...tipuriZi];
 
     if (debouncedSearch) {
       const s = debouncedSearch.toLowerCase();
-      list = list.filter(t =>
+      list = list.filter((t) =>
         t.prescurtare?.toLowerCase().includes(s) ||
         t.tip_zi?.toLowerCase().includes(s)
       );
@@ -80,45 +79,44 @@ const TipZi = () => {
     }));
   }, [tipuriZi, debouncedSearch]);
 
-  /* coloane */
-  const columns = useMemo(() => [
-    {
-      field: 'prescurtare',
-      headerName: 'Prescurtare',
-      flex: 0.8,
-      minWidth: 140,
-    },
-    {
-      field: 'tip_zi',
-      headerName: 'Tip zi',
-      flex: 1.4,
-      minWidth: 200,
-    },
-    {
-      field: 'action',
-      headerName: 'Acțiuni',
-      width: 100,
-      sortable: false,
-      disableColumnMenu: true,
-      renderCell: (params) => (
-        <IconButton 
-          sx={{ color: '#1976d2' }}
-          onClick={() => handleEditTip(params.row)}
-        >
-          <Edit />
-        </IconButton>
-      ),
-    },
-  ], [handleEditTip]);
+  const columns = useMemo(
+    () => [
+      {
+        field: 'prescurtare',
+        headerName: 'Prescurtare',
+        flex: 0.8,
+        minWidth: 140,
+      },
+      {
+        field: 'tip_zi',
+        headerName: 'Tip zi',
+        flex: 1.4,
+        minWidth: 200,
+      },
+      {
+        field: 'action',
+        headerName: 'Acțiuni',
+        width: 100,
+        sortable: false,
+        disableColumnMenu: true,
+        renderCell: (params) => (
+          <IconButton
+            sx={{ color: '#1976d2' }}
+            onClick={() => handleEditTip(params.row)}
+          >
+            <Edit />
+          </IconButton>
+        ),
+      },
+    ],
+    [handleEditTip]
+  );
 
   return (
     <div className="tipzipage">
+      {showToast && <div className="global-toast">{toastMessage}</div>}
+
       <div className="tipzi-page">
-
-        {/* Toast pentru notificări */}
-        {showToast && <div className="global-toast">{toastMessage}</div>}
-
-        {/* TOOLBAR */}
         <Box className="tipzi-toolbar">
           <h2 className="title">
             TIP ZI
@@ -152,7 +150,6 @@ const TipZi = () => {
           </Box>
         </Box>
 
-        {/* TABLE */}
         <div className="table-container">
           <DataGrid
             rows={filteredRows}
@@ -169,9 +166,14 @@ const TipZi = () => {
               },
             }}
             rowHeight={40}
+            autoHeight={false}
             sx={{
+              height: '100%',
               borderRadius: '8px',
-              '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' },
+              '& .MuiDataGrid-cell': {
+                display: 'flex',
+                alignItems: 'center',
+              },
               '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
                 outline: 'none',
               },
@@ -181,10 +183,8 @@ const TipZi = () => {
             }}
           />
         </div>
-
       </div>
 
-      {/* Modal Adăugare Tip Zi */}
       <AddTipZi
         open={openAddModal}
         onClose={(shouldReload, message) => {
@@ -200,7 +200,6 @@ const TipZi = () => {
         }}
       />
 
-      {/* Modal Editare Tip Zi */}
       <EditTipZi
         open={openEditModal}
         tipData={selectedTip}

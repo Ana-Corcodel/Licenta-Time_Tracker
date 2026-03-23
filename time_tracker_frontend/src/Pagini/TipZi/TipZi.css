@@ -1,11 +1,20 @@
+.tipzipage {
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  overflow: hidden;
+}
+
 .tipzi-page {
   width: 100%;
   background: #fff;
   padding-left: 3px;
+  padding-top: 25px;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
-  padding-top: 25px;
+  height: 100%;
+  overflow: hidden;
 }
 
 .tipzi-toolbar {
@@ -14,7 +23,8 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .title {
@@ -34,13 +44,20 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.search-input {
+  min-width: 240px;
 }
 
 .search-input .MuiOutlinedInput-root {
   border-radius: 8px;
 }
 
-.tipzi-toolbar-right button {
+.tipzi-toolbar-right button,
+.new-btn {
   background-color: #1976d2;
   color: white;
   height: 36px;
@@ -48,10 +65,16 @@
 }
 
 .table-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: auto;
   margin-top: 10px;
+  border-radius: 8px;
 }
 
 .tipzipage .MuiDataGrid-root {
+  height: 100% !important;
   background-color: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #ddd;
@@ -62,108 +85,123 @@
   font-weight: bold;
 }
 
-/* RESPONSIVE*/
+.global-toast {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  background-color: #4caf50;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  z-index: 2000;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
+/* RESPONSIVE */
 @media (max-width: 480px) {
-    .tipzipage {
-        padding: 0;
-        height: auto;
-        overflow-y: auto;
-    }
+  .tipzipage {
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
 
-    .tipzipage .tipzi-page {
-        padding: 12px;
-        border-radius: 0;
-        height: auto;
-        overflow-y: visible;
-    }
+  .tipzipage .tipzi-page {
+    padding: 12px;
+    border-radius: 0;
+    height: 100%;
+    overflow: hidden;
+  }
 
-    .tipzipage .tipzi-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
+  .tipzipage .tipzi-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 
-    .tipzipage .title {
-        font-size: 1.2rem;
-        text-align: center;
-    }
+  .tipzipage .title {
+    font-size: 1.2rem;
+    text-align: center;
+  }
 
-    .tipzipage .title-count {
-        font-size: 0.9rem;
-    }
+  .tipzipage .title-count {
+    font-size: 0.9rem;
+  }
 
-    .tipzipage .tipzi-toolbar-right {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-    }
+  .tipzipage .tipzi-toolbar-right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
 
-    .tipzipage .search-input {
-        width: 100%;
-    }
+  .tipzipage .search-input {
+    width: 100%;
+    min-width: 100%;
+  }
 
-    .tipzipage .new-btn {
-        width: 100%;
-        height: 40px;
-        font-size: 14px;
-    }
+  .tipzipage .new-btn {
+    width: 100%;
+    height: 40px;
+    font-size: 14px;
+  }
 
-    .tipzipage .table-container {
-        margin-top: 12px;
-        overflow-x: auto;
-    }
+  .tipzipage .table-container {
+    margin-top: 12px;
+    overflow-x: auto;
+    overflow-y: auto;
+  }
 
-    .tipzipage .MuiDataGrid-root {
-        font-size: 12px;
-        border-radius: 6px;
-    }
+  .tipzipage .MuiDataGrid-root {
+    font-size: 12px;
+    border-radius: 6px;
+  }
 
-    .tipzipage .MuiDataGrid-columnHeaders {
-        font-size: 13px;
-    }
+  .tipzipage .MuiDataGrid-columnHeaders {
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 768px) {
-    .tipzipage .tipzi-page {
-        padding: 16px;
-    }
+  .tipzipage .tipzi-page {
+    padding: 16px;
+  }
 
-    .tipzipage .tipzi-toolbar {
-        flex-wrap: wrap;
-        gap: 10px;
-    }
+  .tipzipage .tipzi-toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
-    .tipzipage .tipzi-toolbar-right {
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
+  .tipzipage .tipzi-toolbar-right {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
 
-    .tipzipage .search-input {
-        flex: 1;
-        min-width: 180px;
-    }
+  .tipzipage .search-input {
+    flex: 1;
+    min-width: 180px;
+  }
 
-    .tipzipage .new-btn {
-        flex-shrink: 0;
-        height: 38px;
-    }
+  .tipzipage .new-btn {
+    flex-shrink: 0;
+    height: 38px;
+  }
 
-    .tipzipage .MuiDataGrid-root {
-        font-size: 13px;
-    }
+  .tipzipage .MuiDataGrid-root {
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 1024px) {
-    .tipzipage .tipzi-page {
-        padding: 20px;
-    }
+  .tipzipage .tipzi-page {
+    padding: 20px;
+  }
 
-    .tipzipage .tipzi-toolbar {
-        gap: 14px;
-    }
+  .tipzipage .tipzi-toolbar {
+    gap: 14px;
+  }
 
-    .tipzipage .search-input {
-        flex: 1;
-    }
+  .tipzipage .search-input {
+    flex: 1;
+  }
 }

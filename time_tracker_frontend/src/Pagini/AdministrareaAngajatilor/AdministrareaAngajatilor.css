@@ -1,68 +1,125 @@
 .admin-angajati {
-  background-color: #f0f0f0;
+  height: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .admin-angajati-container {
-  width: 100%;
-  background: #fff;
-  padding-left: 3px;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  padding-top: 25px;
+  overflow: hidden;
 }
 
 .admin-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  padding: 16px 0;
   flex-wrap: wrap;
-  margin-bottom: 30px;
+  flex-shrink: 0;
 }
 
 .admin-title {
-  font-size: 1.5rem;
-  font-weight: bold;
   margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0b1f44;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .admin-count {
-  font-size: 1rem;
-  color: #555;
-  margin-left: 6px;
+  font-size: 18px;
+  color: #666;
+  font-weight: 500;
 }
 
 .admin-toolbar-right {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
-.search-input .MuiOutlinedInput-root {
-  border-radius: 8px;
+.search-input {
+  min-width: 260px;
 }
 
 .btn-new {
-  background-color: #1976d2;
-  color: white;
-  height: 36px;
-  text-transform: none;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
 }
 
 .tabel-container {
-  margin-top: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.tabel-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.employees-toast {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  background-color: #4caf50;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  z-index: 2000;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .MuiDataGrid-root {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  height: 100% !important;
+  background-color: #fff;
+  border-radius: 8px !important;
 }
 
 .MuiDataGrid-columnHeaders {
-  background-color: #d6d6d6;
-  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #fff;
 }
 
+@media (max-width: 768px) {
+  .admin-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-title {
+    font-size: 20px;
+  }
+
+  .admin-count {
+    font-size: 16px;
+  }
+
+  .admin-toolbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-input {
+    min-width: 100%;
+  }
+
+  .btn-new {
+    width: 100%;
+  }
+}
