@@ -1,38 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import './BaraDeSus.css'; 
+import './BaraDeSus.css';
 import logo from '../../Imagini/logoTime.png';
 import NotificationsIcon from '@mui/icons-material/NotificationsNone';
 import UserIcon from '@mui/icons-material/AccountBoxRounded';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import axiosInstance from '../../Config/ConexiuneAxios';
+import axiosInstance from "../../Config/axiosInstance";
 
 const BaraDeSus = ({ comutaMeniu }) => {
-  const [departament, setDepartament] = useState('');
   const [numeUtilizator, setNumeUtilizator] = useState('');
   const [notificari, setNotificari] = useState([]);
   const [afiseazaNotificari, setAfiseazaNotificari] = useState(false);
 
   useEffect(() => {
-    const preiaDepartament = async () => {
+    const preiaUtilizator = async () => {
       try {
-        const raspuns = await axiosInstance.get('user/department/');
-        if (raspuns.data?.department) {
-          setDepartament(`${raspuns.data.department} Departament`);
-        }
-      } catch (error) {
-        console.error('Eroare la preluarea departamentului:', error);
-      }
-    };
+        const raspuns = await axiosInstance.get('/api/utilizator-curent/');
 
-    const preiaNumeUtilizator = async () => {
-      try {
-        const raspuns = await axiosInstance.get('user/name/');
-        if (raspuns.data?.first_name && raspuns.data?.last_name) {
-          setNumeUtilizator(`${raspuns.data.first_name} ${raspuns.data.last_name}`);
+        if (raspuns.data?.autentificat && raspuns.data?.user) {
+          const user = raspuns.data.user;
+
+          if (user.nume && user.prenume) {
+            setNumeUtilizator(`${user.nume} ${user.prenume}`);
+          } else if (user.username) {
+            setNumeUtilizator(user.username);
+          } else {
+            setNumeUtilizator(user.email);
+          }
         }
       } catch (error) {
-        console.error('Eroare la preluarea numelui utilizatorului:', error);
+        console.error('Eroare la preluarea utilizatorului:', error);
       }
     };
 
@@ -45,8 +42,7 @@ const BaraDeSus = ({ comutaMeniu }) => {
       }
     };
 
-    preiaDepartament();
-    preiaNumeUtilizator();
+    preiaUtilizator();
     preiaNotificari();
   }, []);
 
@@ -57,7 +53,7 @@ const BaraDeSus = ({ comutaMeniu }) => {
   const stergeNotificare = async (id) => {
     try {
       await axiosInstance.delete(`/delete_notification/${id}/`);
-      const notificariActualizate = notificari.filter(n => n.id !== id);
+      const notificariActualizate = notificari.filter((n) => n.id !== id);
       setNotificari(notificariActualizate);
     } catch (err) {
       console.error('Eroare la ștergerea notificării:', err);
@@ -72,17 +68,14 @@ const BaraDeSus = ({ comutaMeniu }) => {
         </div>
         <div className="app-name">
           <h1>TimeTracker</h1>
-          <h2>{departament}</h2>
         </div>
       </div>
 
       <div className="user-section">
-        {/* Buton meniu */}
         <button className="menu-button" onClick={comutaMeniu}>
           <MenuIcon fontSize="medium" style={{ marginRight: '6px' }} />
         </button>
 
-        {/* Notificări */}
         <div className="notification-container">
           <button className="notification" onClick={comutaNotificari}>
             <NotificationsIcon fontSize="medium" style={{ marginRight: '4px' }} />
@@ -112,13 +105,12 @@ const BaraDeSus = ({ comutaMeniu }) => {
           )}
         </div>
 
-        {/* User info */}
         <div className="user">
           <p>{numeUtilizator}</p>
-          <UserIcon 
-            className="User_icon" 
-            fontSize="medium" 
-            style={{ marginRight: '6px', marginLeft: '6px' }} 
+          <UserIcon
+            className="User_icon"
+            fontSize="medium"
+            style={{ marginRight: '6px', marginLeft: '6px' }}
           />
         </div>
       </div>

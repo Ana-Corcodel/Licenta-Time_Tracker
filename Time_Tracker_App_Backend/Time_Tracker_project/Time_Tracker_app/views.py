@@ -208,7 +208,9 @@ def utilizator_curent(request):
             "user": {
                 "id": request.user.id,
                 "email": request.user.email,
-                "username": request.user.username
+                "username": request.user.username,
+                "nume": request.user.first_name,
+                "prenume": request.user.last_name
             }
         })
 
@@ -216,7 +218,6 @@ def utilizator_curent(request):
         "autentificat": False,
         "user": None
     })
-
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
