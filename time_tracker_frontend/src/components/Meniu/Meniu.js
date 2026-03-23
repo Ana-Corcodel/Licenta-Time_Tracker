@@ -1,3 +1,4 @@
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import './Meniu.css';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -60,16 +61,12 @@ const Meniu = ({ esteDeschis, seteazaDeschis, seteazaEsteAutentificat }) => {
 
   const delogare = async () => {
     try {
-      const raspuns = await axiosInstance.post('/api/logout/');
-      console.log('Logout reusit:', raspuns.data);
-
+      await axiosInstance.post('/api/logout/');
       localStorage.clear();
       seteazaEsteAutentificat(false);
       navigate('/logare', { replace: true });
     } catch (error) {
       console.error('Eroare la delogare:', error);
-      console.error('Status:', error.response?.status);
-      console.error('Data:', error.response?.data);
       alert(`Logout-ul a eșuat. Status: ${error.response?.status || 'necunoscut'}`);
     }
   };

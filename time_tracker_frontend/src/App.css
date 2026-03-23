@@ -4,26 +4,26 @@
 }
 
 .app-container {
-  background-color: #f0f0f0;  
+  background-color: #f0f0f0;
   display: flex;
   flex-direction: column;
-  padding: 0;  
+  padding: 0;
 }
 
- .page-wrapper {
-  background-color: #ffffff;   
+.page-wrapper {
+  background-color: #ffffff;
   margin: 15px;
-  border-radius: 8px;          
+  border-radius: 8px;
   flex: 1;
   box-sizing: border-box;
   padding-left: 20px;
   padding-right: 20px;
   padding-bottom: 20px;
-  height: calc(95vh - 95px); 
-
-  overflow-y: auto;              
-  scrollbar-width: none;         
-  -ms-overflow-style: none;      
+  height: calc(95vh - 95px);
+  margin-left: 235px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .mainlayout {
@@ -32,13 +32,22 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 110px);
-    scrollbar-width: none;         
-  -ms-overflow-style: none; 
-
-
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .page-wrapper::-webkit-scrollbar {
-  display: none;                 
+  display: none;
 }
 
+@media (max-width: 768px) {
+  .page-wrapper {
+    margin-left: 15px; /* 🔥 nu mai lasă loc pentru meniu */
+    margin-right: 15px;
+    width: auto;
+  }
+
+  .mainlayout {
+    margin: 0;
+  }
+}

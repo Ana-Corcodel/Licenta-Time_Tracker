@@ -1,68 +1,23 @@
 .sidebar {
   width: 220px;
   background-color: #ffffff;
-  height: calc(95vh - 95px);
+  height: calc(100vh - 70px);
+  position: fixed;
+  top: 100px;
+  left: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border-right: 1px solid #e0e0e0;
   padding: 10px 15px;
+  padding-bottom: 40px; /* 🔥 IMPORTANT */
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
   overflow-y: hidden;
   overflow-x: hidden;
-  padding-top: 50px;
 }
 
 .sidebar:hover {
   overflow-y: auto;
-}
-
-
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    width: 80%;
-    max-width: 280px;
-    height: calc(100vh - 60px);
-    z-index: 999;
-    transform: translateX(-100%);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    padding-top: 10px;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .menu-overlay {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 998;
-    display: block;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-  }
-
-  .menu-overlay.active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .section-title {
-    margin-right: 0;
-    font-size: 13px;
-  }
-
-  .menu-link {
-    font-size: 13px;
-  }
 }
 
 .meniu {
@@ -152,4 +107,39 @@
 
 .section-title .section-icon {
   margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .sidebar.open {
+    display: block;
+    width: 100%;
+    position: fixed;
+    top: 100px;
+    left: 0;
+    height: calc(100vh - 60px);
+    z-index: 999;
+    background-color: #ffffff;
+    overflow-y: auto;
+  }
+
+  .section-title {
+    margin-right: 30px;
+    font-size: 13px;
+  }
+
+  .menu-link {
+    font-size: 13px;
+  }
+
+  .menu-link.active {
+    margin-right: 30px;
+  }
+
+  .menu-link:hover {
+    margin-right: 30px;
+  }
 }
