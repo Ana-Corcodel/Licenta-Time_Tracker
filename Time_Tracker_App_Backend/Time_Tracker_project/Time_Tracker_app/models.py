@@ -62,7 +62,7 @@ class TipZi(models.Model):
 
 
 class Pontaj(models.Model):
-    angajat = models.ForeignKey(Angajat, on_delete=models.CASCADE, related_name="pontaje")
+    angajat = models.ForeignKey(Angajat,on_delete=models.CASCADE,related_name="pontaje")
     luna = models.CharField(max_length=20)
     an = models.DateField()
     ora_start = models.TimeField()
@@ -70,23 +70,25 @@ class Pontaj(models.Model):
     pauza_masa = models.IntegerField(help_text="Durata pauzei în minute")
     tip = models.ForeignKey(TipZi, on_delete=models.CASCADE, related_name="pontaje")
     data = models.DateField()
-    ore_lucrate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    ore_lucru_suplimentare = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    ore_lucrate = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    ore_lucru_suplimentare = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     def __str__(self):
         return f"{self.angajat} - {self.data} ({self.tip.prescurtare})"
 
-    def format_ore_lucrate(self):
-        total_minute = int(round(float(self.ore_lucrate) * 60))
-        ore = total_minute // 60
-        minute = total_minute % 60
-        return f"{ore}:{minute:02d}"
+    def ore_lucrate_hms(self):
+        total_secunde = int(round(float(self.ore_lucrate) * 3600))
+        ore = total_secunde // 3600
+        minute = (total_secunde % 3600) // 60
+        secunde = total_secunde % 60
+        return f"{ore}:{minute:02d}:{secunde:02d}"
 
-    def format_ore_suplimentare(self):
-        total_minute = int(round(float(self.ore_lucru_suplimentare) * 60))
-        ore = total_minute // 60
-        minute = total_minute % 60
-        return f"{ore}:{minute:02d}"
+    def ore_suplimentare_hms(self):
+        total_secunde = int(round(float(self.ore_lucru_suplimentare) * 3600))
+        ore = total_secunde // 3600
+        minute = (total_secunde % 3600) // 60
+        secunde = total_secunde % 60
+        return f"{ore}:{minute:02d}:{secunde:02d}"
     
 class Amprenta(models.Model):
     angajat = models.OneToOneField(Angajat, on_delete=models.CASCADE)

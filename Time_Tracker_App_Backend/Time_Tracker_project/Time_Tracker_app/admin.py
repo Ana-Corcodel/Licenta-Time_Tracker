@@ -40,16 +40,16 @@ class PontajAdmin(admin.ModelAdmin):
         'ora_start',
         'ora_sfarsit',
         'pauza_masa',
-        'ore_lucrate_formatate',
-        'ore_suplimentare_formatate',
+        'afiseaza_ore_lucrate',
+        'afiseaza_ore_suplimentare',
     )
 
-    def ore_lucrate_formatate(self, obj):
-        return obj.format_ore_lucrate()
-    ore_lucrate_formatate.short_description = 'Ore lucrate'
+    def afiseaza_ore_lucrate(self, obj):
+        return obj.ore_lucrate_hms()
+    afiseaza_ore_lucrate.short_description = 'Ore lucrate'
 
-    def ore_suplimentare_formatate(self, obj):
-        return obj.format_ore_suplimentare()
-    ore_suplimentare_formatate.short_description = 'Ore supl.'
-
+    def afiseaza_ore_suplimentare(self, obj):
+        return obj.ore_suplimentare_hms()
+    afiseaza_ore_suplimentare.short_description = 'Ore suplimentare'
+    
 admin.site.register(Amprenta)

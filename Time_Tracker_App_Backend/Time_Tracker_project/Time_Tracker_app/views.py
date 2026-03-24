@@ -251,25 +251,28 @@ def get_angajat(fingerprint_id):
         return None
 
 
-def calculeaza_minute_lucrate(start_time, end_time, pauza_minute):
+def calculeaza_secunde_lucrate(start_time, end_time, pauza_minute):
     start_dt = datetime.combine(date.today(), start_time)
     end_dt = datetime.combine(date.today(), end_time)
 
     diferenta = end_dt - start_dt
-    minute_totale = int(diferenta.total_seconds() / 60)
+    secunde_totale = int(diferenta.total_seconds())
 
-    minute_lucrate = max(0, minute_totale - pauza_minute)
-    return minute_lucrate
+    secunde_pauza = pauza_minute * 60
+    secunde_lucrate = max(0, secunde_totale - secunde_pauza)
 
-
-def minute_in_ore_zecimale(minute):
-    return round(minute / 60, 2)
+    return secunde_lucrate
 
 
-def minute_in_format_ore_minute(minute):
-    ore = minute // 60
-    minute_ramase = minute % 60
-    return f"{ore}:{minute_ramase:02d}"
+def secunde_in_ore_zecimale(secunde):
+    return round(secunde / 3600, 2)
+
+
+def secunde_in_format_hms(secunde):
+    ore = secunde // 3600
+    minute = (secunde % 3600) // 60
+    secunde_ramase = secunde % 60
+    return f"{ore}:{minute:02d}:{secunde_ramase:02d}"
 
 
 @csrf_exempt
@@ -343,23 +346,23 @@ def scan_fingerprint(request):
     if pontaj.ora_start == pontaj.ora_sfarsit and pontaj.ore_lucrate == 0:
         pontaj.ora_sfarsit = ora_acum
 
-        minute_lucrate = calculeaza_minute_lucrate(
+        secunde_lucrate = calculeaza_secunde_lucrate(
             pontaj.ora_start,
             pontaj.ora_sfarsit,
             pontaj.pauza_masa
         )
 
-        pontaj.ore_lucrate = minute_in_ore_zecimale(minute_lucrate)
+        pontaj.ore_lucrate = secunde_in_ore_zecimale(secunde_lucrate)
 
         program_final = datetime.combine(azi, angajat.ora_sfarsit)
         iesire_actuala = datetime.combine(azi, pontaj.ora_sfarsit)
 
-        minute_extra = max(
+        secunde_extra = max(
             0,
-            int((iesire_actuala - program_final).total_seconds() / 60)
+            int((iesire_actuala - program_final).total_seconds())
         )
 
-        pontaj.ore_lucru_suplimentare = minute_in_ore_zecimale(minute_extra)
+        pontaj.ore_lucru_suplimentare = secunde_in_ore_zecimale(secunde_extra)
 
         pontaj.save()
 
@@ -377,8 +380,8 @@ def scan_fingerprint(request):
                 'data': str(pontaj.data),
                 'ora_start': pontaj.ora_start.strftime('%H:%M:%S'),
                 'ora_sfarsit': pontaj.ora_sfarsit.strftime('%H:%M:%S'),
-                'ore_lucrate': minute_in_format_ore_minute(minute_lucrate),
-                'ore_lucru_suplimentare': minute_in_format_ore_minute(minute_extra),
+                'ore_lucrate': secunde_in_format_hms(secunde_lucrate),
+                'ore_lucru_suplimentare': secunde_in_format_hms(secunde_extra),
             }
         })
 

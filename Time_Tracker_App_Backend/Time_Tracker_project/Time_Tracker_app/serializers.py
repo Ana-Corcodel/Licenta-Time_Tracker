@@ -27,7 +27,7 @@ class PontajSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_ore_lucrate_format(self, obj):
-        return obj.format_ore_lucrate()
+        return obj.ore_lucrate_hms()
 
     def get_ore_lucru_suplimentare_format(self, obj):
-        return obj.format_ore_suplimentare()
+        return obj.ore_suplimentare_hms()
