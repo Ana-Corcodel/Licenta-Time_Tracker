@@ -19,6 +19,15 @@ class TipZiSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PontajSerializer(serializers.ModelSerializer):
+    ore_lucrate_format = serializers.SerializerMethodField()
+    ore_lucru_suplimentare_format = serializers.SerializerMethodField()
+
     class Meta:
         model = Pontaj
         fields = '__all__'
+
+    def get_ore_lucrate_format(self, obj):
+        return obj.format_ore_lucrate()
+
+    def get_ore_lucru_suplimentare_format(self, obj):
+        return obj.format_ore_suplimentare()

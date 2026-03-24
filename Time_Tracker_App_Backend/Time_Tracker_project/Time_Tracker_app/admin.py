@@ -36,17 +36,20 @@ class TipZiAdmin(admin.ModelAdmin):
 class PontajAdmin(admin.ModelAdmin):
     list_display = (
         'angajat',
-        'luna',
-        'an',
         'data',
         'ora_start',
         'ora_sfarsit',
         'pauza_masa',
-        'ore_lucrate',
-        'ore_lucru_suplimentare',
-        'tip',
+        'ore_lucrate_formatate',
+        'ore_suplimentare_formatate',
     )
-    search_fields = ('angajat', 'luna', 'tip__prescurtare')
-    list_filter = ('luna', 'an', 'tip')
+
+    def ore_lucrate_formatate(self, obj):
+        return obj.format_ore_lucrate()
+    ore_lucrate_formatate.short_description = 'Ore lucrate'
+
+    def ore_suplimentare_formatate(self, obj):
+        return obj.format_ore_suplimentare()
+    ore_suplimentare_formatate.short_description = 'Ore supl.'
 
 admin.site.register(Amprenta)

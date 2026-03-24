@@ -13,6 +13,7 @@ from django.http import JsonResponse
 import json
 from datetime import date, datetime
 
+
 class StatusView(APIView):
     def get(self, request, pk=None):
         if pk:
@@ -23,15 +24,17 @@ class StatusView(APIView):
             statusuri = Status.objects.all()
             serializer = StatusSerializer(statusuri, many=True)
             return Response(serializer.data)
-    
+
     def post(self, request):
         serializer = StatusSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "Status creat cu succes", "data": serializer.data}, 
-                           status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "Status creat cu succes", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def put(self, request, pk):
         status_obj = get_object_or_404(Status, pk=pk)
         serializer = StatusSerializer(status_obj, data=request.data)
@@ -39,11 +42,12 @@ class StatusView(APIView):
             serializer.save()
             return Response({"message": "Status actualizat", "data": serializer.data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def delete(self, request, pk):
         status_obj = get_object_or_404(Status, pk=pk)
         status_obj.delete()
         return Response({"message": "Status șters cu succes"}, status=status.HTTP_204_NO_CONTENT)
+
 
 class AngajatView(APIView):
     def get(self, request, pk=None):
@@ -59,8 +63,11 @@ class AngajatView(APIView):
     def post(self, request):
         serializer = AngajatSerializer(data=request.data)
         if serializer.is_valid():
-            angajat = serializer.save()
-            return Response({"message": "Angajat creat cu succes", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            serializer.save()
+            return Response(
+                {"message": "Angajat creat cu succes", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk):
@@ -91,8 +98,10 @@ class TipZiView(APIView):
         serializer = TipZiSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "Tip de zi creat cu succes", "data": serializer.data},
-                            status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "Tip de zi creat cu succes", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk):
@@ -123,8 +132,10 @@ class PontajView(APIView):
         serializer = PontajSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "Pontaj creat cu succes", "data": serializer.data},
-                            status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "Pontaj creat cu succes", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk):
@@ -139,7 +150,8 @@ class PontajView(APIView):
         pontaj = get_object_or_404(Pontaj, pk=pk)
         pontaj.delete()
         return Response({"message": "Pontaj șters cu succes"}, status=status.HTTP_204_NO_CONTENT)
-    
+
+
 User = get_user_model()
 
 
@@ -219,13 +231,15 @@ def utilizator_curent(request):
         "user": None
     })
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def pagina_protejata(request):
     return Response({
         "message": f"Salut {request.user.email}, ești logat!"
     })
-    
+
+
 def get_angajat(fingerprint_id):
     try:
         amprenta = Amprenta.objects.select_related('angajat').get(
@@ -236,37 +250,8 @@ def get_angajat(fingerprint_id):
     except Amprenta.DoesNotExist:
         return None
 
-@csrf_exempt
-def scan_fingerprint(request):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Metoda invalida'}, status=405)
 
-    try:
-        data = json.loads(request.body)
-        fingerprint_id = int(data.get('fingerprint_id'))
-    except Exception:
-        return JsonResponse({'error': 'Date invalide'}, status=400)
-
-    angajat = get_angajat(fingerprint_id)
-
-    if angajat:
-        return JsonResponse({
-            'status': 'success',
-            'mesaj': 'Angajat gasit',
-            'angajat': {
-                'id': angajat.id,
-                'nume': angajat.nume,
-                'prenume': angajat.prenume,
-                'functie': angajat.functie,
-            }
-        })
-    else:
-        return JsonResponse({
-            'status': 'error',
-            'mesaj': 'Amprenta necunoscuta'
-        }, status=404)
-        
-def calculeaza_ore(start_time, end_time, pauza_minute):
+def calculeaza_minute_lucrate(start_time, end_time, pauza_minute):
     start_dt = datetime.combine(date.today(), start_time)
     end_dt = datetime.combine(date.today(), end_time)
 
@@ -274,9 +259,18 @@ def calculeaza_ore(start_time, end_time, pauza_minute):
     minute_totale = int(diferenta.total_seconds() / 60)
 
     minute_lucrate = max(0, minute_totale - pauza_minute)
-    ore_lucrate = minute_lucrate // 60
+    return minute_lucrate
 
-    return ore_lucrate
+
+def minute_in_ore_zecimale(minute):
+    return round(minute / 60, 2)
+
+
+def minute_in_format_ore_minute(minute):
+    ore = minute // 60
+    minute_ramase = minute % 60
+    return f"{ore}:{minute_ramase:02d}"
+
 
 @csrf_exempt
 def scan_fingerprint(request):
@@ -349,13 +343,13 @@ def scan_fingerprint(request):
     if pontaj.ora_start == pontaj.ora_sfarsit and pontaj.ore_lucrate == 0:
         pontaj.ora_sfarsit = ora_acum
 
-        ore_lucrate = calculeaza_ore(
+        minute_lucrate = calculeaza_minute_lucrate(
             pontaj.ora_start,
             pontaj.ora_sfarsit,
             pontaj.pauza_masa
         )
 
-        pontaj.ore_lucrate = ore_lucrate
+        pontaj.ore_lucrate = minute_in_ore_zecimale(minute_lucrate)
 
         program_final = datetime.combine(azi, angajat.ora_sfarsit)
         iesire_actuala = datetime.combine(azi, pontaj.ora_sfarsit)
@@ -364,7 +358,8 @@ def scan_fingerprint(request):
             0,
             int((iesire_actuala - program_final).total_seconds() / 60)
         )
-        pontaj.ore_lucru_suplimentare = minute_extra // 60
+
+        pontaj.ore_lucru_suplimentare = minute_in_ore_zecimale(minute_extra)
 
         pontaj.save()
 
@@ -382,8 +377,8 @@ def scan_fingerprint(request):
                 'data': str(pontaj.data),
                 'ora_start': pontaj.ora_start.strftime('%H:%M:%S'),
                 'ora_sfarsit': pontaj.ora_sfarsit.strftime('%H:%M:%S'),
-                'ore_lucrate': pontaj.ore_lucrate,
-                'ore_lucru_suplimentare': pontaj.ore_lucru_suplimentare,
+                'ore_lucrate': minute_in_format_ore_minute(minute_lucrate),
+                'ore_lucru_suplimentare': minute_in_format_ore_minute(minute_extra),
             }
         })
 
