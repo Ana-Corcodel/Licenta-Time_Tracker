@@ -75,3 +75,11 @@ class Pontaj(models.Model):
 
     def __str__(self):
         return f"{self.angajat} - {self.data} ({self.tip.prescurtare})"
+    
+class Amprenta(models.Model):
+    angajat = models.OneToOneField(Angajat, on_delete=models.CASCADE)
+    fingerprint_id = models.PositiveIntegerField(unique=True)
+    activ = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.angajat} -> ID {self.fingerprint_id}"

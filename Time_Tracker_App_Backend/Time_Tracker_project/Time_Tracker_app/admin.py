@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Status, Angajat, TipZi, Pontaj
+from .models import Status, Angajat, TipZi, Pontaj, Amprenta
 
 
 @admin.register(Status)
@@ -48,3 +48,5 @@ class PontajAdmin(admin.ModelAdmin):
     )
     search_fields = ('angajat', 'luna', 'tip__prescurtare')
     list_filter = ('luna', 'an', 'tip')
+
+admin.site.register(Amprenta)

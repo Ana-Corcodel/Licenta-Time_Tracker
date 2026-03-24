@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Angajat, Pontaj, TipZi, Status
+from .models import Angajat, Pontaj, TipZi, Status, Amprenta
 from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer, StatusSerializer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, logout, get_user_model
@@ -10,8 +10,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-
-# În views.py, adaugă:
+import json
 
 class StatusView(APIView):
     def get(self, request, pk=None):
@@ -225,3 +224,43 @@ def pagina_protejata(request):
     return Response({
         "message": f"Salut {request.user.email}, ești logat!"
     })
+    
+def get_angajat(fingerprint_id):
+    try:
+        amprenta = Amprenta.objects.select_related('angajat').get(
+            fingerprint_id=fingerprint_id,
+            activ=True
+        )
+        return amprenta.angajat
+    except Amprenta.DoesNotExist:
+        return None
+
+@csrf_exempt
+def scan_fingerprint(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metoda invalida'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        fingerprint_id = int(data.get('fingerprint_id'))
+    except Exception:
+        return JsonResponse({'error': 'Date invalide'}, status=400)
+
+    angajat = get_angajat(fingerprint_id)
+
+    if angajat:
+        return JsonResponse({
+            'status': 'success',
+            'mesaj': 'Angajat gasit',
+            'angajat': {
+                'id': angajat.id,
+                'nume': angajat.nume,
+                'prenume': angajat.prenume,
+                'functie': angajat.functie,
+            }
+        })
+    else:
+        return JsonResponse({
+            'status': 'error',
+            'mesaj': 'Amprenta necunoscuta'
+        }, status=404)
