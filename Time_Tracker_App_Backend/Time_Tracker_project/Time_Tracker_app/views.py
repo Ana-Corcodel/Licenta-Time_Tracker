@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
+from datetime import date, datetime
 
 class StatusView(APIView):
     def get(self, request, pk=None):
@@ -264,3 +265,129 @@ def scan_fingerprint(request):
             'status': 'error',
             'mesaj': 'Amprenta necunoscuta'
         }, status=404)
+        
+def calculeaza_ore(start_time, end_time, pauza_minute):
+    start_dt = datetime.combine(date.today(), start_time)
+    end_dt = datetime.combine(date.today(), end_time)
+
+    diferenta = end_dt - start_dt
+    minute_totale = int(diferenta.total_seconds() / 60)
+
+    minute_lucrate = max(0, minute_totale - pauza_minute)
+    ore_lucrate = minute_lucrate // 60
+
+    return ore_lucrate
+
+@csrf_exempt
+def scan_fingerprint(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metoda invalida'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        fingerprint_id = int(data.get('fingerprint_id'))
+    except Exception:
+        return JsonResponse({'error': 'Date invalide'}, status=400)
+
+    angajat = get_angajat(fingerprint_id)
+
+    if not angajat:
+        return JsonResponse({
+            'status': 'error',
+            'mesaj': 'Amprenta necunoscuta'
+        }, status=404)
+
+    if angajat.status != 'activ':
+        return JsonResponse({
+            'status': 'error',
+            'mesaj': f'Angajatul este {angajat.status}'
+        }, status=403)
+
+    azi = date.today()
+    ora_acum = datetime.now().time()
+
+    tip_zi, _ = TipZi.objects.get_or_create(
+        prescurtare='L',
+        defaults={'tip_zi': 'Lucrata'}
+    )
+
+    pontaj = Pontaj.objects.filter(
+        angajat=angajat,
+        data=azi
+    ).first()
+
+    if pontaj is None:
+        pontaj = Pontaj.objects.create(
+            angajat=angajat,
+            luna=azi.strftime('%B'),
+            an=azi,
+            ora_start=ora_acum,
+            ora_sfarsit=ora_acum,
+            pauza_masa=angajat.ora_pauza,
+            tip=tip_zi,
+            data=azi,
+            ore_lucrate=0,
+            ore_lucru_suplimentare=0
+        )
+
+        return JsonResponse({
+            'status': 'success',
+            'tip_actiune': 'checkin',
+            'mesaj': 'Intrare inregistrata',
+            'angajat': {
+                'id': angajat.id,
+                'nume': angajat.nume,
+                'prenume': angajat.prenume,
+                'functie': angajat.functie,
+            },
+            'pontaj': {
+                'data': str(pontaj.data),
+                'ora_start': pontaj.ora_start.strftime('%H:%M:%S'),
+            }
+        })
+
+    if pontaj.ora_start == pontaj.ora_sfarsit and pontaj.ore_lucrate == 0:
+        pontaj.ora_sfarsit = ora_acum
+
+        ore_lucrate = calculeaza_ore(
+            pontaj.ora_start,
+            pontaj.ora_sfarsit,
+            pontaj.pauza_masa
+        )
+
+        pontaj.ore_lucrate = ore_lucrate
+
+        program_final = datetime.combine(azi, angajat.ora_sfarsit)
+        iesire_actuala = datetime.combine(azi, pontaj.ora_sfarsit)
+
+        minute_extra = max(
+            0,
+            int((iesire_actuala - program_final).total_seconds() / 60)
+        )
+        pontaj.ore_lucru_suplimentare = minute_extra // 60
+
+        pontaj.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'tip_actiune': 'checkout',
+            'mesaj': 'Iesire inregistrata',
+            'angajat': {
+                'id': angajat.id,
+                'nume': angajat.nume,
+                'prenume': angajat.prenume,
+                'functie': angajat.functie,
+            },
+            'pontaj': {
+                'data': str(pontaj.data),
+                'ora_start': pontaj.ora_start.strftime('%H:%M:%S'),
+                'ora_sfarsit': pontaj.ora_sfarsit.strftime('%H:%M:%S'),
+                'ore_lucrate': pontaj.ore_lucrate,
+                'ore_lucru_suplimentare': pontaj.ore_lucru_suplimentare,
+            }
+        })
+
+    return JsonResponse({
+        'status': 'info',
+        'mesaj': 'Pontajul pe azi este deja complet'
+    })

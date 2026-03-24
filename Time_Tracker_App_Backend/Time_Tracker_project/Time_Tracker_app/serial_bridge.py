@@ -29,7 +29,8 @@ def main():
                     json={'fingerprint_id': fingerprint_id}
                 )
 
-                print("Raspuns Django:", response.status_code, response.text)
+                print("Raspuns Django:", response.status_code)
+                print(response.json())
 
             elif line == "UNKNOWN":
                 print("Amprenta necunoscuta")
