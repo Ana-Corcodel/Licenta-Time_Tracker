@@ -7,11 +7,15 @@ class StatusSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 class AngajatSerializer(serializers.ModelSerializer):
-    status = serializers.StringRelatedField()
-    
+    are_amprenta = serializers.SerializerMethodField()
+
     class Meta:
         model = Angajat
         fields = '__all__'
+        extra_fields = ['are_amprenta']
+
+    def get_are_amprenta(self, obj):
+        return hasattr(obj, 'amprenta')
 
 class TipZiSerializer(serializers.ModelSerializer):
     class Meta:

@@ -8,7 +8,7 @@ import {
   Chip
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Search, Edit, Add } from '@mui/icons-material';
+import { Search, Edit, Add, Fingerprint } from '@mui/icons-material';
 import axiosInstance from '../../Config/axiosInstance';
 import AddAngajati from './AddAngajati';
 import EditAngajati from './EditAngajati';
@@ -104,6 +104,8 @@ const AdministrareaAngajatilor = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [enrollLoadingId, setEnrollLoadingId] = useState(null);
+  const [enrollStatus, setEnrollStatus] = useState('');
 
   const searchDebounced = useDebounce(search, DEBOUNCE_MS);
 
@@ -128,6 +130,80 @@ const AdministrareaAngajatilor = () => {
     setSelectedEmployee(employee);
     setOpenEditModal(true);
   }, []);
+
+  const handleEnrollFingerprint = useCallback(async (employee) => {
+    let interval = null;
+
+    try {
+      setEnrollLoadingId(employee.id);
+      setEnrollStatus(`Pornesc înrolarea pentru ${employee.nume} ${employee.prenume}...`);
+
+      const response = await axiosInstance.post('/api/start-enroll/', {
+        angajat_id: employee.id,
+      });
+
+      const { cerere_id } = response.data;
+
+      setToastMessage(`Cerere de înrolare pornită pentru ${employee.nume} ${employee.prenume}`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+
+      interval = setInterval(async () => {
+        try {
+          const statusResponse = await axiosInstance.get(`/api/enroll-status/${cerere_id}/`);
+          const data = statusResponse.data;
+
+          setEnrollStatus(
+            `${data.angajat.nume} ${data.angajat.prenume}: ${data.mesaj || data.status}`
+          );
+
+          if (data.status === 'success') {
+            clearInterval(interval);
+            setEnrollLoadingId(null);
+
+            setToastMessage(
+              `Amprenta a fost înregistrată pentru ${data.angajat.nume} ${data.angajat.prenume}`
+            );
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 4000);
+            fetchAngajati();
+          }
+
+          if (data.status === 'failed') {
+            clearInterval(interval);
+            setEnrollLoadingId(null);
+
+            setToastMessage(data.mesaj || 'Înrolarea a eșuat');
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 4000);
+          }
+        } catch (err) {
+          clearInterval(interval);
+          setEnrollLoadingId(null);
+          console.error('Eroare la verificarea statusului de enroll:', err);
+
+          setToastMessage('Eroare la verificarea statusului de înrolare');
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 4000);
+        }
+      }, 1500);
+    } catch (err) {
+      console.error('Eroare la pornirea enroll-ului:', err);
+      setEnrollLoadingId(null);
+
+      const mesaj =
+        err?.response?.data?.error ||
+        'Nu s-a putut porni cererea de înrolare';
+
+      setToastMessage(mesaj);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [fetchAngajati]);
 
   const randuriFiltrate = useMemo(() => {
     let lista = [...angajati];
@@ -256,7 +332,7 @@ const AdministrareaAngajatilor = () => {
       {
         field: 'actiuni',
         headerName: 'Acțiuni',
-        width: 80,
+        width: 130,
         sortable: false,
         disableColumnMenu: true,
         renderCell: (params) => (
@@ -264,14 +340,30 @@ const AdministrareaAngajatilor = () => {
             <IconButton
               sx={{ color: '#1976d2' }}
               onClick={() => handleEditEmployee(params.row)}
+              title="Editează"
             >
               <Edit />
+            </IconButton>
+
+            <IconButton
+              sx={{
+                color: params.row.are_amprenta ? '#7b1fa2' : '#ff9800'
+              }}
+              onClick={() => handleEnrollFingerprint(params.row)}
+              disabled={enrollLoadingId === params.row.id}
+              title={
+                params.row.are_amprenta
+                  ? 'Angajatul are deja amprentă'
+                  : 'Înregistrează amprentă'
+              }
+            >
+              <Fingerprint />
             </IconButton>
           </div>
         ),
       },
     ],
-    [handleEditEmployee]
+    [handleEditEmployee, handleEnrollFingerprint, enrollLoadingId]
   );
 
   return (
@@ -311,6 +403,21 @@ const AdministrareaAngajatilor = () => {
             </Button>
           </Box>
         </Box>
+
+        {enrollStatus && (
+          <div
+            style={{
+              marginBottom: '12px',
+              padding: '10px 14px',
+              background: '#f3e5f5',
+              color: '#6a1b9a',
+              borderRadius: '8px',
+              fontWeight: 500,
+            }}
+          >
+            {enrollStatus}
+          </div>
+        )}
 
         <div className="tabel-container">
           <DataGrid

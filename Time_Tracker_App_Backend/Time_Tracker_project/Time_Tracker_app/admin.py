@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Status, Angajat, TipZi, Pontaj, Amprenta
+from .models import Status, Angajat, TipZi, Pontaj, Amprenta, CerereAmprenta
 
 
 @admin.register(Status)
@@ -53,3 +53,4 @@ class PontajAdmin(admin.ModelAdmin):
     afiseaza_ore_suplimentare.short_description = 'Ore suplimentare'
     
 admin.site.register(Amprenta)
+admin.site.register(CerereAmprenta)

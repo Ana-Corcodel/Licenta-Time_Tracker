@@ -88,40 +88,31 @@ def proceseaza_scanare(line, ser):
         trimite_display(ser, "Eroare", "Scan esuat")
 
 
-def proceseaza_enroll_activ(line, ser, stare_enroll):
+def proceseaza_enroll_activ(line, stare_enroll):
     cerere_id = stare_enroll.get("cerere_id")
-    nume = stare_enroll.get("nume", "Angajat")
 
     if line.startswith("ENROLL_STATUS:"):
         mesaj = line.replace("ENROLL_STATUS:", "").strip()
         print(f"Status enroll: {mesaj}")
-
         actualizeaza_enroll_status(cerere_id, "in_progress", mesaj)
-        trimite_display(ser, nume[:16], mesaj[:16])
 
     elif line.startswith("ENROLL_OK:"):
         mesaj = "Amprenta inregistrata"
         print(f"Enroll reusit pentru cererea {cerere_id}")
-
         actualizeaza_enroll_status(cerere_id, "success", mesaj)
-        trimite_display(ser, nume[:16], "Enroll reusit")
         stare_enroll["activ"] = False
 
     elif line.startswith("ENROLL_FAIL:"):
         mesaj = line.replace("ENROLL_FAIL:", "").strip()
         print(f"Enroll esuat pentru cererea {cerere_id}: {mesaj}")
-
         actualizeaza_enroll_status(cerere_id, "failed", mesaj)
-        trimite_display(ser, nume[:16], "Enroll esuat")
         stare_enroll["activ"] = False
 
     elif line.startswith("ENROLL_EXISTS:"):
         existing_id = line.replace("ENROLL_EXISTS:", "").strip()
         mesaj = f"Amprenta exista deja in senzor la ID {existing_id}"
         print(f"Enroll duplicat pentru cererea {cerere_id}: {mesaj}")
-
         actualizeaza_enroll_status(cerere_id, "failed", mesaj)
-        trimite_display(ser, nume[:16], "Ampr. exista")
         stare_enroll["activ"] = False
 
 
@@ -181,7 +172,7 @@ def main():
                 or line.startswith("ENROLL_FAIL:")
                 or line.startswith("ENROLL_EXISTS:")
             ):
-                proceseaza_enroll_activ(line, ser, stare_enroll)
+                proceseaza_enroll_activ(line, stare_enroll)
                 continue
 
             # 4. Scanare normala
