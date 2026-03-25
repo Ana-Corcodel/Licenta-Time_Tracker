@@ -105,7 +105,6 @@ const AdministrareaAngajatilor = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [enrollLoadingId, setEnrollLoadingId] = useState(null);
-  const [enrollStatus, setEnrollStatus] = useState('');
 
   const searchDebounced = useDebounce(search, DEBOUNCE_MS);
 
@@ -136,7 +135,6 @@ const AdministrareaAngajatilor = () => {
 
     try {
       setEnrollLoadingId(employee.id);
-      setEnrollStatus(`Pornesc înrolarea pentru ${employee.nume} ${employee.prenume}...`);
 
       const response = await axiosInstance.post('/api/start-enroll/', {
         angajat_id: employee.id,
@@ -152,10 +150,6 @@ const AdministrareaAngajatilor = () => {
         try {
           const statusResponse = await axiosInstance.get(`/api/enroll-status/${cerere_id}/`);
           const data = statusResponse.data;
-
-          setEnrollStatus(
-            `${data.angajat.nume} ${data.angajat.prenume}: ${data.mesaj || data.status}`
-          );
 
           if (data.status === 'success') {
             clearInterval(interval);
@@ -403,21 +397,6 @@ const AdministrareaAngajatilor = () => {
             </Button>
           </Box>
         </Box>
-
-        {enrollStatus && (
-          <div
-            style={{
-              marginBottom: '12px',
-              padding: '10px 14px',
-              background: '#f3e5f5',
-              color: '#6a1b9a',
-              borderRadius: '8px',
-              fontWeight: 500,
-            }}
-          >
-            {enrollStatus}
-          </div>
-        )}
 
         <div className="tabel-container">
           <DataGrid

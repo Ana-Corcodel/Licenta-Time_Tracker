@@ -16,6 +16,12 @@ def trimite_display(ser, linia1, linia2):
     print("Trimis la Arduino:", mesaj.strip())
 
 
+def afiseaza_temporar(ser, linia1, linia2, stare_display, durata=2):
+    trimite_display(ser, linia1, linia2)
+    stare_display["reset_la"] = time.time() + durata
+    stare_display["activ"] = True
+
+
 def trimite_enroll(ser, fingerprint_id):
     mesaj = f"ENROLL:{fingerprint_id}\n"
     ser.write(mesaj.encode('utf-8'))
@@ -47,7 +53,7 @@ def verifica_cerere_enroll():
         return {"status": "empty"}
 
 
-def proceseaza_scanare(line, ser):
+def proceseaza_scanare(line, ser, stare_display):
     try:
         fingerprint_id = int(line.split(":")[1])
 
@@ -70,22 +76,22 @@ def proceseaza_scanare(line, ser):
 
             if tip_actiune == "checkin":
                 ora = pontaj.get("ora_start", "")[:5]
-                trimite_display(ser, nume, f"Intrare {ora}")
+                afiseaza_temporar(ser, nume, f"Intrare {ora}", stare_display)
 
             elif tip_actiune == "checkout":
                 ora = pontaj.get("ora_sfarsit", "")[:5]
-                trimite_display(ser, nume, f"Iesire {ora}")
+                afiseaza_temporar(ser, nume, f"Iesire {ora}", stare_display)
 
             else:
-                trimite_display(ser, nume, data.get("mesaj", "Succes")[:16])
+                afiseaza_temporar(ser, nume, data.get("mesaj", "Succes")[:16], stare_display)
 
         else:
             mesaj = data.get("mesaj", "Eroare")
-            trimite_display(ser, "Eroare", mesaj[:16])
+            afiseaza_temporar(ser, "Eroare", mesaj[:16], stare_display)
 
     except Exception as e:
         print("Eroare la procesare scanare:", e)
-        trimite_display(ser, "Eroare", "Scan esuat")
+        afiseaza_temporar(ser, "Eroare", "Scan esuat", stare_display)
 
 
 def proceseaza_enroll_activ(line, stare_enroll):
@@ -121,6 +127,7 @@ def main():
     time.sleep(2)
 
     print(f'Conectat la {SERIAL_PORT}')
+    trimite_display(ser, "Pune degetul", "")
 
     stare_enroll = {
         "activ": False,
@@ -130,13 +137,22 @@ def main():
         "prenume": None,
     }
 
+    stare_display = {
+        "reset_la": 0,
+        "activ": False
+    }
+
     ultimul_poll_enroll = 0
-    interval_poll_enroll = 2  # secunde
+    interval_poll_enroll = 2
 
     while True:
         try:
-            # 1. Daca nu avem enroll activ, verificam periodic daca exista cereri noi
             acum = time.time()
+
+            if stare_display["activ"] and acum >= stare_display["reset_la"]:
+                trimite_display(ser, "Pune degetul", "")
+                stare_display["activ"] = False
+
             if not stare_enroll["activ"] and (acum - ultimul_poll_enroll >= interval_poll_enroll):
                 ultimul_poll_enroll = acum
 
@@ -157,7 +173,6 @@ def main():
 
                     trimite_enroll(ser, fingerprint_id)
 
-            # 2. Citim orice vine de la Arduino
             line = ser.readline().decode('utf-8', errors='ignore').strip()
 
             if not line:
@@ -165,7 +180,6 @@ def main():
 
             print(f"Primit din Arduino: {line}")
 
-            # 3. Daca avem enroll activ, prioritate pentru mesajele de enroll
             if stare_enroll["activ"] and (
                 line.startswith("ENROLL_STATUS:")
                 or line.startswith("ENROLL_OK:")
@@ -175,16 +189,16 @@ def main():
                 proceseaza_enroll_activ(line, stare_enroll)
                 continue
 
-            # 4. Scanare normala
             if line.startswith("ID:"):
-                proceseaza_scanare(line, ser)
+                proceseaza_scanare(line, ser, stare_display)
 
             elif line == "UNKNOWN":
                 print("Amprenta necunoscuta")
-                trimite_display(ser, "Necunoscut", "Acces respins")
+                afiseaza_temporar(ser, "Necunoscut", "Acces respins", stare_display, durata=2)
 
             elif line == "Senzor OK":
                 print("Senzor initializat corect")
+                trimite_display(ser, "Pune degetul", "")
 
         except Exception as e:
             print("Eroare:", e)
