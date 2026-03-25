@@ -2,7 +2,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
-from .views import AngajatView, PontajView, TipZiView, StatusView, logare, pagina_protejata, utilizator_curent, logout_view, scan_fingerprint
+from .views import AngajatView, PontajView, TipZiView, StatusView, logare, pagina_protejata, utilizator_curent, logout_view, scan_fingerprint, start_enroll, enroll_status, get_pending_enroll, update_enroll_status
 
 
 router = DefaultRouter()
@@ -24,4 +24,8 @@ urlpatterns += [
     path("utilizator-curent/", utilizator_curent),
     path("pagina-protejata/", pagina_protejata),
     path('scan-fingerprint/', scan_fingerprint, name='scan-fingerprint'),
+    path('start-enroll/', start_enroll, name='start-enroll'),
+    path('enroll-status/<int:cerere_id>/', enroll_status, name='enroll-status'),
+    path('enroll-pending/', get_pending_enroll, name='enroll-pending'),
+    path('enroll-update/<int:cerere_id>/', update_enroll_status, name='enroll-update'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

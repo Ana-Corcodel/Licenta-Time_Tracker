@@ -1,10 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Angajat, Pontaj, TipZi, Status, Amprenta
+from .models import Angajat, Pontaj, TipZi, Status, Amprenta, CerereAmprenta
 from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer, StatusSerializer
-from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, logout, get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -251,6 +250,14 @@ def get_angajat(fingerprint_id):
         return None
 
 
+def get_next_fingerprint_id():
+    used_ids = set(Amprenta.objects.values_list('fingerprint_id', flat=True))
+    for i in range(1, 128):
+        if i not in used_ids:
+            return i
+    return None
+
+
 def calculeaza_secunde_lucrate(start_time, end_time, pauza_minute):
     start_dt = datetime.combine(date.today(), start_time)
     end_dt = datetime.combine(date.today(), end_time)
@@ -389,3 +396,131 @@ def scan_fingerprint(request):
         'status': 'info',
         'mesaj': 'Pontajul pe azi este deja complet'
     })
+
+
+@csrf_exempt
+def start_enroll(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metoda invalida'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        angajat_id = int(data.get('angajat_id'))
+    except Exception:
+        return JsonResponse({'error': 'Date invalide'}, status=400)
+
+    angajat = Angajat.objects.filter(id=angajat_id).first()
+    if not angajat:
+        return JsonResponse({'error': 'Angajat inexistent'}, status=404)
+
+    if Amprenta.objects.filter(angajat=angajat).exists():
+        return JsonResponse({'error': 'Angajatul are deja o amprenta'}, status=400)
+
+    cerere_existenta = CerereAmprenta.objects.filter(
+        angajat=angajat,
+        status__in=['pending', 'in_progress']
+    ).first()
+
+    if cerere_existenta:
+        return JsonResponse({
+            'error': 'Exista deja o cerere activa pentru acest angajat',
+            'cerere_id': cerere_existenta.id
+        }, status=400)
+
+    fingerprint_id = get_next_fingerprint_id()
+    if not fingerprint_id:
+        return JsonResponse({'error': 'Nu mai exista ID-uri libere'}, status=400)
+
+    cerere = CerereAmprenta.objects.create(
+        angajat=angajat,
+        fingerprint_id=fingerprint_id,
+        status='pending',
+        mesaj='Cererea de inrolare a fost creata'
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'cerere_id': cerere.id,
+        'fingerprint_id': fingerprint_id,
+        'mesaj': 'Cererea de inrolare a fost pornita'
+    })
+
+
+def enroll_status(request, cerere_id):
+    cerere = CerereAmprenta.objects.select_related('angajat').filter(id=cerere_id).first()
+    if not cerere:
+        return JsonResponse({'error': 'Cerere inexistenta'}, status=404)
+
+    return JsonResponse({
+        'id': cerere.id,
+        'status': cerere.status,
+        'mesaj': cerere.mesaj,
+        'fingerprint_id': cerere.fingerprint_id,
+        'angajat': {
+            'id': cerere.angajat.id,
+            'nume': cerere.angajat.nume,
+            'prenume': cerere.angajat.prenume,
+        }
+    })
+
+
+@csrf_exempt
+def get_pending_enroll(request):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Metoda invalida'}, status=405)
+
+    cerere = CerereAmprenta.objects.select_related('angajat').filter(
+        status='pending'
+    ).order_by('created_at').first()
+
+    if not cerere:
+        return JsonResponse({'status': 'empty'})
+
+    cerere.status = 'in_progress'
+    cerere.mesaj = 'Se asteapta interactiunea cu senzorul'
+    cerere.save()
+
+    return JsonResponse({
+        'status': 'success',
+        'cerere_id': cerere.id,
+        'fingerprint_id': cerere.fingerprint_id,
+        'angajat': {
+            'id': cerere.angajat.id,
+            'nume': cerere.angajat.nume,
+            'prenume': cerere.angajat.prenume,
+        }
+    })
+
+
+@csrf_exempt
+def update_enroll_status(request, cerere_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metoda invalida'}, status=405)
+
+    cerere = CerereAmprenta.objects.select_related('angajat').filter(id=cerere_id).first()
+    if not cerere:
+        return JsonResponse({'error': 'Cerere inexistenta'}, status=404)
+
+    try:
+        data = json.loads(request.body)
+        new_status = data.get('status')
+        mesaj = data.get('mesaj', '')
+    except Exception:
+        return JsonResponse({'error': 'Date invalide'}, status=400)
+
+    if new_status not in ['in_progress', 'success', 'failed']:
+        return JsonResponse({'error': 'Status invalid'}, status=400)
+
+    cerere.status = new_status
+    cerere.mesaj = mesaj
+    cerere.save()
+
+    if new_status == 'success':
+        if not Amprenta.objects.filter(angajat=cerere.angajat).exists():
+            Amprenta.objects.create(
+                angajat=cerere.angajat,
+                fingerprint_id=cerere.fingerprint_id,
+                activ=True
+            )
+
+    return JsonResponse({'status': 'ok'})
