@@ -70,8 +70,8 @@ class Pontaj(models.Model):
     pauza_masa = models.IntegerField(help_text="Durata pauzei în minute")
     tip = models.ForeignKey(TipZi, on_delete=models.CASCADE, related_name="pontaje")
     data = models.DateField()
-    ore_lucrate = models.DecimalField(max_digits=6, decimal_places=2, default=0)
-    ore_lucru_suplimentare = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    ore_lucrate = models.DecimalField(max_digits=10, decimal_places=6, default=0)
+    ore_lucru_suplimentare = models.DecimalField(max_digits=10, decimal_places=6, default=0)
 
     def __str__(self):
         return f"{self.angajat} - {self.data} ({self.tip.prescurtare})"

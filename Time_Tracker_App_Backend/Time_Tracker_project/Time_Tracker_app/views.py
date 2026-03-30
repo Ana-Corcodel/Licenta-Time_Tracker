@@ -272,7 +272,7 @@ def calculeaza_secunde_lucrate(start_time, end_time, pauza_minute):
 
 
 def secunde_in_ore_zecimale(secunde):
-    return round(secunde / 3600, 2)
+    return round(secunde / 3600, 6)
 
 
 def secunde_in_format_hms(secunde):
