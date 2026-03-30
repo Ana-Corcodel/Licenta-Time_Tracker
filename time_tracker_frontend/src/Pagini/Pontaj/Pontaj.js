@@ -23,6 +23,20 @@ const useDebounce = (value, delay) => {
   return debounced;
 };
 
+const normalizeTime = (timeValue) => {
+  if (!timeValue) return '-';
+  return String(timeValue).slice(0, 5);
+};
+
+const formatHoursToHHMM = (value) => {
+  const numericValue = Number(value) || 0;
+  const totalMinutes = Math.round(numericValue * 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${hours}:${String(minutes).padStart(2, '0')}`;
+};
+
 const usePontaje = () => {
   const [pontaje, setPontaje] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,23 +51,39 @@ const usePontaje = () => {
         axiosInstance.get('/tipuri-zile/'),
       ]);
 
+      const pontajeData = Array.isArray(pontajRes.data)
+        ? pontajRes.data
+        : pontajRes.data?.results || [];
+
+      const angData = Array.isArray(angRes.data)
+        ? angRes.data
+        : angRes.data?.results || [];
+
+      const tipData = Array.isArray(tipRes.data)
+        ? tipRes.data
+        : tipRes.data?.results || [];
+
       const angMap = {};
-      angRes.data.forEach((a) => {
+      angData.forEach((a) => {
         angMap[a.id] = `${a.nume} ${a.prenume}`;
       });
 
       const tipMap = {};
-      tipRes.data.forEach((t) => {
+      tipData.forEach((t) => {
         tipMap[t.id] = t.prescurtare || t.tip_zi;
       });
 
-      const mapped = pontajRes.data.map((p, idx) => ({
+      const mapped = pontajeData.map((p, idx) => ({
         id: p.id ?? idx,
         ...p,
         angajat_nume: angMap[p.angajat] || '-',
         tip_zi: tipMap[p.tip] || '-',
         data_display: p.data ? new Date(p.data).toLocaleDateString('ro-RO') : '-',
         an_display: p.an ? new Date(p.an).getFullYear() : '-',
+        ora_start_display: normalizeTime(p.ora_start),
+        ora_sfarsit_display: normalizeTime(p.ora_sfarsit),
+        ore_lucrate_display: formatHoursToHHMM(p.ore_lucrate),
+        ore_suplimentare_display: formatHoursToHHMM(p.ore_lucru_suplimentare),
       }));
 
       setPontaje(mapped);
@@ -96,7 +126,9 @@ const Pontaj = () => {
         p.angajat_nume?.toLowerCase().includes(s) ||
         p.luna?.toLowerCase().includes(s) ||
         p.tip_zi?.toLowerCase().includes(s) ||
-        p.data_display?.toLowerCase().includes(s)
+        p.data_display?.toLowerCase().includes(s) ||
+        p.ore_lucrate_display?.toLowerCase().includes(s) ||
+        p.ore_suplimentare_display?.toLowerCase().includes(s)
       );
     }
 
@@ -130,13 +162,13 @@ const Pontaj = () => {
         minWidth: 120,
       },
       {
-        field: 'ora_start',
+        field: 'ora_start_display',
         headerName: 'Ora start',
         flex: 0.8,
         minWidth: 110,
       },
       {
-        field: 'ora_sfarsit',
+        field: 'ora_sfarsit_display',
         headerName: 'Ora sfârșit',
         flex: 0.8,
         minWidth: 120,
@@ -146,15 +178,16 @@ const Pontaj = () => {
         headerName: 'Pauză (min)',
         flex: 0.9,
         minWidth: 120,
+        renderCell: (params) => params.value ?? 0,
       },
       {
-        field: 'ore_lucrate',
+        field: 'ore_lucrate_display',
         headerName: 'Ore lucrate',
         flex: 0.9,
         minWidth: 120,
       },
       {
-        field: 'ore_lucru_suplimentare',
+        field: 'ore_suplimentare_display',
         headerName: 'Ore supl.',
         flex: 0.9,
         minWidth: 110,

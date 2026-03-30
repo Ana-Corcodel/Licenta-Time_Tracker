@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback} from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../../Config/axiosInstance";
 import DatePicker from "react-datepicker";
 import { registerLocale } from "react-datepicker";
@@ -36,6 +36,39 @@ const AddPontaj = ({ open, onClose }) => {
     const [showToast, setShowToast] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
 
+    const getInitialFormData = useCallback(() => ({
+        angajat: null,
+        luna: "",
+        an: new Date(),
+        ora_start: "09:00",
+        ora_sfarsit: "17:00",
+        pauza_masa: 30,
+        tip: null,
+        data: new Date(),
+        ore_lucrate: 8,
+        ore_lucru_suplimentare: 0,
+    }), []);
+
+    const normalizeTime = (timeValue) => {
+        if (!timeValue) return "";
+        return String(timeValue).slice(0, 5);
+    };
+
+    const timeToMinutes = (time) => {
+        if (!time) return 0;
+        const [h, m] = String(time).split(":").map(Number);
+        return h * 60 + m;
+    };
+
+    const formatHoursToHHMM = (value) => {
+        const numericValue = Number(value) || 0;
+        const totalMinutes = Math.round(numericValue * 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        return `${hours}:${String(minutes).padStart(2, "0")}`;
+    };
+
     // Încărcăm opțiunile necesare (angajați și tipuri zi)
     useEffect(() => {
         if (open) {
@@ -46,46 +79,44 @@ const AddPontaj = ({ open, onClose }) => {
     // Reset form when modal opens
     useEffect(() => {
         if (open) {
-            setFormData({
-                angajat: null,
-                luna: "",
-                an: new Date(),
-                ora_start: "09:00",
-                ora_sfarsit: "17:00",
-                pauza_masa: 30,
-                tip: null,
-                data: new Date(),
-                ore_lucrate: 8,
-                ore_lucru_suplimentare: 0,
-            });
+            setFormData(getInitialFormData());
             setError("");
             setSuccess("");
             setFieldErrors({});
         }
-    }, [open]);
+    }, [open, getInitialFormData]);
 
     // Fetch angajati si tipuri zi
     const fetchOptions = async () => {
         setLoadingOptions(true);
         try {
             const [angajatiRes, tipuriRes] = await Promise.all([
-                axiosInstance.get('/angajati/'),
-                axiosInstance.get('/tipuri-zile/')
+                axiosInstance.get("/angajati/"),
+                axiosInstance.get("/tipuri-zile/")
             ]);
 
+            const angajatiData = Array.isArray(angajatiRes.data)
+                ? angajatiRes.data
+                : angajatiRes.data?.results || [];
+
+            const tipuriData = Array.isArray(tipuriRes.data)
+                ? tipuriRes.data
+                : tipuriRes.data?.results || [];
+
             // Formatam angajatii pentru react-select
-            const angajatiFormatted = angajatiRes.data.map(a => ({
+            const angajatiFormatted = angajatiData.map(a => ({
                 value: a.id,
                 label: `${a.nume} ${a.prenume}`,
                 ...a
             }));
             setAngajati(angajatiFormatted);
 
-            // Formatam tipurile de zi pentru react-select - CORECTAT
-            const tipuriFormatted = tipuriRes.data.map(t => ({
+            // Formatam tipurile de zi pentru react-select
+            const tipuriFormatted = tipuriData.map(t => ({
                 value: t.id,
-                label: t.tip_zi, // Folosim 'tip_zi' deoarece acesta este numele câmpului din model
-                prescurtare: t.prescurtare
+                label: t.tip_zi,
+                prescurtare: t.prescurtare,
+                ...t
             }));
             setTipuriZi(tipuriFormatted);
         } catch (err) {
@@ -96,21 +127,31 @@ const AddPontaj = ({ open, onClose }) => {
         }
     };
 
-    // Calculează luna și orele lucrate automat
+    // Calculează orele lucrate automat
     const calculateOreLucrate = useCallback((start, sfarsit, pauza) => {
         if (!start || !sfarsit) return 0;
 
-        const [startH, startM] = start.split(':').map(Number);
-        const [sfarsitH, sfarsitM] = sfarsit.split(':').map(Number);
-
-        const startMinutes = startH * 60 + startM;
-        const sfarsitMinutes = sfarsitH * 60 + sfarsitM;
+        const startMinutes = timeToMinutes(start);
+        const sfarsitMinutes = timeToMinutes(sfarsit);
 
         let totalMinutes = sfarsitMinutes - startMinutes;
         if (totalMinutes < 0) totalMinutes += 24 * 60; // trecere peste miezul nopții
 
-        const oreLucrate = (totalMinutes - (pauza || 0)) / 60;
-        return Math.max(0, Math.round(oreLucrate * 10) / 10); // rotunjim la 1 zecimală
+        const minuteLucrate = Math.max(0, totalMinutes - (Number(pauza) || 0));
+        return Math.round((minuteLucrate / 60) * 100) / 100;
+    }, []);
+
+    // Calculează orele suplimentare automat după programul angajatului
+    const calculateOreSuplimentare = useCallback((pontajEnd, programEnd) => {
+        if (!pontajEnd || !programEnd) return 0;
+
+        const pontajEndMinutes = timeToMinutes(pontajEnd);
+        const programEndMinutes = timeToMinutes(programEnd);
+
+        let extraMinutes = pontajEndMinutes - programEndMinutes;
+        if (extraMinutes < 0) extraMinutes = 0;
+
+        return Math.round((extraMinutes / 60) * 100) / 100;
     }, []);
 
     // Actualizează câmpul luna când se schimbă data
@@ -121,31 +162,60 @@ const AddPontaj = ({ open, onClose }) => {
                 "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
             ];
             const luna = luni[formData.data.getMonth()];
-            setFormData(prev => ({ ...prev, luna }));
+            setFormData(prev => {
+                if (prev.luna === luna) return prev;
+                return { ...prev, luna };
+            });
         }
     }, [formData.data]);
 
-    // Recalculează orele lucrate când se schimbă ora_start, ora_sfarsit sau pauza_masa
+    // Recalculează orele lucrate și suplimentare când se schimbă datele relevante
     useEffect(() => {
         const oreLucrate = calculateOreLucrate(
             formData.ora_start,
             formData.ora_sfarsit,
             formData.pauza_masa
         );
-        setFormData(prev => ({ ...prev, ore_lucrate: oreLucrate }));
-    }, [formData.ora_start, formData.ora_sfarsit, formData.pauza_masa, calculateOreLucrate]);
+
+        const programEnd = normalizeTime(formData.angajat?.ora_sfarsit);
+
+        const oreSuplimentare = calculateOreSuplimentare(
+            formData.ora_sfarsit,
+            programEnd
+        );
+
+        setFormData(prev => {
+            if (
+                prev.ore_lucrate === oreLucrate &&
+                prev.ore_lucru_suplimentare === oreSuplimentare
+            ) {
+                return prev;
+            }
+
+            return {
+                ...prev,
+                ore_lucrate: oreLucrate,
+                ore_lucru_suplimentare: oreSuplimentare,
+            };
+        });
+    }, [
+        formData.ora_start,
+        formData.ora_sfarsit,
+        formData.pauza_masa,
+        formData.angajat,
+        calculateOreLucrate,
+        calculateOreSuplimentare
+    ]);
 
     // Gestionare modificare câmpuri simple
     const handleChange = useCallback((field) => (e) => {
         let value = e.target.value;
 
-        // Conversie la număr pentru câmpurile numerice
-        if (field === "pauza_masa" || field === "ore_lucru_suplimentare") {
-            value = parseInt(value) || 0;
-            // Limităm valorile
+        if (field === "pauza_masa") {
+            value = parseInt(value, 10);
+            if (Number.isNaN(value)) value = 0;
             if (value < 0) value = 0;
-            if (field === "pauza_masa" && value > 180) value = 180;
-            if (field === "ore_lucru_suplimentare" && value > 24) value = 24;
+            if (value > 180) value = 180;
         }
 
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -161,8 +231,20 @@ const AddPontaj = ({ open, onClose }) => {
 
     // Gestionare modificare pentru select angajat
     const handleAngajatChange = useCallback((selectedOption) => {
-        setFormData(prev => ({ ...prev, angajat: selectedOption }));
-        setFieldErrors(prev => ({ ...prev, angajat: "" }));
+        setFormData(prev => ({
+            ...prev,
+            angajat: selectedOption,
+            pauza_masa: selectedOption?.ora_pauza ?? 30,
+            ora_start: normalizeTime(selectedOption?.ora_incepere) || "09:00",
+            ora_sfarsit: normalizeTime(selectedOption?.ora_sfarsit) || "17:00",
+        }));
+        setFieldErrors(prev => ({
+            ...prev,
+            angajat: "",
+            pauza_masa: "",
+            ora_start: "",
+            ora_sfarsit: "",
+        }));
     }, []);
 
     // Gestionare modificare pentru select tip zi
@@ -173,7 +255,7 @@ const AddPontaj = ({ open, onClose }) => {
 
     // Gestionare modificare dată
     const handleDateChange = useCallback((date) => {
-        setFormData(prev => ({ ...prev, data: date, an: date }));
+        setFormData(prev => ({ ...prev, data: date, an: date || new Date() }));
         setFieldErrors(prev => ({ ...prev, data: "" }));
     }, []);
 
@@ -188,15 +270,11 @@ const AddPontaj = ({ open, onClose }) => {
         if (!formData.tip) errors.tip = "Tipul de zi este obligatoriu";
 
         if (formData.pauza_masa < 0) errors.pauza_masa = "Pauza nu poate fi negativă";
-        if (formData.ore_lucru_suplimentare < 0) errors.ore_lucru_suplimentare = "Orele suplimentare nu pot fi negative";
 
-        // Verificăm dacă ora de sfârșit este după ora de început
+        // Verificăm dacă ora de sfârșit este prea departe de ora de început
         if (formData.ora_start && formData.ora_sfarsit) {
-            const [startH, startM] = formData.ora_start.split(':').map(Number);
-            const [sfarsitH, sfarsitM] = formData.ora_sfarsit.split(':').map(Number);
-
-            const startMinutes = startH * 60 + startM;
-            const sfarsitMinutes = sfarsitH * 60 + sfarsitM;
+            const startMinutes = timeToMinutes(formData.ora_start);
+            const sfarsitMinutes = timeToMinutes(formData.ora_sfarsit);
 
             if (sfarsitMinutes <= startMinutes && sfarsitMinutes + 24 * 60 - startMinutes > 12 * 60) {
                 errors.ora_sfarsit = "Intervalul pare prea lung pentru trecerea peste noapte";
@@ -209,23 +287,12 @@ const AddPontaj = ({ open, onClose }) => {
 
     // Reset și închidere modal
     const handleCancel = useCallback(() => {
-        setFormData({
-            angajat: null,
-            luna: "",
-            an: new Date(),
-            ora_start: "09:00",
-            ora_sfarsit: "17:00",
-            pauza_masa: 30,
-            tip: null,
-            data: new Date(),
-            ore_lucrate: 8,
-            ore_lucru_suplimentare: 0,
-        });
+        setFormData(getInitialFormData());
         setError("");
         setSuccess("");
         setFieldErrors({});
         onClose(false);
-    }, [onClose]);
+    }, [getInitialFormData, onClose]);
 
     // Submit formular
     const handleSubmit = useCallback(async () => {
@@ -240,9 +307,9 @@ const AddPontaj = ({ open, onClose }) => {
 
         try {
             // Formatăm data pentru trimitere (YYYY-MM-DD)
-            const dataFormatted = formData.data.toISOString().split('T')[0];
+            const dataFormatted = formData.data.toISOString().split("T")[0];
 
-            // Formatăm anul ca dată (primul zi a anului)
+            // Formatăm anul ca dată (prima zi a anului)
             const anFormatted = `${formData.an.getFullYear()}-01-01`;
 
             const payload = {
@@ -251,11 +318,11 @@ const AddPontaj = ({ open, onClose }) => {
                 an: anFormatted,
                 ora_start: formData.ora_start,
                 ora_sfarsit: formData.ora_sfarsit,
-                pauza_masa: parseInt(formData.pauza_masa) || 30,
+                pauza_masa: parseInt(formData.pauza_masa, 10) || 0,
                 tip: formData.tip.value,
                 data: dataFormatted,
                 ore_lucrate: formData.ore_lucrate,
-                ore_lucru_suplimentare: parseInt(formData.ore_lucru_suplimentare) || 0,
+                ore_lucru_suplimentare: formData.ore_lucru_suplimentare,
             };
 
             const res = await axiosInstance.post("/pontaje/", payload);
@@ -272,14 +339,12 @@ const AddPontaj = ({ open, onClose }) => {
             if (err.response?.data?.detail) message = err.response.data.detail;
             else if (err.response?.data?.message) message = err.response.data.message;
             else if (err.response?.data) {
-                // Afișăm erorile de validare detaliate
                 const validationErrors = err.response.data;
-                if (typeof validationErrors === 'object') {
-                    Object.keys(validationErrors).forEach(key => {
-                        if (Array.isArray(validationErrors[key])) {
-                            message = validationErrors[key][0];
-                        }
-                    });
+                if (typeof validationErrors === "object") {
+                    const firstKey = Object.keys(validationErrors)[0];
+                    if (firstKey && Array.isArray(validationErrors[firstKey])) {
+                        message = validationErrors[firstKey][0];
+                    }
                 }
             }
             setError(message);
@@ -293,74 +358,74 @@ const AddPontaj = ({ open, onClose }) => {
     const getCustomSelectStyles = (fieldName) => ({
         control: (base, state) => ({
             ...base,
-            border: fieldErrors[fieldName] ? '1px solid #d32f2f' :
-                state.isFocused ? '1px solid #007BFF' : '1px solid #ccc',
-            '&:hover': {
-                border: fieldErrors[fieldName] ? '1px solid #d32f2f' :
-                    state.isFocused ? '1px solid #007BFF' : '1px solid #888'
+            border: fieldErrors[fieldName] ? "1px solid #d32f2f" :
+                state.isFocused ? "1px solid #007BFF" : "1px solid #ccc",
+            "&:hover": {
+                border: fieldErrors[fieldName] ? "1px solid #d32f2f" :
+                    state.isFocused ? "1px solid #007BFF" : "1px solid #888"
             },
-            fontSize: '14px',
-            fontFamily: 'Arial, sans-serif',
-            minHeight: '38px',
-            backgroundColor: state.isFocused ? '#fff' : '#fff',
-            boxShadow: 'none',
-            borderRadius: '4px',
+            fontSize: "14px",
+            fontFamily: "Arial, sans-serif",
+            minHeight: "38px",
+            backgroundColor: "#fff",
+            boxShadow: "none",
+            borderRadius: "4px",
         }),
         valueContainer: (base) => ({
             ...base,
-            padding: '0 8px',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            textAlign: 'left'
+            padding: "0 8px",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            textAlign: "left"
         }),
         input: (base) => ({
             ...base,
-            color: '#1a1a1a',
-            margin: '0',
-            padding: '0',
-            '& input': {
-                boxShadow: 'none !important',
-                border: 'none !important',
-                outline: 'none !important',
-                padding: '0',
-                margin: '0',
-                textAlign: 'left'
+            color: "#1a1a1a",
+            margin: "0",
+            padding: "0",
+            "& input": {
+                boxShadow: "none !important",
+                border: "none !important",
+                outline: "none !important",
+                padding: "0",
+                margin: "0",
+                textAlign: "left"
             }
         }),
         placeholder: (base) => ({
             ...base,
-            color: '#999',
-            fontSize: '14px',
-            textAlign: 'left',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start'
+            color: "#999",
+            fontSize: "14px",
+            textAlign: "left",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start"
         }),
         singleValue: (base) => ({
             ...base,
-            color: '#1a1a1a',
-            fontSize: '14px',
-            textAlign: 'left',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start'
+            color: "#1a1a1a",
+            fontSize: "14px",
+            textAlign: "left",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start"
         }),
         menu: (base) => ({
             ...base,
             zIndex: 9999,
-            fontSize: '14px',
-            textAlign: 'left'
+            fontSize: "14px",
+            textAlign: "left"
         }),
         option: (base, state) => ({
             ...base,
-            backgroundColor: state.isSelected ? '#e6f2ff' : state.isFocused ? '#f0f0f0' : '#fff',
-            color: state.isSelected ? '#006ce4' : '#1a1a1a',
-            fontSize: '14px',
-            textAlign: 'left',
-            '&:active': {
-                backgroundColor: '#e6f2ff',
+            backgroundColor: state.isSelected ? "#e6f2ff" : state.isFocused ? "#f0f0f0" : "#fff",
+            color: state.isSelected ? "#006ce4" : "#1a1a1a",
+            fontSize: "14px",
+            textAlign: "left",
+            "&:active": {
+                backgroundColor: "#e6f2ff",
             }
         }),
     });
@@ -409,7 +474,7 @@ const AddPontaj = ({ open, onClose }) => {
                                                 onChange={handleAngajatChange}
                                                 options={angajati}
                                                 placeholder="Selectează angajat"
-                                                className={`multiselect-field ${fieldErrors.angajat ? 'select-error' : ''}`}
+                                                className={`multiselect-field ${fieldErrors.angajat ? "select-error" : ""}`}
                                                 classNamePrefix="select"
                                                 isSearchable={true}
                                                 isClearable={true}
@@ -485,22 +550,24 @@ const AddPontaj = ({ open, onClose }) => {
                                             min="0"
                                             max="180"
                                         />
+                                        <small className="field-hint">
+                                            Preluată automat din angajat, dar poate fi modificată
+                                        </small>
                                         {fieldErrors.pauza_masa && <span className="field-error error-left">{fieldErrors.pauza_masa}</span>}
                                     </div>
 
                                     <div className="form-field">
                                         <label className="label-left">Ore suplimentare</label>
                                         <input
-                                            type="number"
-                                            placeholder="0"
-                                            value={formData.ore_lucru_suplimentare}
-                                            onChange={handleChange("ore_lucru_suplimentare")}
-                                            className={`input-left ${fieldErrors.ore_lucru_suplimentare ? "field-error-border" : ""}`}
-                                            min="0"
-                                            max="24"
-                                            step="0.5"
+                                            type="text"
+                                            value={formatHoursToHHMM(formData.ore_lucru_suplimentare)}
+                                            readOnly
+                                            disabled
+                                            className="input-left readonly-field"
                                         />
-                                        {fieldErrors.ore_lucru_suplimentare && <span className="field-error error-left">{fieldErrors.ore_lucru_suplimentare}</span>}
+                                        <small className="field-hint">
+                                            Calculat automat după programul angajatului ({Number(formData.ore_lucru_suplimentare || 0).toFixed(2)} h)
+                                        </small>
                                     </div>
                                 </div>
 
@@ -517,7 +584,7 @@ const AddPontaj = ({ open, onClose }) => {
                                                 onChange={handleTipChange}
                                                 options={tipuriZi}
                                                 placeholder="Selectează tipul zilei"
-                                                className={`multiselect-field ${fieldErrors.tip ? 'select-error' : ''}`}
+                                                className={`multiselect-field ${fieldErrors.tip ? "select-error" : ""}`}
                                                 classNamePrefix="select"
                                                 isSearchable={true}
                                                 isClearable={true}
@@ -532,14 +599,15 @@ const AddPontaj = ({ open, onClose }) => {
                                 <div className="form-field">
                                     <label className="label-left">Ore lucrate</label>
                                     <input
-                                        type="number"
-                                        value={formData.ore_lucrate}
+                                        type="text"
+                                        value={formatHoursToHHMM(formData.ore_lucrate)}
                                         readOnly
                                         disabled
-                                        step="0.1"
                                         className="input-left readonly-field"
                                     />
-                                    <small className="field-hint">Calculat automat</small>
+                                    <small className="field-hint">
+                                        Calculat automat ({Number(formData.ore_lucrate || 0).toFixed(2)} h)
+                                    </small>
                                 </div>
 
                                 {/* Butoane formular */}
