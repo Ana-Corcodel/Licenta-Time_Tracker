@@ -120,7 +120,6 @@ const TipZi = () => {
         <Box className="tipzi-toolbar">
           <h2 className="title">
             TIP ZI
-            <span className="title-count"> ({filteredRows.length})</span>
           </h2>
 
           <Box className="tipzi-toolbar-right">

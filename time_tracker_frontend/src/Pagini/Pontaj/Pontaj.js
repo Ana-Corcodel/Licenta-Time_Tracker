@@ -225,7 +225,6 @@ const Pontaj = () => {
         <Box className="pontaj-toolbar">
           <h2 className="title">
             PONTAJ
-            <span className="title-count"> ({filteredRows.length})</span>
           </h2>
 
           <Box className="pontaj-toolbar-right">
