@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Status, Angajat, TipZi, Pontaj, Amprenta, CerereAmprenta
+from .models import Status, Angajat, TipZi, Pontaj, Amprenta, CerereAmprenta, CerereStergereAmprenta
 
 
 @admin.register(Status)
@@ -54,3 +54,4 @@ class PontajAdmin(admin.ModelAdmin):
     
 admin.site.register(Amprenta)
 admin.site.register(CerereAmprenta)
+admin.site.register(CerereStergereAmprenta)

@@ -115,3 +115,25 @@ class CerereAmprenta(models.Model):
 
     def __str__(self):
         return f"{self.angajat} - {self.fingerprint_id} - {self.status}"
+    
+class CerereStergereAmprenta(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+    ]
+
+    angajat = models.ForeignKey(
+        Angajat,
+        on_delete=models.CASCADE,
+        related_name='cereri_stergere_amprenta'
+    )
+    fingerprint_id = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    mesaj = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.angajat} - stergere ID {self.fingerprint_id} - {self.status}"

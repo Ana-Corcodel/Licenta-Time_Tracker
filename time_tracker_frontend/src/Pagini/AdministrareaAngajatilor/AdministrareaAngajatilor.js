@@ -8,7 +8,7 @@ import {
   Chip
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Search, Edit, Add, Fingerprint } from '@mui/icons-material';
+import { Search, Edit, Add, Fingerprint, Delete } from '@mui/icons-material';
 import axiosInstance from '../../Config/axiosInstance';
 import AddAngajati from './AddAngajati';
 import EditAngajati from './EditAngajati';
@@ -105,13 +105,14 @@ const AdministrareaAngajatilor = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [enrollLoadingId, setEnrollLoadingId] = useState(null);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
 
   const searchDebounced = useDebounce(search, DEBOUNCE_MS);
 
   const fetchAngajati = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get('/angajati/');
+      const res = await axiosInstance.get('/api/angajati/');
       const data = Array.isArray(res.data) ? res.data : res.data?.results;
       setAngajati(data || []);
     } catch (err) {
@@ -124,6 +125,12 @@ const AdministrareaAngajatilor = () => {
   useEffect(() => {
     fetchAngajati();
   }, [fetchAngajati]);
+
+  const showToastMessage = (message) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 4000);
+  };
 
   const handleEditEmployee = useCallback((employee) => {
     setSelectedEmployee(employee);
@@ -142,9 +149,7 @@ const AdministrareaAngajatilor = () => {
 
       const { cerere_id } = response.data;
 
-      setToastMessage(`Cerere de înrolare pornită pentru ${employee.nume} ${employee.prenume}`);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 4000);
+      showToastMessage(`Cerere de înrolare pornită pentru ${employee.nume} ${employee.prenume}`);
 
       interval = setInterval(async () => {
         try {
@@ -155,11 +160,9 @@ const AdministrareaAngajatilor = () => {
             clearInterval(interval);
             setEnrollLoadingId(null);
 
-            setToastMessage(
+            showToastMessage(
               `Amprenta a fost înregistrată pentru ${data.angajat.nume} ${data.angajat.prenume}`
             );
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 4000);
             fetchAngajati();
           }
 
@@ -167,18 +170,13 @@ const AdministrareaAngajatilor = () => {
             clearInterval(interval);
             setEnrollLoadingId(null);
 
-            setToastMessage(data.mesaj || 'Înrolarea a eșuat');
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 4000);
+            showToastMessage(data.mesaj || 'Înrolarea a eșuat');
           }
         } catch (err) {
           clearInterval(interval);
           setEnrollLoadingId(null);
           console.error('Eroare la verificarea statusului de enroll:', err);
-
-          setToastMessage('Eroare la verificarea statusului de înrolare');
-          setShowToast(true);
-          setTimeout(() => setShowToast(false), 4000);
+          showToastMessage('Eroare la verificarea statusului de înrolare');
         }
       }, 1500);
     } catch (err) {
@@ -189,9 +187,65 @@ const AdministrareaAngajatilor = () => {
         err?.response?.data?.error ||
         'Nu s-a putut porni cererea de înrolare';
 
-      setToastMessage(mesaj);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 4000);
+      showToastMessage(mesaj);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [fetchAngajati]);
+
+  const handleDeleteFingerprint = useCallback(async (employee) => {
+    let interval = null;
+
+    try {
+      setDeleteLoadingId(employee.id);
+
+      const response = await axiosInstance.post('/api/start-delete-fingerprint/', {
+        angajat_id: employee.id,
+      });
+
+      const { cerere_id } = response.data;
+
+      showToastMessage(`Cerere de ștergere pornită pentru ${employee.nume} ${employee.prenume}`);
+
+      interval = setInterval(async () => {
+        try {
+          const statusResponse = await axiosInstance.get(`/api/delete-status/${cerere_id}/`);
+          const data = statusResponse.data;
+
+          if (data.status === 'success') {
+            clearInterval(interval);
+            setDeleteLoadingId(null);
+
+            showToastMessage(
+              `Amprenta a fost ștearsă pentru ${data.angajat.nume} ${data.angajat.prenume}`
+            );
+            fetchAngajati();
+          }
+
+          if (data.status === 'failed') {
+            clearInterval(interval);
+            setDeleteLoadingId(null);
+
+            showToastMessage(data.mesaj || 'Ștergerea amprentei a eșuat');
+          }
+        } catch (err) {
+          clearInterval(interval);
+          setDeleteLoadingId(null);
+          console.error('Eroare la verificarea statusului de delete:', err);
+          showToastMessage('Eroare la verificarea statusului de ștergere');
+        }
+      }, 1500);
+    } catch (err) {
+      console.error('Eroare la pornirea ștergerii:', err);
+      setDeleteLoadingId(null);
+
+      const mesaj =
+        err?.response?.data?.error ||
+        'Nu s-a putut porni cererea de ștergere';
+
+      showToastMessage(mesaj);
     }
 
     return () => {
@@ -326,7 +380,7 @@ const AdministrareaAngajatilor = () => {
       {
         field: 'actiuni',
         headerName: 'Acțiuni',
-        width: 130,
+        width: 170,
         sortable: false,
         disableColumnMenu: true,
         renderCell: (params) => (
@@ -341,10 +395,10 @@ const AdministrareaAngajatilor = () => {
 
             <IconButton
               sx={{
-                color: params.row.are_amprenta ? '#7b1fa2' : '#ff9800'
+                color: params.row.are_amprenta ? '#9e9e9e' : '#ff9800'
               }}
               onClick={() => handleEnrollFingerprint(params.row)}
-              disabled={enrollLoadingId === params.row.id}
+              disabled={enrollLoadingId === params.row.id || params.row.are_amprenta}
               title={
                 params.row.are_amprenta
                   ? 'Angajatul are deja amprentă'
@@ -353,11 +407,26 @@ const AdministrareaAngajatilor = () => {
             >
               <Fingerprint />
             </IconButton>
+
+            <IconButton
+              sx={{
+                color: params.row.are_amprenta ? '#f44336' : '#9e9e9e'
+              }}
+              onClick={() => handleDeleteFingerprint(params.row)}
+              disabled={deleteLoadingId === params.row.id || !params.row.are_amprenta}
+              title={
+                params.row.are_amprenta
+                  ? 'Șterge amprenta'
+                  : 'Angajatul nu are amprentă'
+              }
+            >
+              <Delete />
+            </IconButton>
           </div>
         ),
       },
     ],
-    [handleEditEmployee, handleEnrollFingerprint, enrollLoadingId]
+    [handleEditEmployee, handleEnrollFingerprint, handleDeleteFingerprint, enrollLoadingId, deleteLoadingId]
   );
 
   return (
@@ -433,11 +502,7 @@ const AdministrareaAngajatilor = () => {
           setOpenAddModal(false);
           if (shouldReload) {
             fetchAngajati();
-            if (message) {
-              setToastMessage(message);
-              setShowToast(true);
-              setTimeout(() => setShowToast(false), 4000);
-            }
+            if (message) showToastMessage(message);
           }
         }}
       />
@@ -450,11 +515,7 @@ const AdministrareaAngajatilor = () => {
           setSelectedEmployee(null);
           if (shouldReload) {
             fetchAngajati();
-            if (message) {
-              setToastMessage(message);
-              setShowToast(true);
-              setTimeout(() => setShowToast(false), 4000);
-            }
+            if (message) showToastMessage(message);
           }
         }}
       />
