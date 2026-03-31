@@ -3,13 +3,6 @@ import os
 from django.conf import settings
 
 
-class Status(models.Model):
-    descriere = models.CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.descriere
-
-
 class Angajat(models.Model):
     STATUS_CHOICES = [
         ('activ', 'Activ'),

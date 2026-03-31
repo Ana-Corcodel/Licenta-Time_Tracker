@@ -8,6 +8,7 @@ import {
   Chip
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import { Tooltip } from '@mui/material';
 import { Search, Edit, Add, Fingerprint, Delete } from '@mui/icons-material';
 import axiosInstance from '../../Config/axiosInstance';
 import AddAngajati from './AddAngajati';
@@ -322,7 +323,7 @@ const AdministrareaAngajatilor = () => {
         headerName: 'Pauză (min)',
         flex: 0.8,
         minWidth: 120,
-        renderCell: (params) => params.value || '30',
+        renderCell: (params) => params.value ?? '30',
       },
       {
         field: 'status',
@@ -393,39 +394,53 @@ const AdministrareaAngajatilor = () => {
               <Edit />
             </IconButton>
 
-            <IconButton
-              sx={{
-                color: params.row.are_amprenta ? '#7b1fa2' : '#ff9800',
-                '&.Mui-disabled': {
-                  color: params.row.are_amprenta ? '#7b1fa2' : '#ff9800',
-                  opacity: 0.7   // 🔥 important: nu mai arată „mort”
-                }
-              }}
-              onClick={() => handleEnrollFingerprint(params.row)}
-              disabled={enrollLoadingId === params.row.id || params.row.are_amprenta}
+            <Tooltip
               title={
                 params.row.are_amprenta
                   ? 'Amprentă existentă'
                   : 'Înregistrează amprentă'
               }
             >
-              <Fingerprint />
-            </IconButton>
+              <span>
+                <IconButton
+                  sx={{
+                    color: params.row.are_amprenta ? '#2e7d32' : '#ff9800',
+                    '&.Mui-disabled': {
+                      color: params.row.are_amprenta ? '#2e7d32' : '#ff9800',
+                      opacity: 0.7
+                    }
+                  }}
+                  onClick={() => handleEnrollFingerprint(params.row)}
+                  disabled={enrollLoadingId === params.row.id || params.row.are_amprenta}
+                >
+                  <Fingerprint />
+                </IconButton>
+              </span>
+            </Tooltip>
 
-            <IconButton
-              sx={{
-                color: params.row.are_amprenta ? '#f44336' : '#9e9e9e'
-              }}
-              onClick={() => handleDeleteFingerprint(params.row)}
-              disabled={deleteLoadingId === params.row.id || !params.row.are_amprenta}
+            <Tooltip
               title={
                 params.row.are_amprenta
                   ? 'Șterge amprenta'
                   : 'Angajatul nu are amprentă'
               }
             >
-              <Delete />
-            </IconButton>
+              <span>
+                <IconButton
+                  sx={{
+                    color: params.row.are_amprenta ? '#f44336' : '#9e9e9e',
+                    '&.Mui-disabled': {
+                      color: params.row.are_amprenta ? '#f44336' : '#9e9e9e',
+                      opacity: 0.7
+                    }
+                  }}
+                  onClick={() => handleDeleteFingerprint(params.row)}
+                  disabled={deleteLoadingId === params.row.id || !params.row.are_amprenta}
+                >
+                  <Delete />
+                </IconButton>
+              </span>
+            </Tooltip>
           </div>
         ),
       },

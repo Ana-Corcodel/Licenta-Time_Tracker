@@ -50,9 +50,9 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         try {
             setFetchLoading(true);
             const res = await axiosInstance.get(`/angajati/${employeeData.id}/`);
-            
+
             const employee = res.data;
-            
+
             // Determinăm valoarea statusului - poate veni ca string direct sau ca obiect cu id
             let statusValue = employee.status;
             if (employee.status && typeof employee.status === 'object' && employee.status.value) {
@@ -76,7 +76,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 locatie: employee.locatie || "",
                 ora_incepere: employee.ora_incepere || "09:00",
                 ora_sfarsit: employee.ora_sfarsit || "17:00",
-                ora_pauza: employee.ora_pauza || 30,
+                ora_pauza: employee.ora_pauza ?? 30,
                 status: statusValue || "activ",
             });
         } catch (err) {
@@ -93,7 +93,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             setError("");
             setSuccess("");
             setFieldErrors({});
-            
+
             if (employeeData?.id) {
                 fetchEmployeeDetails();
             } else {
@@ -175,8 +175,12 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         try {
             const payload = {
                 ...formData,
-                // Asigură-te că ora_pauza este număr
-                ora_pauza: parseInt(formData.ora_pauza) || 30,
+                ora_pauza:
+                    formData.ora_pauza === "" ||
+                        formData.ora_pauza === null ||
+                        formData.ora_pauza === undefined
+                        ? 30
+                        : parseInt(formData.ora_pauza, 10),
             };
 
             const res = await axiosInstance.put(`/angajati/${employeeData.id}/`, payload);
@@ -472,8 +476,8 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
 
                                 {/* Butoane formular */}
                                 <div className="form-buttons">
-                                    <button 
-                                        className="cancel-btn" 
+                                    <button
+                                        className="cancel-btn"
                                         onClick={handleCancel}
                                         disabled={loading || fetchLoading}
                                     >

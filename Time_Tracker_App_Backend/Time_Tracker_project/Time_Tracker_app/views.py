@@ -3,10 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import (
-    Angajat, Pontaj, TipZi, Status, Amprenta,
+    Angajat, Pontaj, TipZi, Amprenta,
     CerereAmprenta, CerereStergereAmprenta
 )
-from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer, StatusSerializer
+from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer
 from django.contrib.auth import login, logout, get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -14,41 +14,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 from datetime import date, datetime
-
-
-class StatusView(APIView):
-    def get(self, request, pk=None):
-        if pk:
-            status_obj = get_object_or_404(Status, pk=pk)
-            serializer = StatusSerializer(status_obj)
-            return Response(serializer.data)
-        else:
-            statusuri = Status.objects.all()
-            serializer = StatusSerializer(statusuri, many=True)
-            return Response(serializer.data)
-
-    def post(self, request):
-        serializer = StatusSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "Status creat cu succes", "data": serializer.data},
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, pk):
-        status_obj = get_object_or_404(Status, pk=pk)
-        serializer = StatusSerializer(status_obj, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Status actualizat", "data": serializer.data})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        status_obj = get_object_or_404(Status, pk=pk)
-        status_obj.delete()
-        return Response({"message": "Status șters cu succes"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class AngajatView(APIView):

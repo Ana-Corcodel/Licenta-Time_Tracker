@@ -1,12 +1,5 @@
 from django.contrib import admin
-from .models import Status, Angajat, TipZi, Pontaj, Amprenta, CerereAmprenta, CerereStergereAmprenta
-
-
-@admin.register(Status)
-class StatusAdmin(admin.ModelAdmin):
-    list_display = ('descriere',)
-    search_fields = ('descriere',)
-
+from .models import Angajat, TipZi, Pontaj, Amprenta, CerereAmprenta, CerereStergereAmprenta
 
 @admin.register(Angajat)
 class AngajatAdmin(admin.ModelAdmin):

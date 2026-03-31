@@ -1,11 +1,6 @@
 from rest_framework import serializers
-from .models import Status, Angajat, TipZi, Pontaj
+from .models import Angajat, TipZi, Pontaj
 
-class StatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Status
-        fields = '__all__'
-        
 class AngajatSerializer(serializers.ModelSerializer):
     are_amprenta = serializers.SerializerMethodField()
 
