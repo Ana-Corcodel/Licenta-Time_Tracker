@@ -395,13 +395,17 @@ const AdministrareaAngajatilor = () => {
 
             <IconButton
               sx={{
-                color: params.row.are_amprenta ? '#9e9e9e' : '#ff9800'
+                color: params.row.are_amprenta ? '#7b1fa2' : '#ff9800',
+                '&.Mui-disabled': {
+                  color: params.row.are_amprenta ? '#7b1fa2' : '#ff9800',
+                  opacity: 0.7   // 🔥 important: nu mai arată „mort”
+                }
               }}
               onClick={() => handleEnrollFingerprint(params.row)}
               disabled={enrollLoadingId === params.row.id || params.row.are_amprenta}
               title={
                 params.row.are_amprenta
-                  ? 'Angajatul are deja amprentă'
+                  ? 'Amprentă existentă'
                   : 'Înregistrează amprentă'
               }
             >
