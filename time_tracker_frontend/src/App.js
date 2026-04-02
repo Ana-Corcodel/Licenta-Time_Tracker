@@ -34,6 +34,21 @@ function Aplicatie() {
     verificaLogin();
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        seteazaMeniulEsteDeschis(false);
+      } else {
+        seteazaMeniulEsteDeschis(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (seIncarca) {
     return <div>Se încarcă...</div>;
   }
