@@ -266,18 +266,22 @@ const Pontaj = () => {
                 paginationModel: { page: 0, pageSize: DEFAULT_PAGE_SIZE },
               },
             }}
-            rowHeight={40}
+            rowHeight={50}
             autoHeight={false}
             sx={{
-              height: '100%',
               borderRadius: '8px',
+              height: '100%',
               '& .MuiDataGrid-cell': {
-                display: 'flex',
                 alignItems: 'center',
+                display: 'flex',
               },
               '& .MuiDataGrid-cell:focus': {
                 outline: 'none',
               },
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: '700', // sau 'bold'
+                fontSize: '0.95rem'
+              }
             }}
           />
         </div>

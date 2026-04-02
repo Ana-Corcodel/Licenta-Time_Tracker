@@ -481,7 +481,7 @@ const AdministrareaAngajatilor = () => {
               className="btn-new"
               onClick={() => setOpenAddModal(true)}
             >
-              Adaugă
+              ADAUGĂ
             </Button>
           </Box>
         </Box>
@@ -510,6 +510,10 @@ const AdministrareaAngajatilor = () => {
               '& .MuiDataGrid-cell:focus': {
                 outline: 'none',
               },
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: '700', // sau 'bold'
+                fontSize: '0.95rem'
+              }
             }}
           />
         </div>

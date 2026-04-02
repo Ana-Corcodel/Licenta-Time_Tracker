@@ -10,14 +10,12 @@ import "./AddAngajati.css";
 registerLocale("ro", ro);
 
 const AddAngajati = ({ open, onClose }) => {
-    // Opțiuni statice pentru status (conform STATUS_CHOICES din model)
     const statusOptions = [
         { value: 'activ', label: 'Activ' },
         { value: 'inactiv', label: 'Inactiv' },
         { value: 'suspendat', label: 'Suspendat' },
     ];
 
-    // Date inițiale pentru formular
     const initialFormData = useMemo(
         () => ({
             nume: "",
@@ -29,20 +27,17 @@ const AddAngajati = ({ open, onClose }) => {
             ora_incepere: "09:00",
             ora_sfarsit: "17:00",
             ora_pauza: 30,
-            status: "activ", // Setăm default 'active'
+            status: "activ",
         }),
         []
     );
 
-    // State-uri principale
     const [formData, setFormData] = useState(initialFormData);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-    const [showToast, setShowToast] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
 
-    // Când se deschide modalul, resetăm formularul
     useEffect(() => {
         if (open) {
             setFormData(initialFormData);
@@ -52,12 +47,10 @@ const AddAngajati = ({ open, onClose }) => {
         }
     }, [open, initialFormData]);
 
-    // Gestionare modificare câmpuri de formular
     const handleChange = useCallback(
         (field) => (e) => {
             let value = e.target.value;
 
-            // Curățare input telefon — doar cifre, max 15 caractere
             if (field === "telefon") {
                 value = value.replace(/\D/g, "");
                 if (value.length > 15) {
@@ -65,7 +58,6 @@ const AddAngajati = ({ open, onClose }) => {
                 }
             }
 
-            // Conversie la număr pentru ora_pauza
             if (field === "ora_pauza") {
                 value = parseInt(value) || 0;
             }
@@ -76,14 +68,12 @@ const AddAngajati = ({ open, onClose }) => {
         []
     );
 
-    // Gestionare modificare select pentru status
     const handleStatusChange = useCallback((selectedOption) => {
         const value = selectedOption ? selectedOption.value : "";
         setFormData((prev) => ({ ...prev, status: value }));
         setFieldErrors((prev) => ({ ...prev, status: "" }));
     }, []);
 
-    // Validare formular înainte de submit
     const validateForm = useCallback(() => {
         const errors = {};
 
@@ -92,12 +82,10 @@ const AddAngajati = ({ open, onClose }) => {
         if (!formData.functie.trim()) errors.functie = "Funcția este obligatorie";
         if (!formData.telefon.trim()) errors.telefon = "Telefonul este obligatoriu";
         if (!formData.status) errors.status = "Statusul este obligatoriu";
-        
-        // Validare ore - acum sunt obligatorii
+
         if (!formData.ora_incepere) errors.ora_incepere = "Ora de începere este obligatorie";
         if (!formData.ora_sfarsit) errors.ora_sfarsit = "Ora de sfârșit este obligatorie";
 
-        // Validare email (opțional)
         if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             errors.email = "Email invalid";
         }
@@ -106,7 +94,6 @@ const AddAngajati = ({ open, onClose }) => {
         return Object.keys(errors).length === 0;
     }, [formData]);
 
-    // Reset formular și închidere modal
     const handleCancel = useCallback(() => {
         setFormData(initialFormData);
         setError("");
@@ -115,7 +102,6 @@ const AddAngajati = ({ open, onClose }) => {
         onClose(false);
     }, [initialFormData, onClose]);
 
-    // Submit formular
     const handleSubmit = useCallback(async () => {
         setError("");
         setSuccess("");
@@ -129,16 +115,12 @@ const AddAngajati = ({ open, onClose }) => {
         try {
             const payload = {
                 ...formData,
-                // Asigură-te că ora_pauza este număr
                 ora_pauza: parseInt(formData.ora_pauza) || 30,
             };
 
             const res = await axiosInstance.post("/angajati/", payload);
 
             if (res.status === 201 || res.status === 200) {
-                setShowToast(true);
-                setTimeout(() => setShowToast(false), 4000);
-
                 onClose(true, "Angajat adăugat cu succes!");
             } else {
                 setError("Răspuns neașteptat de la server");
@@ -154,7 +136,6 @@ const AddAngajati = ({ open, onClose }) => {
         }
     }, [formData, validateForm, onClose]);
 
-    // Stiluri pentru react-select (același cod ca înainte)
     const getCustomSelectStyles = (fieldName) => ({
         control: (base, state) => ({
             ...base,
@@ -233,216 +214,199 @@ const AddAngajati = ({ open, onClose }) => {
     if (!open) return null;
 
     return (
-        <>
-            {/* Toast global succes */}
-            {showToast && <div className="global-toast">✅ Angajat adăugat cu succes!</div>}
+        <div className="page-addangajat">
+            <div className="add-angajat-page">
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <div className="modal-header">
+                            <h2>Adaugă Angajat</h2>
+                            <button className="close-btn" onClick={handleCancel}>×</button>
+                        </div>
 
-            <div className="page-addangajat">
-                <div className="add-angajat-page">
-                    <div className="modal-overlay">
-                        <div className="modal">
-                            {/* Header modal */}
-                            <div className="modal-header">
-                                <h2>Adaugă Angajat</h2>
-                                <button className="close-btn" onClick={handleCancel}>×</button>
+                        <hr className="header-divider" />
+
+                        {loading && (
+                            <div className="loading-overlay">
+                                <div className="loader"></div>
+                                <span>Se creează angajatul...</span>
                             </div>
+                        )}
 
-                            <hr className="header-divider" />
+                        {error && <div className="alert error">{error}</div>}
+                        {success && <div className="alert success">{success}</div>}
 
-                            {/* Overlay loading la submit */}
-                            {loading && (
-                                <div className="loading-overlay">
-                                    <div className="loader"></div>
-                                    <span>Se creează angajatul...</span>
-                                </div>
-                            )}
-
-                            {/* Mesaje eroare */}
-                            {error && <div className="alert error">{error}</div>}
-                            {success && <div className="alert success">{success}</div>}
-
-                            <div className="form">
-
-                                {/* Nume + Prenume */}
-                                <div className="form-row">
-                                    <div className="form-field">
-                                        <label className="label-left">Nume <span className="required">*</span></label>
-                                        <input
-                                            type="text"
-                                            placeholder="Introdu numele"
-                                            value={formData.nume}
-                                            onChange={handleChange("nume")}
-                                            className={`input-left ${fieldErrors.nume ? "field-error-border" : ""}`}
-                                            required
-                                        />
-                                        {fieldErrors.nume && <span className="field-error error-left">{fieldErrors.nume}</span>}
-                                    </div>
-
-                                    <div className="form-field">
-                                        <label className="label-left">Prenume <span className="required">*</span></label>
-                                        <input
-                                            type="text"
-                                            placeholder="Introdu prenumele"
-                                            value={formData.prenume}
-                                            onChange={handleChange("prenume")}
-                                            className={`input-left ${fieldErrors.prenume ? "field-error-border" : ""}`}
-                                            required
-                                        />
-                                        {fieldErrors.prenume && <span className="field-error error-left">{fieldErrors.prenume}</span>}
-                                    </div>
-                                </div>
-
-                                {/* Funcție + Status */}
-                                <div className="form-row">
-                                    <div className="form-field">
-                                        <label className="label-left">Funcție <span className="required">*</span></label>
-                                        <input
-                                            type="text"
-                                            placeholder="Introdu funcția"
-                                            value={formData.functie}
-                                            onChange={handleChange("functie")}
-                                            className={`input-left ${fieldErrors.functie ? "field-error-border" : ""}`}
-                                            required
-                                        />
-                                        {fieldErrors.functie && <span className="field-error error-left">{fieldErrors.functie}</span>}
-                                    </div>
-
-                                    <div className="form-field">
-                                        <label className="label-left">Status <span className="required">*</span></label>
-
-                                        <Select
-                                            name="status"
-                                            value={statusOptions.find(option => option.value === formData.status)}
-                                            onChange={handleStatusChange}
-                                            options={statusOptions}
-                                            placeholder="Selectează status"
-                                            className={`multiselect-field ${fieldErrors.status ? 'select-error' : ''}`}
-                                            classNamePrefix="select"
-                                            isSearchable={true}
-                                            isClearable={true}
-                                            styles={getCustomSelectStyles("status")}
-                                        />
-
-                                        {fieldErrors.status && <span className="field-error error-left">{fieldErrors.status}</span>}
-                                    </div>
-                                </div>
-
-                                {/* Telefon + Email */}
-                                <div className="form-row">
-                                    <div className="form-field phone-field">
-                                        <label className="label-left">Telefon <span className="required">*</span></label>
-                                        <div className="input-with-icon">
-                                            <span className="phone-icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 24 24">
-                                                    <path d="M22 16.92v3a1.999 1.999 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z" />
-                                                </svg>
-                                            </span>
-
-                                            <input
-                                                type="text"
-                                                placeholder="Introdu numărul de telefon"
-                                                value={formData.telefon}
-                                                onChange={handleChange("telefon")}
-                                                className={`input-left ${fieldErrors.telefon ? "field-error-border" : ""}`}
-                                                required
-                                            />
-                                        </div>
-                                        {fieldErrors.telefon && <span className="field-error error-left">{fieldErrors.telefon}</span>}
-                                    </div>
-
-                                    <div className="form-field">
-                                        <label className="label-left">Email</label>
-                                        <input
-                                            type="email"
-                                            placeholder="Introdu email (opțional)"
-                                            value={formData.email || ""}
-                                            onChange={handleChange("email")}
-                                            className={`input-left ${fieldErrors.email ? "field-error-border" : ""}`}
-                                        />
-                                        {fieldErrors.email && <span className="field-error error-left">{fieldErrors.email}</span>}
-                                    </div>
-                                </div>
-
-                                {/* Locație */}
+                        <div className="form">
+                            <div className="form-row">
                                 <div className="form-field">
-                                    <label className="label-left">Locație</label>
+                                    <label className="label-left">Nume <span className="required">*</span></label>
                                     <input
                                         type="text"
-                                        placeholder="Introdu locația (opțional)"
-                                        value={formData.locatie || ""}
-                                        onChange={handleChange("locatie")}
-                                        className="input-left"
+                                        placeholder="Introdu numele"
+                                        value={formData.nume}
+                                        onChange={handleChange("nume")}
+                                        className={`input-left ${fieldErrors.nume ? "field-error-border" : ""}`}
+                                        required
                                     />
+                                    {fieldErrors.nume && <span className="field-error error-left">{fieldErrors.nume}</span>}
                                 </div>
 
-                                {/* Program: Ora începere + Ora sfârșit - ACUM AMBELE SUNT OBLIGATORII */}
-                                <div className="form-row">
-                                    <div className="form-field">
-                                        <label className="label-left">
-                                            Ora începere <span className="required">*</span>
-                                        </label>
-                                        <input
-                                            type="time"
-                                            value={formData.ora_incepere}
-                                            onChange={handleChange("ora_incepere")}
-                                            className={`input-left ${fieldErrors.ora_incepere ? "field-error-border" : ""}`}
-                                            required
-                                        />
-                                        {fieldErrors.ora_incepere && (
-                                            <span className="field-error error-left">{fieldErrors.ora_incepere}</span>
-                                        )}
-                                    </div>
-
-                                    <div className="form-field">
-                                        <label className="label-left">
-                                            Ora sfârșit <span className="required">*</span>
-                                        </label>
-                                        <input
-                                            type="time"
-                                            value={formData.ora_sfarsit}
-                                            onChange={handleChange("ora_sfarsit")}
-                                            className={`input-left ${fieldErrors.ora_sfarsit ? "field-error-border" : ""}`}
-                                            required
-                                        />
-                                        {fieldErrors.ora_sfarsit && (
-                                            <span className="field-error error-left">{fieldErrors.ora_sfarsit}</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Pauză (minute) */}
                                 <div className="form-field">
-                                    <label className="label-left">Pauză (minute)</label>
+                                    <label className="label-left">Prenume <span className="required">*</span></label>
                                     <input
-                                        type="number"
-                                        placeholder="30"
-                                        value={formData.ora_pauza}
-                                        onChange={handleChange("ora_pauza")}
-                                        className="input-left"
-                                        min="0"
-                                        max="120"
+                                        type="text"
+                                        placeholder="Introdu prenumele"
+                                        value={formData.prenume}
+                                        onChange={handleChange("prenume")}
+                                        className={`input-left ${fieldErrors.prenume ? "field-error-border" : ""}`}
+                                        required
                                     />
+                                    {fieldErrors.prenume && <span className="field-error error-left">{fieldErrors.prenume}</span>}
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-field">
+                                    <label className="label-left">Funcție <span className="required">*</span></label>
+                                    <input
+                                        type="text"
+                                        placeholder="Introdu funcția"
+                                        value={formData.functie}
+                                        onChange={handleChange("functie")}
+                                        className={`input-left ${fieldErrors.functie ? "field-error-border" : ""}`}
+                                        required
+                                    />
+                                    {fieldErrors.functie && <span className="field-error error-left">{fieldErrors.functie}</span>}
                                 </div>
 
-                                {/* Butoane formular */}
-                                <div className="form-buttons">
-                                    <button className="cancel-btn" onClick={handleCancel}>Anulează</button>
+                                <div className="form-field">
+                                    <label className="label-left">Status <span className="required">*</span></label>
 
-                                    <button
-                                        className={`submit-btn ${loading ? "disabled" : ""}`}
-                                        onClick={!loading ? handleSubmit : undefined}
-                                        disabled={loading}
-                                    >
-                                        {loading ? "Se salvează..." : "Salvează"}
-                                    </button>
+                                    <Select
+                                        name="status"
+                                        value={statusOptions.find(option => option.value === formData.status)}
+                                        onChange={handleStatusChange}
+                                        options={statusOptions}
+                                        placeholder="Selectează status"
+                                        className={`multiselect-field ${fieldErrors.status ? 'select-error' : ''}`}
+                                        classNamePrefix="select"
+                                        isSearchable={true}
+                                        isClearable={true}
+                                        styles={getCustomSelectStyles("status")}
+                                    />
+
+                                    {fieldErrors.status && <span className="field-error error-left">{fieldErrors.status}</span>}
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-field phone-field">
+                                    <label className="label-left">Telefon <span className="required">*</span></label>
+                                    <div className="input-with-icon">
+                                        <span className="phone-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 24 24">
+                                                <path d="M22 16.92v3a1.999 1.999 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z" />
+                                            </svg>
+                                        </span>
+
+                                        <input
+                                            type="text"
+                                            placeholder="Introdu numărul de telefon"
+                                            value={formData.telefon}
+                                            onChange={handleChange("telefon")}
+                                            className={`input-left ${fieldErrors.telefon ? "field-error-border" : ""}`}
+                                            required
+                                        />
+                                    </div>
+                                    {fieldErrors.telefon && <span className="field-error error-left">{fieldErrors.telefon}</span>}
                                 </div>
 
+                                <div className="form-field">
+                                    <label className="label-left">Email</label>
+                                    <input
+                                        type="email"
+                                        placeholder="Introdu email (opțional)"
+                                        value={formData.email || ""}
+                                        onChange={handleChange("email")}
+                                        className={`input-left ${fieldErrors.email ? "field-error-border" : ""}`}
+                                    />
+                                    {fieldErrors.email && <span className="field-error error-left">{fieldErrors.email}</span>}
+                                </div>
+                            </div>
+
+                            <div className="form-field">
+                                <label className="label-left">Locație</label>
+                                <input
+                                    type="text"
+                                    placeholder="Introdu locația (opțional)"
+                                    value={formData.locatie || ""}
+                                    onChange={handleChange("locatie")}
+                                    className="input-left"
+                                />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-field">
+                                    <label className="label-left">
+                                        Ora începere <span className="required">*</span>
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={formData.ora_incepere}
+                                        onChange={handleChange("ora_incepere")}
+                                        className={`input-left ${fieldErrors.ora_incepere ? "field-error-border" : ""}`}
+                                        required
+                                    />
+                                    {fieldErrors.ora_incepere && (
+                                        <span className="field-error error-left">{fieldErrors.ora_incepere}</span>
+                                    )}
+                                </div>
+
+                                <div className="form-field">
+                                    <label className="label-left">
+                                        Ora sfârșit <span className="required">*</span>
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={formData.ora_sfarsit}
+                                        onChange={handleChange("ora_sfarsit")}
+                                        className={`input-left ${fieldErrors.ora_sfarsit ? "field-error-border" : ""}`}
+                                        required
+                                    />
+                                    {fieldErrors.ora_sfarsit && (
+                                        <span className="field-error error-left">{fieldErrors.ora_sfarsit}</span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="form-field">
+                                <label className="label-left">Pauză (minute)</label>
+                                <input
+                                    type="number"
+                                    placeholder="30"
+                                    value={formData.ora_pauza}
+                                    onChange={handleChange("ora_pauza")}
+                                    className="input-left"
+                                    min="0"
+                                    max="120"
+                                />
+                            </div>
+
+                            <div className="form-buttons">
+                                <button className="cancel-btn" onClick={handleCancel}>Anulează</button>
+
+                                <button
+                                    className={`submit-btn ${loading ? "disabled" : ""}`}
+                                    onClick={!loading ? handleSubmit : undefined}
+                                    disabled={loading}
+                                >
+                                    {loading ? "Se salvează..." : "Salvează"}
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

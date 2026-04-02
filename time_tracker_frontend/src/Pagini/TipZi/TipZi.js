@@ -164,21 +164,22 @@ const TipZi = () => {
                 },
               },
             }}
-            rowHeight={40}
+            rowHeight={50}
             autoHeight={false}
             sx={{
-              height: '100%',
               borderRadius: '8px',
+              height: '100%',
               '& .MuiDataGrid-cell': {
-                display: 'flex',
                 alignItems: 'center',
+                display: 'flex',
               },
-              '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+              '& .MuiDataGrid-cell:focus': {
                 outline: 'none',
               },
-              '& .Mui-selected:hover': {
-                backgroundColor: 'transparent !important',
-              },
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: '700', // sau 'bold'
+                fontSize: '0.95rem'
+              }
             }}
           />
         </div>
