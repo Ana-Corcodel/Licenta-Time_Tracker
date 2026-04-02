@@ -78,37 +78,39 @@ const Meniu = ({ esteDeschis, seteazaDeschis, seteazaEsteAutentificat }) => {
   };
 
   return (
-    <div className={`sidebar ${esteDeschis ? 'open' : ''}`}>
-      <ul className="meniu">
-        {grupuriMeniu.map((grup) => (
-          <div key={grup.section}>
-            <div className="section-title">
-              {grup.icon}
-              <span>{grup.section}</span>
+    <div className="menu">
+      <div className={`sidebar ${esteDeschis ? 'open' : ''}`}>
+        <ul className="meniu">
+          {grupuriMeniu.map((grup) => (
+            <div key={grup.section}>
+              <div className="section-title">
+                {grup.icon}
+                <span>{grup.section}</span>
+              </div>
+
+              {grup.items.map((item, index) => (
+                <li key={index} className="menu-item">
+                  <NavLink
+                    to={item.url}
+                    onClick={handleClick}
+                    className={({ isActive }) =>
+                      isActive ? 'menu-link active' : 'menu-link'
+                    }
+                  >
+                    {item.icon}
+                    <span>{item.name}</span>
+                  </NavLink>
+                </li>
+              ))}
             </div>
+          ))}
+        </ul>
 
-            {grup.items.map((item, index) => (
-              <li key={index} className="menu-item">
-                <NavLink
-                  to={item.url}
-                  onClick={handleClick}
-                  className={({ isActive }) =>
-                    isActive ? 'menu-link active' : 'menu-link'
-                  }
-                >
-                  {item.icon}
-                  <span>{item.name}</span>
-                </NavLink>
-              </li>
-            ))}
-          </div>
-        ))}
-      </ul>
-
-      <button className="settings-button" onClick={delogare}>
-        <LogoutIcon className="icon" />
-        Delogare
-      </button>
+        <button className="settings-button" onClick={delogare}>
+          <LogoutIcon className="icon" />
+          Delogare
+        </button>
+      </div>
     </div>
   );
 };

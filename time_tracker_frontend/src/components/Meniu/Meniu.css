@@ -1,4 +1,4 @@
-.sidebar {
+.menu .sidebar {
   width: 220px;
   background-color: #ffffff;
   height: calc(100vh - 70px);
@@ -16,21 +16,21 @@
   overflow-x: hidden;
 }
 
-.sidebar:hover {
+.menu .sidebar:hover {
   overflow-y: auto;
 }
 
-.meniu {
+.menu .meniu {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.menu-item {
+.menu .menu-item {
   margin-bottom: 10px;
 }
 
-.menu-link {
+.menu .menu-link {
   display: flex;
   align-items: center;
   padding: 4px 15px;
@@ -42,22 +42,22 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.menu-link:hover {
+.menu .menu-link:hover {
   background-color: #f0f0f0;
 }
 
-.menu-link.active {
+.menu .menu-link.active {
   background-color: #e7e7e8;
   color: #000000;
   font-weight: bold;
 }
 
-.menu-link .icon {
+.menu .menu-link .icon {
   margin-right: 10px;
   font-size: 20px;
 }
 
-.settings-button {
+.menu .settings-button {
   background-color: #ffffff;
   color: #333333;
   border: none;
@@ -69,15 +69,15 @@
   font-size: 14px;
 }
 
-.settings-button:hover {
+.menu .settings-button:hover {
   background-color: #f5f5f5;
 }
 
-.settings-button .icon {
+.menu .settings-button .icon {
   margin-right: 8px;
 }
 
-.submenu {
+.menu .submenu {
   margin-left: -1.5rem;
   padding-top: 0.25rem;
   overflow: hidden;
@@ -85,16 +85,16 @@
   list-style-type: none;
 }
 
-.submenu-item {
+.menu .submenu-item {
   margin: 0.2rem 0;
 }
 
-.submenu-arrow {
+.menu .submenu-arrow {
   margin-left: 10px;
   transition: transform 0.3s ease;
 }
 
-.section-title {
+.menu .section-title {
   display: flex;
   align-items: center;
   font-weight: bold;
@@ -105,16 +105,16 @@
   margin-top: 12px;
 }
 
-.section-title .section-icon {
+.menu .section-title .section-icon {
   margin-right: 8px;
 }
 
 @media (max-width: 768px) {
-  .sidebar {
+  .menu .sidebar {
     display: none;
   }
 
-  .sidebar.open {
+  .menu .sidebar.open {
     display: block;
     width: 100%;
     position: fixed;
@@ -126,20 +126,20 @@
     overflow-y: auto;
   }
 
-  .section-title {
+  .menu .section-title {
     margin-right: 30px;
     font-size: 13px;
   }
 
-  .menu-link {
+  .menu .menu-link {
     font-size: 13px;
   }
 
-  .menu-link.active {
+  .menu .menu-link.active {
     margin-right: 30px;
   }
 
-  .menu-link:hover {
+  .menu .menu-link:hover {
     margin-right: 30px;
   }
 }

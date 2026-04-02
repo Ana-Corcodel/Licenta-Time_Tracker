@@ -144,8 +144,8 @@
 }
 
 .page-addpontaj input:focus,
-select:focus,
-textarea:focus {
+.page-addpontaj select:focus,
+.page-addpontaj textarea:focus {
   border-color: #006ce4;
   outline: none;
 }
@@ -387,7 +387,7 @@ textarea:focus {
 }
 
 /* Global toast */
-.global-toast {
+.page-addpontaj .global-toast {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -446,7 +446,7 @@ textarea:focus {
     width: 100%;
   }
 
-  .global-toast {
+  .page-addpontaj .global-toast {
     left: 20px;
     right: 20px;
     text-align: center;

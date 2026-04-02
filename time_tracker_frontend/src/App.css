@@ -3,14 +3,14 @@
   padding-top: 70px;
 }
 
-.app-container {
+.App .app-container {
   background-color: #f0f0f0;
   display: flex;
   flex-direction: column;
   padding: 0;
 }
 
-.page-wrapper {
+.App .page-wrapper {
   background-color: #ffffff;
   margin: 15px;
   border-radius: 8px;
@@ -26,7 +26,7 @@
   -ms-overflow-style: none;
 }
 
-.mainlayout {
+.App .mainlayout {
   background-color: transparent;
   margin: 15px;
   display: flex;
@@ -36,18 +36,18 @@
   -ms-overflow-style: none;
 }
 
-.page-wrapper::-webkit-scrollbar {
+.App .page-wrapper::-webkit-scrollbar {
   display: none;
 }
 
 @media (max-width: 768px) {
-  .page-wrapper {
+  .App .page-wrapper {
     margin-left: 15px; /* 🔥 nu mai lasă loc pentru meniu */
     margin-right: 15px;
     width: auto;
   }
 
-  .mainlayout {
+  .App .mainlayout {
     margin: 0;
   }
 }

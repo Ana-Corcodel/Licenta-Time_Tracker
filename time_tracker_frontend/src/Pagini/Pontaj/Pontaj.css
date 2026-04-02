@@ -1,4 +1,4 @@
-.pontajpage {
+.pontajpage .pontajpage {
   background-color: #f0f0f0;
   display: flex;
   justify-content: center;
@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.pontaj-page {
+.pontajpage .pontaj-page {
   width: 100%;
   background: #fff;
   padding-left: 3px;
@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 
-.pontaj-toolbar {
+.pontajpage .pontaj-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -27,20 +27,20 @@
   flex-shrink: 0;
 }
 
-.title {
+.pontajpage .title {
   font-size: 1.5rem;
   font-weight: bold;
   margin: 0;
 }
 
-.title-count {
+.pontajpage .title-count {
   font-size: 1rem;
   color: #555;
   margin-left: 6px;
   font-weight: normal;
 }
 
-.pontaj-toolbar-right {
+.pontajpage .pontaj-toolbar-right {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -48,23 +48,23 @@
   flex-shrink: 0;
 }
 
-.search-input {
+.pontajpage .search-input {
   min-width: 240px;
 }
 
-.search-input .MuiOutlinedInput-root {
+.pontajpage .search-input .MuiOutlinedInput-root {
   border-radius: 8px;
 }
 
-.pontaj-toolbar-right button,
-.new-btn {
+.pontajpage .pontaj-toolbar-right button,
+.pontajpage .new-btn {
   background-color: #1976d2;
   color: white;
   height: 36px;
   text-transform: none;
 }
 
-.table-container {
+.pontajpage .table-container {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -73,19 +73,19 @@
   border-radius: 8px;
 }
 
-.pontajpage .MuiDataGrid-root {
+.pontajpage .pontajpage .MuiDataGrid-root {
   height: 100% !important;
   background-color: #fff;
   border-radius: 8px;
   border: 1px solid #ddd;
 }
 
-.pontajpage .MuiDataGrid-columnHeaders {
+.pontajpage .pontajpage .MuiDataGrid-columnHeaders {
   background-color: #d6d6d6;
   font-weight: bold;
 }
 
-.global-toast {
+.pontajpage .global-toast {
   position: fixed;
   top: 90px;
   right: 20px;
@@ -99,7 +99,7 @@
 }
 
 @media (max-width: 480px) {
-  .pontajpage {
+  .pontajpage .pontajpage {
     padding: 0;
     height: 100%;
     overflow: hidden;

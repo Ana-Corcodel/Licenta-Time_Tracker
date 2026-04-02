@@ -13,30 +13,30 @@
   z-index: 1000;
 }
 
-.logo_section {
+.topbar .logo_section {
   display: flex;
   align-items: center;
 }
 
-.logo {
+.topbar .logo {
   width: 90px;
   margin-right: 5px;
 }
 
-.app-name h1 {
+.topbar .app-name h1 {
   margin: 0;
   font-size: 24px;
   padding-bottom: 6px;
   text-align: left;
 }
 
-.app-name h2 {
+.topbar .app-name h2 {
   margin: 0;
   font-size: 16px;
   color: gray;
 }
 
-.notification {
+.topbar .notification {
   background: none;
   border: none;
   cursor: pointer;
@@ -45,59 +45,59 @@
   position: relative;
 }
 
-.notification .icon {
+.topbar .notification .icon {
   width: 25px;
   height: 25px;
 }
 
-.user-section {
+.topbar .user-section {
   display: flex;
   align-items: center;
 }
 
-.user {
+.topbar .user {
   display: flex;
   align-items: center;
 }
 
-.user-icon {
+.topbar .user-icon {
   height: 40px;
   border-radius: 50%;
   margin-left: 10px;
 }
 
-.menu-button {
+.topbar .menu-button {
   display: none;
 }
 
 @media (max-width: 768px) {
-  .logo {
+  .topbar .logo {
     width: 70px; 
   }
 
-  .app-name h1 {
+  .topbar .app-name h1 {
     font-size: 20px; 
   }
 
-  .app-name h2 {
+  .topbar .app-name h2 {
     font-size: 14px;
   }
 
-  .notification .icon {
+  .topbar .notification .icon {
     width: 20px; 
     height: 20px;
   }
 
-  .user p {
+  .topbar .user p {
     font-size: 14px; 
   }
 
-  .user-icon {
+  .topbar .user-icon {
     height: 30px;
     width: 30px;
   }
 
-  .menu-button {
+  .topbar .menu-button {
     display: block;
     background: none;
     border: none;
@@ -107,23 +107,23 @@
 }
 
 @media (max-width: 360px) {
-  .user p {
+  .topbar .user p {
     display: none;
   }
 }
 
-.notification-container {
+.topbar .notification-container {
   position: relative;
 }
 
-.notification {
+.topbar .notification {
   background: none;
   border: none;
   cursor: pointer;
   position: relative;
 }
 
-.notification-badge {
+.topbar .notification-badge {
   position: absolute;
   top: 0px;
   right: 5px;
@@ -134,7 +134,7 @@
   border-radius: 50%;
 }
 
-.notification-dropdown {
+.topbar .notification-dropdown {
   position: absolute;
   right: 0;
   top: 40px;
@@ -147,17 +147,17 @@
   z-index: 1000;
 }
 
-.notification-item:last-child {
+.topbar .notification-item:last-child {
   border-bottom: none;
 }
 
-.no-notifications {
+.topbar .no-notifications {
   padding: 10px;
   text-align: center;
   font-size: 14px;
 }
 
-.notification-item {
+.topbar .notification-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -166,13 +166,13 @@
   width: 230px;
 }
 
-.notification-text {
+.topbar .notification-text {
   flex: 1;
   margin: 2px;
   font-size: 13px;
 }
 
-.close-icon {
+.topbar .close-icon {
   color: rgb(250, 39, 39);
   cursor: pointer;
   font-size: 5px;

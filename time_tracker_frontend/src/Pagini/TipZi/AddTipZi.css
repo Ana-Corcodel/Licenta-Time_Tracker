@@ -277,7 +277,7 @@
 }
 
 /* Global toast - reutilizat din AddPontaj.css */
-.global-toast {
+.page-addtipzi .global-toast {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -331,7 +331,7 @@
     width: 100%;
   }
 
-  .global-toast {
+  .page-addtipzi .global-toast {
     left: 20px;
     right: 20px;
     text-align: center;
