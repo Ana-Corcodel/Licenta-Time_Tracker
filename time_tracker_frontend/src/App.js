@@ -50,7 +50,11 @@ function Aplicatie() {
   }, []);
 
   if (seIncarca) {
-    return <div>Se încarcă...</div>;
+    return (
+      <div className="ecran-incarcare">
+        <div className="spinner-incarcare"></div>
+      </div>
+    );
   }
 
   return (

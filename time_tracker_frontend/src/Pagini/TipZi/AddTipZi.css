@@ -139,6 +139,10 @@
   outline: none;
 }
 
+.pagina-adaugare-tipzi input:hover {
+  border-color: #000;
+}
+
 .pagina-adaugare-tipzi .contor-caractere {
   font-size: 11px;
   color: #666;

@@ -40,6 +40,32 @@
   display: none;
 }
 
+.aplicatie .ecran-incarcare {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fb;
+}
+
+.aplicatie .spinner-incarcare {
+  width: 38px;
+  height: 38px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #006ce4;
+  border-radius: 50%;
+  animation: rotire 0.8s linear infinite;
+}
+
+@keyframes rotire {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
   .aplicatie .container-pagina {
     margin-left: 15px;

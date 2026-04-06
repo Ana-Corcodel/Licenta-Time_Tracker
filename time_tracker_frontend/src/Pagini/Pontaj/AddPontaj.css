@@ -318,12 +318,20 @@
   transition: all 0.2s ease !important;
 }
 
+.pagina-adauga-pontaj input:hover,
+.pagina-adauga-pontaj select:hover,
+.pagina-adauga-pontaj textarea:hover {
+  border-color: #000;
+}
 
+.pagina-adauga-pontaj .camp-multiselect .select__control:hover {
+  border-color: #000 !important;
+  background-color: #fff !important;
+}
 
 .pagina-adauga-pontaj .camp-multiselect .select__control--is-focused {
   border-color: #006ce4 !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(0, 108, 228, 0.15) !important;
   background-color: #fff !important;
 }
 

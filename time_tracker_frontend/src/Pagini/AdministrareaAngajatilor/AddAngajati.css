@@ -325,13 +325,27 @@
   transition: all 0.2s ease !important;
 }
 
+/* Hover normal */
+.pagina-adauga-angajat input:hover,
+.pagina-adauga-angajat select:hover,
+.pagina-adauga-angajat textarea:hover {
+  border-color: #000;
+}
 
+/* Hover react-select */
+.pagina-adauga-angajat .camp-select-multiplu .select__control:hover {
+  border-color: #000 !important;
+}
+
+/* Focus rămâne albastru */
+.pagina-adauga-angajat input:focus,
+.pagina-adauga-angajat select:focus,
+.pagina-adauga-angajat textarea:focus {
+  border-color: #006ce4;
+}
 
 .pagina-adauga-angajat .camp-select-multiplu .select__control--is-focused {
   border-color: #006ce4 !important;
-  outline: none !important;
-  box-shadow: 0 0 0 2px rgba(0, 108, 228, 0.15) !important;
-  background-color: #fff !important;
 }
 
 .pagina-adauga-angajat .camp-select-multiplu .select__placeholder {
