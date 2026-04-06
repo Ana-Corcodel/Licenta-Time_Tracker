@@ -130,3 +130,52 @@ class CerereStergereAmprenta(models.Model):
 
     def __str__(self):
         return f"{self.angajat} - stergere ID {self.fingerprint_id} - {self.status}"
+    
+    
+def saving_concediu_attachments(instance, filename):
+    return os.path.join("documente_concedii", filename)
+
+
+class ConcediuAttach(models.Model):
+    file = models.FileField(upload_to=saving_concediu_attachments)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    filename = models.CharField(max_length=255, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.filename and self.file:
+            self.filename = self.file.name
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.filename or str(self.file)
+
+
+class Concediu(models.Model):
+    angajat = models.ForeignKey(
+        Angajat,
+        on_delete=models.CASCADE,
+        related_name="concedii"
+    )
+    data_start = models.DateField()
+    data_sfarsit = models.DateField()
+    durata = models.IntegerField(help_text="Durata concediului în zile")
+    an_concediu = models.IntegerField()
+    tip_concediu = models.ForeignKey(
+        TipZi,
+        on_delete=models.CASCADE,
+        related_name="concedii"
+    )
+
+    attach = models.ManyToManyField("ConcediuAttach", blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.data_start and self.data_sfarsit:
+            self.durata = (self.data_sfarsit - self.data_start).days + 1
+
+        if self.data_start:
+            self.an_concediu = self.data_start.year
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.angajat} - {self.tip_concediu}"

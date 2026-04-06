@@ -15,6 +15,24 @@ const AddAngajati = ({ open, onClose }) => {
         { value: "suspendat", label: "Suspendat" },
     ];
 
+    const optiuniOra = useMemo(
+        () =>
+            Array.from({ length: 24 }, (_, index) => {
+                const valoare = String(index).padStart(2, "0");
+                return { value: valoare, label: valoare };
+            }),
+        []
+    );
+
+    const optiuniMinute = useMemo(
+        () =>
+            Array.from({ length: 60 }, (_, index) => {
+                const valoare = String(index).padStart(2, "0");
+                return { value: valoare, label: valoare };
+            }),
+        []
+    );
+
     const dateInitialeFormular = useMemo(
         () => ({
             nume: "",
@@ -37,6 +55,15 @@ const AddAngajati = ({ open, onClose }) => {
     const [mesajSucces, setMesajSucces] = useState("");
     const [eroriCampuri, setEroriCampuri] = useState({});
 
+    const extrageOraSiMinute = useCallback((valoareTimp) => {
+        const [ora = "00", minute = "00"] = String(valoareTimp || "00:00").split(":");
+        return { ora, minute };
+    }, []);
+
+    const construiesteTimp = useCallback((ora, minute) => {
+        return `${String(ora).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    }, []);
+
     useEffect(() => {
         if (open) {
             setDateFormular(dateInitialeFormular);
@@ -58,7 +85,10 @@ const AddAngajati = ({ open, onClose }) => {
             }
 
             if (camp === "ora_pauza") {
-                valoare = parseInt(valoare) || 0;
+                valoare = parseInt(valoare, 10);
+                if (Number.isNaN(valoare)) {
+                    valoare = 0;
+                }
             }
 
             setDateFormular((anterior) => ({ ...anterior, [camp]: valoare }));
@@ -72,6 +102,27 @@ const AddAngajati = ({ open, onClose }) => {
         setDateFormular((anterior) => ({ ...anterior, status: valoare }));
         setEroriCampuri((anterior) => ({ ...anterior, status: "" }));
     }, []);
+
+    const gestioneazaSchimbareTimpSeparat = useCallback(
+        (camp, tip, optiuneSelectata) => {
+            const valoareSelectata = optiuneSelectata ? optiuneSelectata.value : "00";
+
+            setDateFormular((anterior) => {
+                const { ora, minute } = extrageOraSiMinute(anterior[camp]);
+
+                const oraNoua = tip === "ora" ? valoareSelectata : ora;
+                const minuteNoi = tip === "minute" ? valoareSelectata : minute;
+
+                return {
+                    ...anterior,
+                    [camp]: construiesteTimp(oraNoua, minuteNoi),
+                };
+            });
+
+            setEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
+        },
+        [extrageOraSiMinute, construiesteTimp]
+    );
 
     const valideazaFormular = useCallback(() => {
         const erori = {};
@@ -114,7 +165,7 @@ const AddAngajati = ({ open, onClose }) => {
         try {
             const payload = {
                 ...dateFormular,
-                ora_pauza: parseInt(dateFormular.ora_pauza) || 30,
+                ora_pauza: parseInt(dateFormular.ora_pauza, 10) || 30,
             };
 
             const raspuns = await axiosInstance.post("/angajati/", payload);
@@ -126,8 +177,12 @@ const AddAngajati = ({ open, onClose }) => {
             }
         } catch (eroare) {
             let mesaj = "Eroare la crearea angajatului";
-            if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
-            else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
+
+            if (eroare.response?.data?.detail) {
+                mesaj = eroare.response.data.detail;
+            } else if (eroare.response?.data?.message) {
+                mesaj = eroare.response.data.message;
+            }
 
             setMesajEroare(mesaj);
             console.error("Eroare la salvare:", eroare);
@@ -149,7 +204,7 @@ const AddAngajati = ({ open, onClose }) => {
                     ? "1px solid #d32f2f"
                     : stare.isFocused
                         ? "1px solid #007BFF"
-                        : "1px solid #888"
+                        : "1px solid #888",
             },
             fontSize: "14px",
             fontFamily: "Arial, sans-serif",
@@ -165,7 +220,7 @@ const AddAngajati = ({ open, onClose }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
-            textAlign: "left"
+            textAlign: "left",
         }),
         input: (baza) => ({
             ...baza,
@@ -178,8 +233,8 @@ const AddAngajati = ({ open, onClose }) => {
                 outline: "none !important",
                 padding: "0",
                 margin: "0",
-                textAlign: "left"
-            }
+                textAlign: "left",
+            },
         }),
         placeholder: (baza) => ({
             ...baza,
@@ -188,7 +243,7 @@ const AddAngajati = ({ open, onClose }) => {
             textAlign: "left",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-start"
+            justifyContent: "flex-start",
         }),
         singleValue: (baza) => ({
             ...baza,
@@ -197,27 +252,39 @@ const AddAngajati = ({ open, onClose }) => {
             textAlign: "left",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-start"
+            justifyContent: "flex-start",
         }),
         menu: (baza) => ({
             ...baza,
             zIndex: 9999,
             fontSize: "14px",
-            textAlign: "left"
+            textAlign: "left",
+        }),
+        menuList: (baza) => ({
+            ...baza,
+            maxHeight: "150px",  
+            overflowY: "auto"
         }),
         option: (baza, stare) => ({
             ...baza,
-            backgroundColor: stare.isSelected ? "#e6f2ff" : stare.isFocused ? "#f0f0f0" : "#fff",
+            backgroundColor: stare.isSelected
+                ? "#e6f2ff"
+                : stare.isFocused
+                    ? "#f0f0f0"
+                    : "#fff",
             color: stare.isSelected ? "#006ce4" : "#1a1a1a",
             fontSize: "14px",
             textAlign: "left",
             "&:active": {
                 backgroundColor: "#e6f2ff",
-            }
+            },
         }),
     });
 
     if (!open) return null;
+
+    const oraIncepere = extrageOraSiMinute(dateFormular.ora_incepere);
+    const oraSfarsit = extrageOraSiMinute(dateFormular.ora_sfarsit);
 
     return (
         <div className="pagina-adauga-angajat">
@@ -226,7 +293,9 @@ const AddAngajati = ({ open, onClose }) => {
                     <div className="fereastra-modal">
                         <div className="antet-modal">
                             <h2>Adaugă Angajat</h2>
-                            <button className="buton-inchidere" onClick={gestioneazaAnulare}>×</button>
+                            <button className="buton-inchidere" onClick={gestioneazaAnulare}>
+                                ×
+                            </button>
                         </div>
 
                         <hr className="linie-antet" />
@@ -244,7 +313,9 @@ const AddAngajati = ({ open, onClose }) => {
                         <div className="formular">
                             <div className="rand-formular">
                                 <div className="camp-formular">
-                                    <label className="eticheta-stanga">Nume <span className="obligatoriu">*</span></label>
+                                    <label className="eticheta-stanga">
+                                        Nume <span className="obligatoriu">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         placeholder="Introdu numele"
@@ -253,11 +324,17 @@ const AddAngajati = ({ open, onClose }) => {
                                         className={`input-stanga ${eroriCampuri.nume ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {eroriCampuri.nume && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.nume}</span>}
+                                    {eroriCampuri.nume && (
+                                        <span className="mesaj-eroare-camp eroare-stanga">
+                                            {eroriCampuri.nume}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="camp-formular">
-                                    <label className="eticheta-stanga">Prenume <span className="obligatoriu">*</span></label>
+                                    <label className="eticheta-stanga">
+                                        Prenume <span className="obligatoriu">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         placeholder="Introdu prenumele"
@@ -266,13 +343,19 @@ const AddAngajati = ({ open, onClose }) => {
                                         className={`input-stanga ${eroriCampuri.prenume ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {eroriCampuri.prenume && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.prenume}</span>}
+                                    {eroriCampuri.prenume && (
+                                        <span className="mesaj-eroare-camp eroare-stanga">
+                                            {eroriCampuri.prenume}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="rand-formular">
                                 <div className="camp-formular">
-                                    <label className="eticheta-stanga">Funcție <span className="obligatoriu">*</span></label>
+                                    <label className="eticheta-stanga">
+                                        Funcție <span className="obligatoriu">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         placeholder="Introdu funcția"
@@ -281,15 +364,21 @@ const AddAngajati = ({ open, onClose }) => {
                                         className={`input-stanga ${eroriCampuri.functie ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {eroriCampuri.functie && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.functie}</span>}
+                                    {eroriCampuri.functie && (
+                                        <span className="mesaj-eroare-camp eroare-stanga">
+                                            {eroriCampuri.functie}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="camp-formular">
-                                    <label className="eticheta-stanga">Status <span className="obligatoriu">*</span></label>
+                                    <label className="eticheta-stanga">
+                                        Status <span className="obligatoriu">*</span>
+                                    </label>
 
                                     <Select
                                         name="status"
-                                        value={optiuniStatus.find(optiune => optiune.value === dateFormular.status)}
+                                        value={optiuniStatus.find((optiune) => optiune.value === dateFormular.status)}
                                         onChange={gestioneazaSchimbareStatus}
                                         options={optiuniStatus}
                                         placeholder="Selectează status"
@@ -300,13 +389,19 @@ const AddAngajati = ({ open, onClose }) => {
                                         styles={obtineStiluriSelectPersonalizat("status")}
                                     />
 
-                                    {eroriCampuri.status && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.status}</span>}
+                                    {eroriCampuri.status && (
+                                        <span className="mesaj-eroare-camp eroare-stanga">
+                                            {eroriCampuri.status}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="rand-formular">
                                 <div className="camp-formular camp-telefon">
-                                    <label className="eticheta-stanga">Telefon <span className="obligatoriu">*</span></label>
+                                    <label className="eticheta-stanga">
+                                        Telefon <span className="obligatoriu">*</span>
+                                    </label>
                                     <div className="input-cu-icon">
                                         <span className="icon-telefon">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 24 24">
@@ -323,7 +418,11 @@ const AddAngajati = ({ open, onClose }) => {
                                             required
                                         />
                                     </div>
-                                    {eroriCampuri.telefon && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.telefon}</span>}
+                                    {eroriCampuri.telefon && (
+                                        <span className="mesaj-eroare-camp eroare-stanga">
+                                            {eroriCampuri.telefon}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="camp-formular">
@@ -335,7 +434,11 @@ const AddAngajati = ({ open, onClose }) => {
                                         onChange={gestioneazaSchimbare("email")}
                                         className={`input-stanga ${eroriCampuri.email ? "chenar-eroare-camp" : ""}`}
                                     />
-                                    {eroriCampuri.email && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.email}</span>}
+                                    {eroriCampuri.email && (
+                                        <span className="mesaj-eroare-camp eroare-stanga">
+                                            {eroriCampuri.email}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
@@ -355,15 +458,49 @@ const AddAngajati = ({ open, onClose }) => {
                                     <label className="eticheta-stanga">
                                         Ora începere <span className="obligatoriu">*</span>
                                     </label>
-                                    <input
-                                        type="time"
-                                        value={dateFormular.ora_incepere}
-                                        onChange={gestioneazaSchimbare("ora_incepere")}
-                                        className={`input-stanga ${eroriCampuri.ora_incepere ? "chenar-eroare-camp" : ""}`}
-                                        required
-                                    />
+
+                                    <div className="grup-selecturi-timp">
+                                        <div className="select-timp">
+                                            <Select
+                                                name="ora_incepere_ora"
+                                                value={optiuniOra.find((optiune) => optiune.value === oraIncepere.ora)}
+                                                onChange={(optiuneSelectata) =>
+                                                    gestioneazaSchimbareTimpSeparat("ora_incepere", "ora", optiuneSelectata)
+                                                }
+                                                options={optiuniOra}
+                                                placeholder="Ora"
+                                                className={`camp-select-multiplu ${eroriCampuri.ora_incepere ? "select-eroare" : ""}`}
+                                                classNamePrefix="select"
+                                                isSearchable={true}
+                                                isClearable={false}
+                                                styles={obtineStiluriSelectPersonalizat("ora_incepere")}
+                                            />
+                                        </div>
+
+                                        <span className="separator-timp">:</span>
+
+                                        <div className="select-timp">
+                                            <Select
+                                                name="ora_incepere_minute"
+                                                value={optiuniMinute.find((optiune) => optiune.value === oraIncepere.minute)}
+                                                onChange={(optiuneSelectata) =>
+                                                    gestioneazaSchimbareTimpSeparat("ora_incepere", "minute", optiuneSelectata)
+                                                }
+                                                options={optiuniMinute}
+                                                placeholder="Min"
+                                                className={`camp-select-multiplu ${eroriCampuri.ora_incepere ? "select-eroare" : ""}`}
+                                                classNamePrefix="select"
+                                                isSearchable={true}
+                                                isClearable={false}
+                                                styles={obtineStiluriSelectPersonalizat("ora_incepere")}
+                                            />
+                                        </div>
+                                    </div>
+
                                     {eroriCampuri.ora_incepere && (
-                                        <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_incepere}</span>
+                                        <span className="mesaj-eroare-camp eroare-stanga">
+                                            {eroriCampuri.ora_incepere}
+                                        </span>
                                     )}
                                 </div>
 
@@ -371,15 +508,49 @@ const AddAngajati = ({ open, onClose }) => {
                                     <label className="eticheta-stanga">
                                         Ora sfârșit <span className="obligatoriu">*</span>
                                     </label>
-                                    <input
-                                        type="time"
-                                        value={dateFormular.ora_sfarsit}
-                                        onChange={gestioneazaSchimbare("ora_sfarsit")}
-                                        className={`input-stanga ${eroriCampuri.ora_sfarsit ? "chenar-eroare-camp" : ""}`}
-                                        required
-                                    />
+
+                                    <div className="grup-selecturi-timp">
+                                        <div className="select-timp">
+                                            <Select
+                                                name="ora_sfarsit_ora"
+                                                value={optiuniOra.find((optiune) => optiune.value === oraSfarsit.ora)}
+                                                onChange={(optiuneSelectata) =>
+                                                    gestioneazaSchimbareTimpSeparat("ora_sfarsit", "ora", optiuneSelectata)
+                                                }
+                                                options={optiuniOra}
+                                                placeholder="Ora"
+                                                className={`camp-select-multiplu ${eroriCampuri.ora_sfarsit ? "select-eroare" : ""}`}
+                                                classNamePrefix="select"
+                                                isSearchable={true}
+                                                isClearable={false}
+                                                styles={obtineStiluriSelectPersonalizat("ora_sfarsit")}
+                                            />
+                                        </div>
+
+                                        <span className="separator-timp">:</span>
+
+                                        <div className="select-timp">
+                                            <Select
+                                                name="ora_sfarsit_minute"
+                                                value={optiuniMinute.find((optiune) => optiune.value === oraSfarsit.minute)}
+                                                onChange={(optiuneSelectata) =>
+                                                    gestioneazaSchimbareTimpSeparat("ora_sfarsit", "minute", optiuneSelectata)
+                                                }
+                                                options={optiuniMinute}
+                                                placeholder="Min"
+                                                className={`camp-select-multiplu ${eroriCampuri.ora_sfarsit ? "select-eroare" : ""}`}
+                                                classNamePrefix="select"
+                                                isSearchable={true}
+                                                isClearable={false}
+                                                styles={obtineStiluriSelectPersonalizat("ora_sfarsit")}
+                                            />
+                                        </div>
+                                    </div>
+
                                     {eroriCampuri.ora_sfarsit && (
-                                        <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_sfarsit}</span>
+                                        <span className="mesaj-eroare-camp eroare-stanga">
+                                            {eroriCampuri.ora_sfarsit}
+                                        </span>
                                     )}
                                 </div>
                             </div>
@@ -398,7 +569,9 @@ const AddAngajati = ({ open, onClose }) => {
                             </div>
 
                             <div className="butoane-formular">
-                                <button className="buton-anulare" onClick={gestioneazaAnulare}>Anulează</button>
+                                <button className="buton-anulare" onClick={gestioneazaAnulare}>
+                                    Anulează
+                                </button>
 
                                 <button
                                     className={`buton-salvare ${seIncarca ? "dezactivat" : ""}`}

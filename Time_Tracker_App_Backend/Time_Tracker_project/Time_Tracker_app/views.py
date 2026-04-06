@@ -4,9 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import (
     Angajat, Pontaj, TipZi, Amprenta,
-    CerereAmprenta, CerereStergereAmprenta
+    CerereAmprenta, CerereStergereAmprenta, Concediu, ConcediuAttach
 )
-from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer
+from .serializers import AngajatSerializer, PontajSerializer, TipZiSerializer, ConcediuSerializer, ConcediuAttachSerializer
 from django.contrib.auth import login, logout, get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 from datetime import date, datetime
+from rest_framework import parsers
 
 
 class AngajatView(APIView):
@@ -118,6 +119,165 @@ class PontajView(APIView):
         pontaj.delete()
         return Response({"message": "Pontaj șters cu succes"}, status=status.HTTP_204_NO_CONTENT)
 
+
+class ConcediuView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
+
+    def _parse_keep_attachments(self, request):
+        if "keep_attachments" not in request.data:
+            return None
+
+        keep_ids = []
+        if hasattr(request.data, "getlist"):
+            raw = request.data.getlist("keep_attachments")
+            if len(raw) == 1 and isinstance(raw[0], str) and "," in raw[0]:
+                keep_ids = [int(x.strip()) for x in raw[0].split(",") if x.strip()]
+            else:
+                keep_ids = [int(x) for x in raw if str(x).strip()]
+        else:
+            raw = request.data.get("keep_attachments")
+            if isinstance(raw, str):
+                keep_ids = [int(x.strip()) for x in raw.split(",") if x.strip()]
+            elif isinstance(raw, list):
+                keep_ids = [int(x) for x in raw if str(x).strip()]
+
+        return keep_ids
+
+    def _attach_files(self, concediu, files):
+        if not files:
+            return
+        new_atts = [ConcediuAttach.objects.create(file=f) for f in files]
+        concediu.attach.add(*new_atts)
+
+    def _normalize_request_data(self, request):
+        data = {}
+
+        for key in request.data.keys():
+            values = request.data.getlist(key) if hasattr(request.data, "getlist") else [request.data.get(key)]
+
+            if key == "attach":
+                if len(values) == 1 and isinstance(values[0], str):
+                    try:
+                        data[key] = json.loads(values[0])
+                    except json.JSONDecodeError:
+                        data[key] = values
+                else:
+                    data[key] = values
+            else:
+                data[key] = values[0] if values else None
+
+        return data
+
+    def get(self, request, pk=None):
+        if pk:
+            concediu = get_object_or_404(Concediu.objects.prefetch_related("attach"), pk=pk)
+            serializer = ConcediuSerializer(concediu)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        concedii = Concediu.objects.select_related(
+            "angajat",
+            "tip_concediu"
+        ).prefetch_related("attach").order_by("-id")
+
+        angajat_id = request.query_params.get("angajat")
+        an = request.query_params.get("an")
+
+        if angajat_id:
+            concedii = concedii.filter(angajat_id=angajat_id)
+
+        if an:
+            concedii = concedii.filter(an_concediu=an)
+
+        serializer = ConcediuSerializer(concedii, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = self._normalize_request_data(request)
+        serializer = ConcediuSerializer(data=data)
+
+        if serializer.is_valid():
+            concediu = serializer.save()
+
+            files = request.FILES.getlist("attachments")
+            self._attach_files(concediu, files)
+
+            out_serializer = ConcediuSerializer(concediu)
+            return Response(
+                {"message": "Concediu creat cu succes", "data": out_serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        concediu = get_object_or_404(Concediu, pk=pk)
+
+        data = self._normalize_request_data(request)
+        serializer = ConcediuSerializer(concediu, data=data)
+
+        if serializer.is_valid():
+            concediu = serializer.save()
+
+            keep_ids = self._parse_keep_attachments(request)
+            if keep_ids is not None:
+                qs = concediu.attach.exclude(id__in=keep_ids)
+                concediu.attach.remove(*qs)
+
+            files = request.FILES.getlist("attachments")
+            self._attach_files(concediu, files)
+
+            out_serializer = ConcediuSerializer(concediu)
+            return Response(
+                {"message": "Concediu actualizat", "data": out_serializer.data},
+                status=status.HTTP_200_OK
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        concediu = get_object_or_404(Concediu, pk=pk)
+        concediu.delete()
+        return Response(
+            {"message": "Concediu șters cu succes"},
+            status=status.HTTP_204_NO_CONTENT
+        )
+    
+    
+class ConcediuAttachView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
+
+    def get(self, request, pk=None):
+        if pk:
+            attach = get_object_or_404(ConcediuAttach, pk=pk)
+            serializer = ConcediuAttachSerializer(attach)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        attaches = ConcediuAttach.objects.all().order_by("-id")
+        serializer = ConcediuAttachSerializer(attaches, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        file = request.FILES.get("file")
+
+        if not file:
+            return Response(
+                {"error": "No file provided."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        attach = ConcediuAttach.objects.create(file=file)
+        serializer = ConcediuAttachSerializer(attach)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, pk):
+        attach = get_object_or_404(ConcediuAttach, pk=pk)
+        attach.delete()
+        return Response(
+            {"message": "Attachment deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT
+        )
 
 User = get_user_model()
 

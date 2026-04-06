@@ -8,6 +8,7 @@ import AdministrareaAngajatilor from "./Pagini/AdministrareaAngajatilor/Administ
 import Pontaje from "./Pagini/Pontaj/Pontaj";
 import TipuriDeZile from "./Pagini/TipZi/TipZi";
 import Logare from "./Pagini/Logare/Logare";
+import Concedii from "./Pagini/Concedii/Concedii"
 import axiosInstance from "./Config/axiosInstance";
 
 function Aplicatie() {
@@ -94,6 +95,7 @@ function Aplicatie() {
                         <Route path="/administrare-angajati" element={<AdministrareaAngajatilor />} />
                         <Route path="/pontaje" element={<Pontaje />} />
                         <Route path="/tipuri-zile" element={<TipuriDeZile />} />
+                        <Route path="/concedii" element={<Concedii />} />
                       </Routes>
                     </div>
                   </div>

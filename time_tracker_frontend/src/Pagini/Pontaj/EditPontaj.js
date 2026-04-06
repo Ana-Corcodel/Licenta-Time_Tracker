@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axiosInstance from "../../Config/axiosInstance";
 import DatePicker from "react-datepicker";
 import { registerLocale } from "react-datepicker";
@@ -33,6 +33,24 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
     const [afiseazaToast, seteazaAfiseazaToast] = useState(false);
     const [eroriCampuri, seteazaEroriCampuri] = useState({});
 
+    const optiuniOra = useMemo(
+        () =>
+            Array.from({ length: 24 }, (_, index) => {
+                const valoare = String(index).padStart(2, "0");
+                return { value: valoare, label: valoare };
+            }),
+        []
+    );
+
+    const optiuniMinute = useMemo(
+        () =>
+            Array.from({ length: 60 }, (_, index) => {
+                const valoare = String(index).padStart(2, "0");
+                return { value: valoare, label: valoare };
+            }),
+        []
+    );
+
     const obtineDateInitialeFormular = useCallback(() => ({
         angajat: null,
         luna: "",
@@ -50,6 +68,15 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         if (!valoareOra) return "";
         return String(valoareOra).slice(0, 5);
     };
+
+    const extrageOraSiMinute = useCallback((valoareTimp) => {
+        const [ora = "00", minute = "00"] = String(valoareTimp || "00:00").split(":");
+        return { ora, minute };
+    }, []);
+
+    const construiesteTimp = useCallback((ora, minute) => {
+        return `${String(ora).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    }, []);
 
     const transformaOraInMinute = (ora) => {
         if (!ora) return 0;
@@ -270,11 +297,26 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         seteazaEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
     }, []);
 
-    const gestioneazaSchimbareOra = useCallback((camp) => (e) => {
-        const valoare = e.target.value;
-        seteazaDateFormular((anterior) => ({ ...anterior, [camp]: valoare }));
-        seteazaEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
-    }, []);
+    const gestioneazaSchimbareTimpSeparat = useCallback(
+        (camp, tip, optiuneSelectata) => {
+            const valoareSelectata = optiuneSelectata ? optiuneSelectata.value : "00";
+
+            seteazaDateFormular((anterior) => {
+                const { ora, minute } = extrageOraSiMinute(anterior[camp]);
+
+                const oraNoua = tip === "ora" ? valoareSelectata : ora;
+                const minuteNoi = tip === "minute" ? valoareSelectata : minute;
+
+                return {
+                    ...anterior,
+                    [camp]: construiesteTimp(oraNoua, minuteNoi),
+                };
+            });
+
+            seteazaEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
+        },
+        [extrageOraSiMinute, construiesteTimp]
+    );
 
     const gestioneazaSchimbareAngajat = useCallback((optiuneSelectata) => {
         seteazaDateFormular((anterior) => ({
@@ -456,6 +498,11 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
             fontSize: "14px",
             textAlign: "left"
         }),
+        menuList: (baza) => ({
+            ...baza,
+            maxHeight: "200px",   
+            overflowY: "auto"
+        }),
         option: (baza, stare) => ({
             ...baza,
             backgroundColor: stare.isSelected ? "#e6f2ff" : stare.isFocused ? "#f0f0f0" : "#fff",
@@ -469,6 +516,9 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
     });
 
     if (!open) return null;
+
+    const oraStart = extrageOraSiMinute(dateFormular.ora_start);
+    const oraSfarsit = extrageOraSiMinute(dateFormular.ora_sfarsit);
 
     return (
         <>
@@ -551,12 +601,45 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                 <div className="rand-formular">
                                     <div className="camp-formular">
                                         <label className="eticheta-stanga">Ora start <span className="obligatoriu">*</span></label>
-                                        <input
-                                            type="time"
-                                            value={dateFormular.ora_start}
-                                            onChange={gestioneazaSchimbareOra("ora_start")}
-                                            className={`input-stanga ${eroriCampuri.ora_start ? "chenar-eroare-camp" : ""}`}
-                                        />
+
+                                        <div className="grup-selecturi-timp">
+                                            <div className="select-timp">
+                                                <Select
+                                                    name="ora_start_ora"
+                                                    value={optiuniOra.find((optiune) => optiune.value === oraStart.ora)}
+                                                    onChange={(optiuneSelectata) =>
+                                                        gestioneazaSchimbareTimpSeparat("ora_start", "ora", optiuneSelectata)
+                                                    }
+                                                    options={optiuniOra}
+                                                    placeholder="Ora"
+                                                    className={`camp-multiselect ${eroriCampuri.ora_start ? "select-cu-eroare" : ""}`}
+                                                    classNamePrefix="select"
+                                                    isSearchable={true}
+                                                    isClearable={false}
+                                                    styles={obtineStiluriPersonalizateSelect("ora_start")}
+                                                />
+                                            </div>
+
+                                            <span className="separator-timp">:</span>
+
+                                            <div className="select-timp">
+                                                <Select
+                                                    name="ora_start_minute"
+                                                    value={optiuniMinute.find((optiune) => optiune.value === oraStart.minute)}
+                                                    onChange={(optiuneSelectata) =>
+                                                        gestioneazaSchimbareTimpSeparat("ora_start", "minute", optiuneSelectata)
+                                                    }
+                                                    options={optiuniMinute}
+                                                    placeholder="Min"
+                                                    className={`camp-multiselect ${eroriCampuri.ora_start ? "select-cu-eroare" : ""}`}
+                                                    classNamePrefix="select"
+                                                    isSearchable={true}
+                                                    isClearable={false}
+                                                    styles={obtineStiluriPersonalizateSelect("ora_start")}
+                                                />
+                                            </div>
+                                        </div>
+
                                         {eroriCampuri.ora_start && (
                                             <span className="eroare-camp eroare-stanga">{eroriCampuri.ora_start}</span>
                                         )}
@@ -564,12 +647,45 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
 
                                     <div className="camp-formular">
                                         <label className="eticheta-stanga">Ora sfârșit <span className="obligatoriu">*</span></label>
-                                        <input
-                                            type="time"
-                                            value={dateFormular.ora_sfarsit}
-                                            onChange={gestioneazaSchimbareOra("ora_sfarsit")}
-                                            className={`input-stanga ${eroriCampuri.ora_sfarsit ? "chenar-eroare-camp" : ""}`}
-                                        />
+
+                                        <div className="grup-selecturi-timp">
+                                            <div className="select-timp">
+                                                <Select
+                                                    name="ora_sfarsit_ora"
+                                                    value={optiuniOra.find((optiune) => optiune.value === oraSfarsit.ora)}
+                                                    onChange={(optiuneSelectata) =>
+                                                        gestioneazaSchimbareTimpSeparat("ora_sfarsit", "ora", optiuneSelectata)
+                                                    }
+                                                    options={optiuniOra}
+                                                    placeholder="Ora"
+                                                    className={`camp-multiselect ${eroriCampuri.ora_sfarsit ? "select-cu-eroare" : ""}`}
+                                                    classNamePrefix="select"
+                                                    isSearchable={true}
+                                                    isClearable={false}
+                                                    styles={obtineStiluriPersonalizateSelect("ora_sfarsit")}
+                                                />
+                                            </div>
+
+                                            <span className="separator-timp">:</span>
+
+                                            <div className="select-timp">
+                                                <Select
+                                                    name="ora_sfarsit_minute"
+                                                    value={optiuniMinute.find((optiune) => optiune.value === oraSfarsit.minute)}
+                                                    onChange={(optiuneSelectata) =>
+                                                        gestioneazaSchimbareTimpSeparat("ora_sfarsit", "minute", optiuneSelectata)
+                                                    }
+                                                    options={optiuniMinute}
+                                                    placeholder="Min"
+                                                    className={`camp-multiselect ${eroriCampuri.ora_sfarsit ? "select-cu-eroare" : ""}`}
+                                                    classNamePrefix="select"
+                                                    isSearchable={true}
+                                                    isClearable={false}
+                                                    styles={obtineStiluriPersonalizateSelect("ora_sfarsit")}
+                                                />
+                                            </div>
+                                        </div>
+
                                         {eroriCampuri.ora_sfarsit && (
                                             <span className="eroare-camp eroare-stanga">{eroriCampuri.ora_sfarsit}</span>
                                         )}

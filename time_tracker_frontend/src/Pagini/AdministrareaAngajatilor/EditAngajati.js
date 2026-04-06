@@ -15,6 +15,24 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         { value: "suspendat", label: "Suspendat" },
     ];
 
+    const optiuniOra = useMemo(
+        () =>
+            Array.from({ length: 24 }, (_, index) => {
+                const valoare = String(index).padStart(2, "0");
+                return { value: valoare, label: valoare };
+            }),
+        []
+    );
+
+    const optiuniMinute = useMemo(
+        () =>
+            Array.from({ length: 60 }, (_, index) => {
+                const valoare = String(index).padStart(2, "0");
+                return { value: valoare, label: valoare };
+            }),
+        []
+    );
+
     const dateInitialeFormular = useMemo(
         () => ({
             nume: "",
@@ -39,6 +57,15 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
     const [afiseazaToast, setAfiseazaToast] = useState(false);
     const [eroriCampuri, setEroriCampuri] = useState({});
 
+    const extrageOraSiMinute = useCallback((valoareTimp) => {
+        const [ora = "00", minute = "00"] = String(valoareTimp || "00:00").split(":");
+        return { ora, minute };
+    }, []);
+
+    const construiesteTimp = useCallback((ora, minute) => {
+        return `${String(ora).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    }, []);
+
     const preiaDetaliiAngajat = useCallback(async () => {
         if (!employeeData?.id) return;
 
@@ -56,7 +83,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 const mapaStatus = {
                     1: "activ",
                     2: "inactiv",
-                    3: "suspendat"
+                    3: "suspendat",
                 };
                 valoareStatus = mapaStatus[angajat.status.id] || "activ";
             }
@@ -107,7 +134,10 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             }
 
             if (camp === "ora_pauza") {
-                valoare = parseInt(valoare) || 0;
+                valoare = parseInt(valoare, 10);
+                if (Number.isNaN(valoare)) {
+                    valoare = 0;
+                }
             }
 
             setDateFormular((anterior) => ({ ...anterior, [camp]: valoare }));
@@ -122,6 +152,27 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         setEroriCampuri((anterior) => ({ ...anterior, status: "" }));
     }, []);
 
+    const gestioneazaSchimbareTimpSeparat = useCallback(
+        (camp, tip, optiuneSelectata) => {
+            const valoareSelectata = optiuneSelectata ? optiuneSelectata.value : "00";
+
+            setDateFormular((anterior) => {
+                const { ora, minute } = extrageOraSiMinute(anterior[camp]);
+
+                const oraNoua = tip === "ora" ? valoareSelectata : ora;
+                const minuteNoi = tip === "minute" ? valoareSelectata : minute;
+
+                return {
+                    ...anterior,
+                    [camp]: construiesteTimp(oraNoua, minuteNoi),
+                };
+            });
+
+            setEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
+        },
+        [extrageOraSiMinute, construiesteTimp]
+    );
+
     const valideazaFormular = useCallback(() => {
         const erori = {};
 
@@ -130,6 +181,8 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         if (!dateFormular.functie.trim()) erori.functie = "Funcția este obligatorie";
         if (!dateFormular.telefon.trim()) erori.telefon = "Telefonul este obligatoriu";
         if (!dateFormular.status) erori.status = "Statusul este obligatoriu";
+        if (!dateFormular.ora_incepere) erori.ora_incepere = "Ora de începere este obligatorie";
+        if (!dateFormular.ora_sfarsit) erori.ora_sfarsit = "Ora de sfârșit este obligatorie";
 
         if (dateFormular.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dateFormular.email)) {
             erori.email = "Email invalid";
@@ -162,8 +215,8 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 ...dateFormular,
                 ora_pauza:
                     dateFormular.ora_pauza === "" ||
-                    dateFormular.ora_pauza === null ||
-                    dateFormular.ora_pauza === undefined
+                        dateFormular.ora_pauza === null ||
+                        dateFormular.ora_pauza === undefined
                         ? 30
                         : parseInt(dateFormular.ora_pauza, 10),
             };
@@ -173,7 +226,6 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             if (raspuns.status === 200) {
                 setAfiseazaToast(true);
                 setTimeout(() => setAfiseazaToast(false), 4000);
-
                 onClose(true, "Angajat editat cu succes!");
             } else {
                 setMesajEroare("Răspuns neașteptat de la server");
@@ -203,7 +255,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                     ? "1px solid #d32f2f"
                     : stare.isFocused
                         ? "1px solid #007BFF"
-                        : "1px solid #888"
+                        : "1px solid #888",
             },
             fontSize: "14px",
             fontFamily: "Arial, sans-serif",
@@ -219,7 +271,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
-            textAlign: "left"
+            textAlign: "left",
         }),
         input: (baza) => ({
             ...baza,
@@ -232,8 +284,8 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 outline: "none !important",
                 padding: "0",
                 margin: "0",
-                textAlign: "left"
-            }
+                textAlign: "left",
+            },
         }),
         placeholder: (baza) => ({
             ...baza,
@@ -242,7 +294,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             textAlign: "left",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-start"
+            justifyContent: "flex-start",
         }),
         singleValue: (baza) => ({
             ...baza,
@@ -251,13 +303,18 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             textAlign: "left",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-start"
+            justifyContent: "flex-start",
         }),
         menu: (baza) => ({
             ...baza,
             zIndex: 9999,
             fontSize: "14px",
-            textAlign: "left"
+            textAlign: "left",
+        }),
+        menuList: (baza) => ({
+            ...baza,
+            maxHeight: "150px",  
+            overflowY: "auto"
         }),
         option: (baza, stare) => ({
             ...baza,
@@ -267,11 +324,14 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             textAlign: "left",
             "&:active": {
                 backgroundColor: "#e6f2ff",
-            }
+            },
         }),
     });
 
     if (!open) return null;
+
+    const oraIncepere = extrageOraSiMinute(dateFormular.ora_incepere);
+    const oraSfarsit = extrageOraSiMinute(dateFormular.ora_sfarsit);
 
     return (
         <>
@@ -418,25 +478,103 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
 
                                 <div className="rand-formular">
                                     <div className="camp-formular">
-                                        <label className="eticheta-stanga">Ora începere</label>
-                                        <input
-                                            type="time"
-                                            value={dateFormular.ora_incepere}
-                                            onChange={gestioneazaSchimbare("ora_incepere")}
-                                            className="input-stanga"
-                                            disabled={seIncarcaDatele}
-                                        />
+                                        <label className="eticheta-stanga">
+                                            Ora începere <span className="obligatoriu">*</span>
+                                        </label>
+
+                                        <div className="grup-selecturi-timp">
+                                            <div className="select-timp">
+                                                <Select
+                                                    name="ora_incepere_ora"
+                                                    value={optiuniOra.find((optiune) => optiune.value === oraIncepere.ora)}
+                                                    onChange={(optiuneSelectata) =>
+                                                        gestioneazaSchimbareTimpSeparat("ora_incepere", "ora", optiuneSelectata)
+                                                    }
+                                                    options={optiuniOra}
+                                                    placeholder="Ora"
+                                                    className={`camp-select-multiplu ${eroriCampuri.ora_incepere ? "select-eroare" : ""}`}
+                                                    classNamePrefix="select"
+                                                    isSearchable={true}
+                                                    isClearable={false}
+                                                    isDisabled={seIncarcaDatele}
+                                                    styles={obtineStiluriSelectPersonalizat("ora_incepere")}
+                                                />
+                                            </div>
+
+                                            <span className="separator-timp">:</span>
+
+                                            <div className="select-timp">
+                                                <Select
+                                                    name="ora_incepere_minute"
+                                                    value={optiuniMinute.find((optiune) => optiune.value === oraIncepere.minute)}
+                                                    onChange={(optiuneSelectata) =>
+                                                        gestioneazaSchimbareTimpSeparat("ora_incepere", "minute", optiuneSelectata)
+                                                    }
+                                                    options={optiuniMinute}
+                                                    placeholder="Min"
+                                                    className={`camp-select-multiplu ${eroriCampuri.ora_incepere ? "select-eroare" : ""}`}
+                                                    classNamePrefix="select"
+                                                    isSearchable={true}
+                                                    isClearable={false}
+                                                    isDisabled={seIncarcaDatele}
+                                                    styles={obtineStiluriSelectPersonalizat("ora_incepere")}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {eroriCampuri.ora_incepere && (
+                                            <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_incepere}</span>
+                                        )}
                                     </div>
 
                                     <div className="camp-formular">
-                                        <label className="eticheta-stanga">Ora sfârșit</label>
-                                        <input
-                                            type="time"
-                                            value={dateFormular.ora_sfarsit}
-                                            onChange={gestioneazaSchimbare("ora_sfarsit")}
-                                            className="input-stanga"
-                                            disabled={seIncarcaDatele}
-                                        />
+                                        <label className="eticheta-stanga">
+                                            Ora sfârșit <span className="obligatoriu">*</span>
+                                        </label>
+
+                                        <div className="grup-selecturi-timp">
+                                            <div className="select-timp">
+                                                <Select
+                                                    name="ora_sfarsit_ora"
+                                                    value={optiuniOra.find((optiune) => optiune.value === oraSfarsit.ora)}
+                                                    onChange={(optiuneSelectata) =>
+                                                        gestioneazaSchimbareTimpSeparat("ora_sfarsit", "ora", optiuneSelectata)
+                                                    }
+                                                    options={optiuniOra}
+                                                    placeholder="Ora"
+                                                    className={`camp-select-multiplu ${eroriCampuri.ora_sfarsit ? "select-eroare" : ""}`}
+                                                    classNamePrefix="select"
+                                                    isSearchable={true}
+                                                    isClearable={false}
+                                                    isDisabled={seIncarcaDatele}
+                                                    styles={obtineStiluriSelectPersonalizat("ora_sfarsit")}
+                                                />
+                                            </div>
+
+                                            <span className="separator-timp">:</span>
+
+                                            <div className="select-timp">
+                                                <Select
+                                                    name="ora_sfarsit_minute"
+                                                    value={optiuniMinute.find((optiune) => optiune.value === oraSfarsit.minute)}
+                                                    onChange={(optiuneSelectata) =>
+                                                        gestioneazaSchimbareTimpSeparat("ora_sfarsit", "minute", optiuneSelectata)
+                                                    }
+                                                    options={optiuniMinute}
+                                                    placeholder="Min"
+                                                    className={`camp-select-multiplu ${eroriCampuri.ora_sfarsit ? "select-eroare" : ""}`}
+                                                    classNamePrefix="select"
+                                                    isSearchable={true}
+                                                    isClearable={false}
+                                                    isDisabled={seIncarcaDatele}
+                                                    styles={obtineStiluriSelectPersonalizat("ora_sfarsit")}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {eroriCampuri.ora_sfarsit && (
+                                            <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_sfarsit}</span>
+                                        )}
                                     </div>
                                 </div>
 

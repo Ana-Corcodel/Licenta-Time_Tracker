@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Angajat, TipZi, Pontaj
+from .models import Angajat, TipZi, Pontaj, Concediu, ConcediuAttach
 
 class AngajatSerializer(serializers.ModelSerializer):
     are_amprenta = serializers.SerializerMethodField()
@@ -30,3 +30,16 @@ class PontajSerializer(serializers.ModelSerializer):
 
     def get_ore_lucru_suplimentare_format(self, obj):
         return obj.ore_suplimentare_hms()
+    
+class ConcediuAttachSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConcediuAttach
+        fields = "__all__"
+
+
+class ConcediuSerializer(serializers.ModelSerializer):
+    attach_files = ConcediuAttachSerializer(source="attach", many=True, read_only=True)
+
+    class Meta:
+        model = Concediu
+        fields = "__all__"

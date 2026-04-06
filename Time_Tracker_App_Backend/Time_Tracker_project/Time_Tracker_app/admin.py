@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from .models import (
-    Angajat, TipZi, Pontaj, Amprenta,
-    CerereAmprenta, CerereStergereAmprenta
+    Angajat, TipZi, Pontaj,Concediu, Amprenta,
+    CerereAmprenta, CerereStergereAmprenta, ConcediuAttach
 )
 
 
@@ -48,6 +48,15 @@ class PontajAdmin(admin.ModelAdmin):
     def afiseaza_ore_suplimentare(self, obj):
         return obj.ore_suplimentare_hms()
     afiseaza_ore_suplimentare.short_description = 'Ore suplimentare'
+
+@admin.register(Concediu)
+class ConcediuAdmin(admin.ModelAdmin):
+    list_display = ('angajat', 'data_start')
+    search_fields = ('angajat', 'data_start')
+    
+@admin.register(ConcediuAttach)
+class ConcediiAttachAdmin(admin.ModelAdmin):
+    list_display = ('file', 'uploaded_at', 'filename')
 
 
 @admin.register(Amprenta)

@@ -436,3 +436,36 @@
     width: 100%;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.grup-selecturi-timp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.select-timp {
+  flex: 1;
+  min-width: 0;
+}
+
+.separator-timp {
+  font-size: 20px;
+  font-weight: 700;
+  color: #555;
+  line-height: 1;
+  margin-top: -2px;
+}

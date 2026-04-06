@@ -53,6 +53,17 @@ const grupuriMeniu = [
         icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
+  },
+  {
+    sectiune: 'Concedii',
+    icon: <CalendarMonthIcon className="icon pictograma-sectiune" />,
+    elemente: [
+      {
+        nume: 'Concedii',
+        url: '/concedii',
+        icon: <TrackChangesSharpIcon className="icon" />
+      }
+    ]
   }
 ];
 
