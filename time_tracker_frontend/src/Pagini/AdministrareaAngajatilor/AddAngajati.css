@@ -315,7 +315,7 @@
 }
 
 .pagina-adauga-angajat .camp-select-multiplu .select__control {
-  border: 1px solid #000 !important;
+  border: 1px solid #868686  !important;
   border-radius: 6px !important;
   min-height: 38px !important;
   font-family: 'Arial', sans-serif !important;
@@ -325,10 +325,7 @@
   transition: all 0.2s ease !important;
 }
 
-.pagina-adauga-angajat .camp-select-multiplu .select__control:hover {
-  border-color: #999 !important;
-  background-color: #f0f0f0 !important;
-}
+
 
 .pagina-adauga-angajat .camp-select-multiplu .select__control--is-focused {
   border-color: #006ce4 !important;
