@@ -46,8 +46,17 @@ const parseazaDataFaraTimezone = (dataText) => {
   return new Date(an, luna - 1, zi);
 };
 
-const formateazaOrePentruAfisare = (valoare) => {
-  return `${Number(valoare || 0).toFixed(1)} h`;
+const formateazaOreSiMinute = (valoare) => {
+  const numar = Number(valoare || 0);
+
+  const oreIntregi = Math.floor(numar);
+  const minute = Math.round((numar - oreIntregi) * 60);
+
+  if (minute === 60) {
+    return `${String(oreIntregi + 1).padStart(2, "0")}:00`;
+  }
+
+  return `${String(oreIntregi).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 };
 
 export default function Acasa() {
@@ -129,13 +138,11 @@ export default function Acasa() {
 
       <div className="card-acasa">
         <div className="antet-card-acasa">
-          <div>
-            <h2>Ore lucrate în ultimele 7 zile</h2>
-            <p className="text-estompat">
-              Total: <b>{formateazaOrePentruAfisare(totalOre)}</b> • Medie:{" "}
-              <b>{formateazaOrePentruAfisare(mediaOre)}/zi</b>
-            </p>
-          </div>
+          <h2>Ore lucrate în ultimele 7 zile</h2>
+          <p className="text-estompat">
+            Total: <b>{formateazaOreSiMinute(totalOre)}</b> • Medie:{" "}
+            <b>{formateazaOreSiMinute(mediaOre)}</b>/zi
+          </p>
         </div>
 
         <div className="grafic-acasa">
@@ -149,9 +156,9 @@ export default function Acasa() {
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="eticheta" />
-                <YAxis tickFormatter={(valoare) => `${valoare}h`} />
+                <YAxis tickFormatter={(valoare) => formateazaOreSiMinute(valoare)} />
                 <Tooltip
-                  formatter={(valoare) => [formateazaOrePentruAfisare(valoare), "Ore lucrate"]}
+                  formatter={(valoare) => [formateazaOreSiMinute(valoare), "Ore lucrate"]}
                   labelFormatter={(label, payload) => {
                     if (payload?.length) {
                       return `Data: ${payload[0].payload.dataCompleta}`;
