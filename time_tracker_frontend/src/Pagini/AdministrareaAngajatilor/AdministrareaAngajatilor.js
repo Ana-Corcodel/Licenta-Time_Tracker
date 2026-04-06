@@ -15,7 +15,7 @@ import AddAngajati from './AddAngajati';
 import EditAngajati from './EditAngajati';
 import './AdministrareaAngajatilor.css';
 
-const PAGINA_IMPLICITA = 10;
+const PAGINA_IMPLICITA = 6;
 const TIMP_DEBOUNCE_MS = 300;
 
 const MAPARE_STATUS = {
@@ -494,7 +494,7 @@ const AdministrareaAngajatilor = () => {
             columns={coloane}
             loading={seIncarca}
             disableRowSelectionOnClick
-            pageSizeOptions={[10, 15, 25, 50]}
+            pageSizeOptions={[6, 10, 15, 25, 50]}
             initialState={{
               pagination: {
                 paginationModel: { pageSize: PAGINA_IMPLICITA, page: 0 },

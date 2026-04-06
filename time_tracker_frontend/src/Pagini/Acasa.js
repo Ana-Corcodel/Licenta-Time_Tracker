@@ -9,6 +9,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Cell,
 } from "recharts";
 
 const ZILE_SCURTE = ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sâm"];
@@ -20,13 +21,33 @@ const formateazaCheieData = (data) => {
   return `${an}-${luna}-${zi}`;
 };
 
+const formateazaDataScurta = (data) => {
+  const ziSaptamana = ZILE_SCURTE[data.getDay()];
+  const zi = String(data.getDate()).padStart(2, "0");
+  const luna = String(data.getMonth() + 1).padStart(2, "0");
+  return `${ziSaptamana} ${zi}.${luna}`;
+};
+
 const parseazaOre = (valoare) => {
   if (valoare == null || valoare === "") return 0;
-
   if (typeof valoare === "number") return valoare;
 
   const valoareParsata = parseFloat(String(valoare).replace(",", "."));
   return Number.isNaN(valoareParsata) ? 0 : valoareParsata;
+};
+
+const parseazaDataFaraTimezone = (dataText) => {
+  if (!dataText) return null;
+
+  const parti = String(dataText).split("-");
+  if (parti.length !== 3) return null;
+
+  const [an, luna, zi] = parti.map(Number);
+  return new Date(an, luna - 1, zi);
+};
+
+const formateazaOrePentruAfisare = (valoare) => {
+  return `${Number(valoare || 0).toFixed(1)} h`;
 };
 
 export default function Acasa() {
@@ -62,23 +83,23 @@ export default function Acasa() {
       dataCurenta.setDate(azi.getDate() - i);
 
       ultimeleSapteZile.push({
-        dataCompleta: new Date(dataCurenta),
         cheie: formateazaCheieData(dataCurenta),
-        zi: ZILE_SCURTE[dataCurenta.getDay()],
+        eticheta: formateazaDataScurta(dataCurenta),
+        dataCompleta: dataCurenta.toLocaleDateString("ro-RO"),
         ore: 0,
       });
     }
 
     const mapareZile = {};
-    ultimeleSapteZile.forEach((element) => {
-      mapareZile[element.cheie] = element;
+    ultimeleSapteZile.forEach((zi) => {
+      mapareZile[zi.cheie] = zi;
     });
 
     pontaje.forEach((pontaj) => {
       if (!pontaj.data) return;
 
-      const dataPontaj = new Date(pontaj.data);
-      dataPontaj.setHours(0, 0, 0, 0);
+      const dataPontaj = parseazaDataFaraTimezone(pontaj.data);
+      if (!dataPontaj) return;
 
       const cheie = formateazaCheieData(dataPontaj);
 
@@ -87,16 +108,19 @@ export default function Acasa() {
       }
     });
 
-    return ultimeleSapteZile;
+    return ultimeleSapteZile.map((zi) => ({
+      ...zi,
+      ore: Number(zi.ore.toFixed(2)),
+    }));
   }, [pontaje]);
 
   const totalOre = useMemo(() => {
-    return dateGrafic.reduce((acumulator, element) => acumulator + (element.ore || 0), 0);
+    return dateGrafic.reduce((total, element) => total + element.ore, 0);
   }, [dateGrafic]);
 
   const mediaOre = useMemo(() => {
     return dateGrafic.length ? totalOre / dateGrafic.length : 0;
-  }, [totalOre, dateGrafic.length]);
+  }, [totalOre, dateGrafic]);
 
   return (
     <div className="pagina-acasa">
@@ -106,9 +130,10 @@ export default function Acasa() {
       <div className="card-acasa">
         <div className="antet-card-acasa">
           <div>
-            <h2>Ore lucrate (ultimele 7 zile)</h2>
+            <h2>Ore lucrate în ultimele 7 zile</h2>
             <p className="text-estompat">
-              Total: <b>{totalOre.toFixed(1)}h</b> • Medie: <b>{mediaOre.toFixed(1)}h/zi</b>
+              Total: <b>{formateazaOrePentruAfisare(totalOre)}</b> • Medie:{" "}
+              <b>{formateazaOrePentruAfisare(mediaOre)}/zi</b>
             </p>
           </div>
         </div>
@@ -118,21 +143,27 @@ export default function Acasa() {
             <div className="incarcare-acasa">Se încarcă datele...</div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dateGrafic} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="zi" />
-                <YAxis />
+              <BarChart
+                data={dateGrafic}
+                margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="eticheta" />
+                <YAxis tickFormatter={(valoare) => `${valoare}h`} />
                 <Tooltip
-                  formatter={(valoare) => [`${Number(valoare).toFixed(1)} h`, "Ore"]}
-                  labelFormatter={(eticheta, payload) => {
-                    if (payload && payload.length > 0) {
-                      const element = payload[0].payload;
-                      return `${eticheta} - ${element.cheie}`;
+                  formatter={(valoare) => [formateazaOrePentruAfisare(valoare), "Ore lucrate"]}
+                  labelFormatter={(label, payload) => {
+                    if (payload?.length) {
+                      return `Data: ${payload[0].payload.dataCompleta}`;
                     }
-                    return `Zi: ${eticheta}`;
+                    return label;
                   }}
                 />
-                <Bar dataKey="ore" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="ore" radius={[8, 8, 0, 0]}>
+                  {dateGrafic.map((_, index) => (
+                    <Cell key={index} fill="#006d83" />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}

@@ -3,7 +3,7 @@
   color: #333;
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
-  padding-top: 50px;
+  padding-top: 10px;
 }
 
 .pagina-acasa h1 {
@@ -23,28 +23,41 @@
 }
 
 .pagina-acasa .card-acasa {
-  margin-top: 20px;
-  padding: 16px;
+  margin-top: 24px;
+  padding: 5px;
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: #fff;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pagina-acasa .antet-card-acasa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
 .pagina-acasa .antet-card-acasa h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
+  color: #006d83;
 }
 
 .pagina-acasa .text-estompat {
   margin: 6px 0 0;
   opacity: 0.75;
   font-size: 14px;
+  text-align: center;
 }
 
 .pagina-acasa .grafic-acasa {
-  margin-top: 14px;
-  height: 320px;
+  margin-top: 18px;
+  height: 340px;
 }
 
 .pagina-acasa .incarcare-acasa {
