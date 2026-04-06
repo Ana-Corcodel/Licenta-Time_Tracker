@@ -100,7 +100,7 @@ export default function Acasa() {
 
   return (
     <div className="pagina-acasa">
-      <h1>Bun venit în aplicația TimeTracker!</h1>
+      <h1>Bun venit în aplicația Sistem Pontaj!</h1>
       <p>Această aplicație este concepută pentru a vă eficientiza pontajul de zi cu zi.</p>
 
       <div className="card-acasa">

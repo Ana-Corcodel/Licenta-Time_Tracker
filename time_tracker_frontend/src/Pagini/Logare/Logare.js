@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../Config/axiosInstance";
-import logo from "../../Imagini/logo_.png";
+import logo from "../../Imagini/logo_sistempontaj.png";
 import "./Logare.css";
 
 function Logare({ seteazaEsteAutentificat }) {
@@ -38,7 +38,7 @@ function Logare({ seteazaEsteAutentificat }) {
 
       <div className="card-logare">
         <div className="header-logare">
-          <img src={logo} alt="Logo Time Tracker" className="logo-logare" />
+          <img src={logo} alt="Logo Sistem Pontaj" className="logo-logare" />
         </div>
 
         <form className="formular-logare" onSubmit={handleAutentificare}>

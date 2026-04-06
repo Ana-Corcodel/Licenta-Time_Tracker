@@ -68,7 +68,7 @@ const BaraDeSus = ({ comutaMeniu }) => {
         </div>
 
         <div className="nume-aplicatie">
-          <h1>TimeTracker</h1>
+          <h1>Sistem Pontaj</h1>
         </div>
       </div>
 

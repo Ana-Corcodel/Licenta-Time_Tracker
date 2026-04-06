@@ -37,7 +37,7 @@ const AddPontaj = ({ open, onClose }) => {
         angajat: null,
         luna: "",
         an: new Date(),
-        ora_start: "09:00",
+        ora_start: "08:00",
         ora_sfarsit: "17:00",
         pauza_masa: 30,
         tip: null,
@@ -570,9 +570,6 @@ const AddPontaj = ({ open, onClose }) => {
                                         disabled
                                         className="input-stanga camp-readonly"
                                     />
-                                    <small className="indicatie-camp">
-                                        Calculat automat ({Number(dateFormular.ore_lucrate || 0).toFixed(2)} h)
-                                    </small>
                                 </div>
 
                                 <div className="butoane-formular">

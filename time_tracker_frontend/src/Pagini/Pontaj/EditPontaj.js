@@ -645,9 +645,6 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                         disabled
                                         className="input-stanga camp-readonly"
                                     />
-                                    <small className="indicatie-camp">
-                                        Calculat automat ({Number(dateFormular.ore_lucrate || 0).toFixed(2)} h)
-                                    </small>
                                 </div>
 
                                 <div className="butoane-formular">

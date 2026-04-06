@@ -23,7 +23,7 @@ const AddAngajati = ({ open, onClose }) => {
             telefon: "",
             email: "",
             locatie: "",
-            ora_incepere: "09:00",
+            ora_incepere: "08:00",
             ora_sfarsit: "17:00",
             ora_pauza: 30,
             status: "activ",
