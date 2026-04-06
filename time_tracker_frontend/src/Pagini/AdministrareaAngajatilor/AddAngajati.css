@@ -391,23 +391,6 @@
   }
 }
 
-.toast-global {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  background-color: #74c139;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  min-width: 280px;
-  max-width: 500px;
-  text-align: center;
-}
 
 @media (max-width: 480px) {
   .pagina-adauga-angajat .fereastra-modal {

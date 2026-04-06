@@ -384,20 +384,6 @@
   }
 }
 
-.pagina-adauga-pontaj .toast-global {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #2e7d32;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 9999;
-  animation: intrare-toast 0.3s ease;
-  font-weight: 500;
-}
-
 @keyframes intrare-toast {
   from {
     transform: translateX(100%);
@@ -442,9 +428,4 @@
     width: 100%;
   }
 
-  .pagina-adauga-pontaj .toast-global {
-    left: 20px;
-    right: 20px;
-    text-align: center;
-  }
 }
