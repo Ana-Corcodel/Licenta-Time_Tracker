@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../Config/axiosInstance";
-import logo from "../../Imagini/logo_.png"; // 🔥 LOGO COMPLET
+import logo from "../../Imagini/logo_.png";
 import "./Logare.css";
 
 function Logare({ seteazaEsteAutentificat }) {
-  const [email, setEmail] = useState("");
-  const [parola, setParola] = useState("");
-  const [eroare, setEroare] = useState("");
-  const [seTrimite, setSeTrimite] = useState(false);
+  const [email, seteazaEmail] = useState("");
+  const [parola, seteazaParola] = useState("");
+  const [eroare, seteazaEroare] = useState("");
+  const [seTrimite, seteazaSeTrimite] = useState(false);
 
-  const navigate = useNavigate();
+  const navigare = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleAutentificare = async (e) => {
     e.preventDefault();
-    setEroare("");
-    setSeTrimite(true);
+    seteazaEroare("");
+    seteazaSeTrimite(true);
 
     try {
       await axiosInstance.post("/api/logare/", {
@@ -24,54 +24,53 @@ function Logare({ seteazaEsteAutentificat }) {
       });
 
       seteazaEsteAutentificat(true);
-      navigate("/");
+      navigare("/");
     } catch (err) {
-      setEroare("Email sau parolă greșite.");
+      seteazaEroare("Email sau parolă greșite.");
     } finally {
-      setSeTrimite(false);
+      seteazaSeTrimite(false);
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-overlay"></div>
+    <div className="pagina-logare">
+      <div className="overlay-logare"></div>
 
-      <div className="login-card">
-        <div className="login-header">
-          {/* 🔥 LOGO COMPLET */}
-          <img src={logo} alt="Logo Time Tracker" className="login-logo-full" />
+      <div className="card-logare">
+        <div className="header-logare">
+          <img src={logo} alt="Logo Time Tracker" className="logo-logare" />
         </div>
 
-        <form className="login-form" onSubmit={handleLogin}>
-          <div className="form-group">
-            <label className="form-label">Email</label>
+        <form className="formular-logare" onSubmit={handleAutentificare}>
+          <div className="grup-form">
+            <label className="eticheta-form">Email</label>
             <input
-              className="form-input"
+              className="input-form"
               type="email"
               placeholder="Introdu adresa de email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => seteazaEmail(e.target.value)}
               autoComplete="email"
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Parolă</label>
+          <div className="grup-form">
+            <label className="eticheta-form">Parolă</label>
             <input
-              className="form-input"
+              className="input-form"
               type="password"
               placeholder="Introdu parola"
               value={parola}
-              onChange={(e) => setParola(e.target.value)}
+              onChange={(e) => seteazaParola(e.target.value)}
               autoComplete="current-password"
             />
           </div>
 
-          <button className="login-button" type="submit" disabled={seTrimite}>
+          <button className="buton-logare" type="submit" disabled={seTrimite}>
             {seTrimite ? "Se conectează..." : "Conectare"}
           </button>
 
-          {eroare && <div className="login-error">{eroare}</div>}
+          {eroare && <div className="eroare-logare">{eroare}</div>}
         </form>
       </div>
     </div>

@@ -1,4 +1,4 @@
-.topbar {
+.bara-sus {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -13,117 +13,68 @@
   z-index: 1000;
 }
 
-.topbar .logo_section {
+.bara-sus .sectiune-logo {
   display: flex;
   align-items: center;
 }
 
-.topbar .logo {
+.bara-sus .container-logo {
+  display: flex;
+  align-items: center;
+}
+
+.bara-sus .imagine-logo {
   width: 90px;
   margin-right: 5px;
 }
 
-.topbar .app-name h1 {
+.bara-sus .nume-aplicatie h1 {
   margin: 0;
   font-size: 24px;
   padding-bottom: 6px;
   text-align: left;
 }
 
-.topbar .app-name h2 {
+.bara-sus .nume-aplicatie h2 {
   margin: 0;
   font-size: 16px;
   color: gray;
 }
 
-.topbar .notification {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.topbar .notification .icon {
-  width: 25px;
-  height: 25px;
-}
-
-.topbar .user-section {
+.bara-sus .sectiune-utilizator {
   display: flex;
   align-items: center;
 }
 
-.topbar .user {
+.bara-sus .utilizator {
   display: flex;
   align-items: center;
 }
 
-.topbar .user-icon {
+.bara-sus .icon-utilizator {
   height: 40px;
   border-radius: 50%;
   margin-left: 10px;
 }
 
-.topbar .menu-button {
+.bara-sus .buton-meniu {
   display: none;
 }
 
-@media (max-width: 768px) {
-  .topbar .logo {
-    width: 70px; 
-  }
-
-  .topbar .app-name h1 {
-    font-size: 20px; 
-  }
-
-  .topbar .app-name h2 {
-    font-size: 14px;
-  }
-
-  .topbar .notification .icon {
-    width: 20px; 
-    height: 20px;
-  }
-
-  .topbar .user p {
-    font-size: 14px; 
-  }
-
-  .topbar .user-icon {
-    height: 30px;
-    width: 30px;
-  }
-
-  .topbar .menu-button {
-    display: block;
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-right: 10px;
-  }
-}
-
-@media (max-width: 360px) {
-  .topbar .user p {
-    display: none;
-  }
-}
-
-.topbar .notification-container {
+.bara-sus .container-notificari {
   position: relative;
 }
 
-.topbar .notification {
+.bara-sus .buton-notificari {
   background: none;
   border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
   position: relative;
 }
 
-.topbar .notification-badge {
+.bara-sus .insigna-notificari {
   position: absolute;
   top: 0px;
   right: 5px;
@@ -134,7 +85,7 @@
   border-radius: 50%;
 }
 
-.topbar .notification-dropdown {
+.bara-sus .lista-notificari {
   position: absolute;
   right: 0;
   top: 40px;
@@ -147,17 +98,7 @@
   z-index: 1000;
 }
 
-.topbar .notification-item:last-child {
-  border-bottom: none;
-}
-
-.topbar .no-notifications {
-  padding: 10px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.topbar .notification-item {
+.bara-sus .element-notificare {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -166,15 +107,62 @@
   width: 230px;
 }
 
-.topbar .notification-text {
+.bara-sus .element-notificare:last-child {
+  border-bottom: none;
+}
+
+.bara-sus .text-notificare {
   flex: 1;
   margin: 2px;
   font-size: 13px;
 }
 
-.topbar .close-icon {
+.bara-sus .icon-inchidere {
   color: rgb(250, 39, 39);
   cursor: pointer;
   font-size: 5px;
   margin-left: 10px;
+}
+
+.bara-sus .fara-notificari {
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .bara-sus .imagine-logo {
+    width: 70px;
+  }
+
+  .bara-sus .nume-aplicatie h1 {
+    font-size: 20px;
+  }
+
+  .bara-sus .nume-aplicatie h2 {
+    font-size: 14px;
+  }
+
+  .bara-sus .utilizator p {
+    font-size: 14px;
+  }
+
+  .bara-sus .icon-utilizator {
+    height: 30px;
+    width: 30px;
+  }
+
+  .bara-sus .buton-meniu {
+    display: block;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .bara-sus .utilizator p {
+    display: none;
+  }
 }

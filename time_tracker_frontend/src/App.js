@@ -1,14 +1,14 @@
-import './App.css';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import BaraDeSus from './components/BaraDeSus/BaraDeSus';
-import Meniu from './components/Meniu/Meniu';
-import Acasa from './Pagini/Acasa';
-import AdministrareaAngajatilor from './Pagini/AdministrareaAngajatilor/AdministrareaAngajatilor';
-import Pontaje from './Pagini/Pontaj/Pontaj';
-import TipuriDeZile from './Pagini/TipZi/TipZi';
-import Logare from './Pagini/Logare/Logare';
-import axiosInstance from './Config/axiosInstance';
+import "./App.css";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import BaraDeSus from "./components/BaraDeSus/BaraDeSus";
+import Meniu from "./components/Meniu/Meniu";
+import Acasa from "./Pagini/Acasa";
+import AdministrareaAngajatilor from "./Pagini/AdministrareaAngajatilor/AdministrareaAngajatilor";
+import Pontaje from "./Pagini/Pontaj/Pontaj";
+import TipuriDeZile from "./Pagini/TipZi/TipZi";
+import Logare from "./Pagini/Logare/Logare";
+import axiosInstance from "./Config/axiosInstance";
 
 function Aplicatie() {
   const [meniulEsteDeschis, seteazaMeniulEsteDeschis] = useState(true);
@@ -20,22 +20,22 @@ function Aplicatie() {
   };
 
   useEffect(() => {
-    const verificaLogin = async () => {
+    const verificaLogarea = async () => {
       try {
-        const raspuns = await axiosInstance.get('/api/utilizator-curent/');
+        const raspuns = await axiosInstance.get("/api/utilizator-curent/");
         seteazaEsteAutentificat(raspuns.data.autentificat === true);
-      } catch (error) {
+      } catch (eroare) {
         seteazaEsteAutentificat(false);
       } finally {
         seteazaSeIncarca(false);
       }
     };
 
-    verificaLogin();
+    verificaLogarea();
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
+    const gestioneazaRedimensionarea = () => {
       if (window.innerWidth <= 768) {
         seteazaMeniulEsteDeschis(false);
       } else {
@@ -43,10 +43,10 @@ function Aplicatie() {
       }
     };
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
+    gestioneazaRedimensionarea();
+    window.addEventListener("resize", gestioneazaRedimensionarea);
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", gestioneazaRedimensionarea);
   }, []);
 
   if (seIncarca) {
@@ -56,7 +56,7 @@ function Aplicatie() {
   return (
     <Router>
       <Routes>
-        {/* Ruta de login */}
+        {/* Ruta de logare */}
         <Route
           path="/logare"
           element={
@@ -73,18 +73,18 @@ function Aplicatie() {
           path="/*"
           element={
             esteAutentificat ? (
-              <div className="App">
-                <div className="app-container">
+              <div className="aplicatie">
+                <div className="container-aplicatie">
                   <BaraDeSus comutaMeniu={comutaMeniul} />
 
-                  <div style={{ display: 'flex' }}>
+                  <div style={{ display: "flex" }}>
                     <Meniu
                       esteDeschis={meniulEsteDeschis}
                       seteazaDeschis={seteazaMeniulEsteDeschis}
                       seteazaEsteAutentificat={seteazaEsteAutentificat}
                     />
 
-                    <div className="page-wrapper" style={{ flex: 1, marginTop: '60px' }}>
+                    <div className="container-pagina" style={{ flex: 1, marginTop: "60px" }}>
                       <Routes>
                         <Route path="/" element={<Acasa />} />
                         <Route path="/administrare-angajati" element={<AdministrareaAngajatilor />} />

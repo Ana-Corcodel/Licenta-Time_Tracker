@@ -1,11 +1,11 @@
-.admin-angajati .admin-angajati {
+.pagina-administrare-angajati .pagina-administrare-angajati {
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.admin-angajati .admin-angajati-container {
+.pagina-administrare-angajati .container-administrare-angajati {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -13,7 +13,7 @@
   padding-top: 10px;
 }
 
-.admin-angajati .admin-toolbar {
+.pagina-administrare-angajati .bara-unelte-angajati {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -24,7 +24,7 @@
   margin-bottom: 20px;
 }
 
-.admin-angajati .admin-title {
+.pagina-administrare-angajati .titlu-administrare-angajati {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
@@ -34,13 +34,13 @@
   gap: 8px;
 }
 
-.admin-angajati .admin-count {
+.pagina-administrare-angajati .numar-angajati {
   font-size: 18px;
   color: #666;
   font-weight: 500;
 }
 
-.admin-angajati .admin-toolbar-right {
+.pagina-administrare-angajati .dreapta-bara-unelte-angajati {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -48,18 +48,18 @@
   flex-shrink: 0;
 }
 
-.admin-angajati .search-input {
+.pagina-administrare-angajati .input-cautare-angajati {
   min-width: 260px;
 }
 
-.admin-angajati .btn-new {
+.pagina-administrare-angajati .buton-adauga-angajat {
   background-color: #1976d2 !important;
   color: white !important;
   height: 36px !important;
   text-transform: none !important;
 }
 
-.admin-angajati .tabel-container {
+.pagina-administrare-angajati .container-tabel-angajati {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -68,18 +68,17 @@
   margin-top: -5px;
 }
 
-.admin-angajati .tabel-container::-webkit-scrollbar {
+.pagina-administrare-angajati .container-tabel-angajati::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.admin-angajati .employees-toast {
+.pagina-administrare-angajati .toast-angajati {
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
-
   background-color: #74c139;
   color: white;
   padding: 12px 20px;
@@ -87,19 +86,18 @@
   font-size: 14px;
   font-weight: 500;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-
   min-width: 280px;
   max-width: 500px;
   text-align: center;
 }
 
-.admin-angajati .MuiDataGrid-root {
+.pagina-administrare-angajati .MuiDataGrid-root {
   height: 100% !important;
   background-color: #fff;
   border-radius: 8px !important;
 }
 
-.admin-angajati .MuiDataGrid-columnHeaders {
+.pagina-administrare-angajati .MuiDataGrid-columnHeaders {
   position: sticky;
   top: 0;
   z-index: 2;
@@ -107,29 +105,29 @@
 }
 
 @media (max-width: 768px) {
-  .admin-angajati .admin-toolbar {
+  .pagina-administrare-angajati .bara-unelte-angajati {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .admin-angajati .admin-title {
+  .pagina-administrare-angajati .titlu-administrare-angajati {
     font-size: 20px;
   }
 
-  .admin-angajati .admin-count {
+  .pagina-administrare-angajati .numar-angajati {
     font-size: 16px;
   }
 
-  .admin-angajati .admin-toolbar-right {
+  .pagina-administrare-angajati .dreapta-bara-unelte-angajati {
     width: 100%;
     justify-content: space-between;
   }
 
-  .admin-angajati .search-input {
+  .pagina-administrare-angajati .input-cautare-angajati {
     min-width: 100%;
   }
 
-  .admin-angajati .btn-new {
+  .pagina-administrare-angajati .buton-adauga-angajat {
     width: 100%;
   }
 }

@@ -1,10 +1,10 @@
-.page-addtipzi .add-tipzi-page {
+.pagina-adaugare-tipzi .pagina-tipzi-adaugare {
   font-family: 'Arial', sans-serif !important;
   font-size: 14px;
   color: #1a1a1a;
 }
 
-.page-addtipzi .modal-overlay {
+.pagina-adaugare-tipzi .suprapunere-modal {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -16,10 +16,10 @@
   z-index: 1000;
 }
 
-.page-addtipzi .modal {
+.pagina-adaugare-tipzi .modal {
   background: #fff;
   border-radius: 16px;
-  width: 500px; /* Puțin mai îngust decât la pontaj */
+  width: 500px;
   max-width: 90%;
   position: relative;
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
@@ -31,25 +31,25 @@
   overflow: hidden;
 }
 
-.page-addtipzi .modal::-webkit-scrollbar {
+.pagina-adaugare-tipzi .modal::-webkit-scrollbar {
   width: 8px;
 }
 
-.page-addtipzi .modal::-webkit-scrollbar-track {
+.pagina-adaugare-tipzi .modal::-webkit-scrollbar-track {
   background: #f5f5f5;
   border-radius: 8px;
 }
 
-.page-addtipzi .modal::-webkit-scrollbar-thumb {
+.pagina-adaugare-tipzi .modal::-webkit-scrollbar-thumb {
   background-color: #bdbdbd;
   border-radius: 8px;
 }
 
-.page-addtipzi .modal::-webkit-scrollbar-thumb:hover {
+.pagina-adaugare-tipzi .modal::-webkit-scrollbar-thumb:hover {
   background-color: #9e9e9e;
 }
 
-.page-addtipzi .modal-header {
+.pagina-adaugare-tipzi .antet-modal {
   position: sticky;
   top: 0;
   z-index: 10;
@@ -63,14 +63,14 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.page-addtipzi .modal-header h2 {
+.pagina-adaugare-tipzi .antet-modal h2 {
   font-size: 20px;
   font-weight: 600;
   margin: 0;
   color: #111827;
 }
 
-.page-addtipzi .close-btn {
+.pagina-adaugare-tipzi .buton-inchidere {
   background: transparent;
   border: none;
   font-size: 28px;
@@ -86,12 +86,12 @@
   margin-left: 10px;
 }
 
-.page-addtipzi .close-btn:hover {
+.pagina-adaugare-tipzi .buton-inchidere:hover {
   transform: scale(1.1);
   background-color: #f2f2f2;
 }
 
-.page-addtipzi .form {
+.pagina-adaugare-tipzi .formular {
   flex: 1;
   overflow-y: auto;
   padding: 0 24px 24px 24px;
@@ -102,30 +102,30 @@
   scrollbar-color: #bdbdbd #f5f5f5;
 }
 
-.page-addtipzi .form::-webkit-scrollbar {
+.pagina-adaugare-tipzi .formular::-webkit-scrollbar {
   width: 8px;
 }
 
-.page-addtipzi .form::-webkit-scrollbar-track {
+.pagina-adaugare-tipzi .formular::-webkit-scrollbar-track {
   background: #f5f5f5;
   border-radius: 8px;
 }
 
-.page-addtipzi .form::-webkit-scrollbar-thumb {
+.pagina-adaugare-tipzi .formular::-webkit-scrollbar-thumb {
   background-color: #bdbdbd;
   border-radius: 8px;
 }
 
-.page-addtipzi .form::-webkit-scrollbar-thumb:hover {
+.pagina-adaugare-tipzi .formular::-webkit-scrollbar-thumb:hover {
   background-color: #9e9e9e;
 }
 
-.page-addtipzi .form-field {
+.pagina-adaugare-tipzi .camp-formular {
   display: flex;
   flex-direction: column;
 }
 
-.page-addtipzi input {
+.pagina-adaugare-tipzi input {
   padding: 10px 12px;
   font-size: 14px;
   font-family: 'Arial', sans-serif !important;
@@ -134,26 +134,26 @@
   transition: border-color 0.2s;
 }
 
-.page-addtipzi input:focus {
+.pagina-adaugare-tipzi input:focus {
   border-color: #006ce4;
   outline: none;
 }
 
-.page-addtipzi .char-counter {
+.pagina-adaugare-tipzi .contor-caractere {
   font-size: 11px;
   color: #666;
   font-weight: normal;
   margin-left: 8px;
 }
 
-.page-addtipzi .form-buttons {
+.pagina-adaugare-tipzi .butoane-formular {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   margin-top: 24px;
 }
 
-.page-addtipzi .cancel-btn {
+.pagina-adaugare-tipzi .buton-anulare {
   background: transparent;
   border: 1px solid #e0e0e0;
   color: #666;
@@ -163,17 +163,17 @@
   transition: all 0.2s ease-in-out;
 }
 
-.page-addtipzi .cancel-btn:hover {
+.pagina-adaugare-tipzi .buton-anulare:hover {
   background-color: #f5f5f5;
   border-color: #bdbdbd;
   transform: translateY(-1px);
 }
 
-.page-addtipzi .cancel-btn:active {
+.pagina-adaugare-tipzi .buton-anulare:active {
   transform: translateY(0);
 }
 
-.page-addtipzi .submit-btn {
+.pagina-adaugare-tipzi .buton-trimitere {
   background: #2e7d32;
   color: #fff;
   border: none;
@@ -183,41 +183,41 @@
   transition: all 0.2s ease-in-out;
 }
 
-.page-addtipzi .submit-btn:hover:not(:disabled) {
+.pagina-adaugare-tipzi .buton-trimitere:hover:not(:disabled) {
   background-color: #276627;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.page-addtipzi .submit-btn:active:not(:disabled) {
+.pagina-adaugare-tipzi .buton-trimitere:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.page-addtipzi .submit-btn:disabled {
+.pagina-adaugare-tipzi .buton-trimitere:disabled {
   background-color: #cccccc;
   color: #666666;
   transform: none;
   box-shadow: none;
 }
 
-.page-addtipzi .alert {
+.pagina-adaugare-tipzi .alerta {
   padding: 8px 12px;
   border-radius: 4px;
   margin: 0 24px 16px 24px;
   font-size: 14px;
 }
 
-.page-addtipzi .alert.error {
+.pagina-adaugare-tipzi .alerta.eroare {
   background: #ffe6e6;
   color: #c80000;
 }
 
-.page-addtipzi .alert.success {
+.pagina-adaugare-tipzi .alerta.succes {
   background: #e6ffe6;
   color: #0a8a0a;
 }
 
-.page-addtipzi .loading-overlay {
+.pagina-adaugare-tipzi .suprapunere-incarcare {
   position: absolute;
   top: 0;
   left: 0;
@@ -231,17 +231,17 @@
   z-index: 20;
 }
 
-.page-addtipzi .loader {
+.pagina-adaugare-tipzi .incarcator {
   border: 4px solid #f3f3f3;
   border-top: 4px solid #006ce4;
   border-radius: 50%;
   width: 36px;
   height: 36px;
-  animation: spin 1s linear infinite;
+  animation: rotire 1s linear infinite;
   margin-bottom: 8px;
 }
 
-@keyframes spin {
+@keyframes rotire {
   0% {
     transform: rotate(0deg);
   }
@@ -250,24 +250,24 @@
   }
 }
 
-.page-addtipzi .field-error {
+.pagina-adaugare-tipzi .eroare-camp {
   color: #d32f2f;
   font-size: 12px;
   margin-top: 4px;
   display: block;
 }
 
-.page-addtipzi .field-error-border {
+.pagina-adaugare-tipzi .chenar-eroare-camp {
   border-color: #d32f2f !important;
   border-width: 2px !important;
 }
 
-.page-addtipzi .required {
+.pagina-adaugare-tipzi .obligatoriu {
   color: #d32f2f;
   margin-left: 2px;
 }
 
-.page-addtipzi .label-left {
+.pagina-adaugare-tipzi .eticheta-stanga {
   display: block;
   text-align: left;
   width: 100%;
@@ -276,8 +276,7 @@
   color: #333;
 }
 
-/* Global toast - reutilizat din AddPontaj.css */
-.page-addtipzi .global-toast {
+.pagina-adaugare-tipzi .toast-global {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -287,11 +286,11 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 9999;
-  animation: slideIn 0.3s ease;
+  animation: glisareIntrare 0.3s ease;
   font-weight: 500;
 }
 
-@keyframes slideIn {
+@keyframes glisareIntrare {
   from {
     transform: translateX(100%);
     opacity: 0;
@@ -304,34 +303,34 @@
 
 /* Responsive */
 @media (max-width: 480px) {
-  .page-addtipzi .modal {
+  .pagina-adaugare-tipzi .modal {
     width: 95%;
     padding: 0;
   }
 
-  .page-addtipzi .modal-header {
+  .pagina-adaugare-tipzi .antet-modal {
     padding: 16px 16px 8px 16px;
   }
 
-  .page-addtipzi .modal-header h2 {
+  .pagina-adaugare-tipzi .antet-modal h2 {
     font-size: 18px;
   }
 
-  .page-addtipzi .form {
+  .pagina-adaugare-tipzi .formular {
     padding: 0 16px 16px 16px;
   }
 
-  .page-addtipzi .form-buttons {
+  .pagina-adaugare-tipzi .butoane-formular {
     flex-direction: column;
     gap: 10px;
   }
 
-  .page-addtipzi .cancel-btn,
-  .page-addtipzi .submit-btn {
+  .pagina-adaugare-tipzi .buton-anulare,
+  .pagina-adaugare-tipzi .buton-trimitere {
     width: 100%;
   }
 
-  .page-addtipzi .global-toast {
+  .pagina-adaugare-tipzi .toast-global {
     left: 20px;
     right: 20px;
     text-align: center;

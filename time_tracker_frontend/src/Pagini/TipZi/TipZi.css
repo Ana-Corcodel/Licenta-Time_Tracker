@@ -1,4 +1,4 @@
-.tipzipage .tipzipage {
+.pagina-tipzi .pagina-tipzi {
   background-color: #f0f0f0;
   display: flex;
   justify-content: center;
@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.tipzipage .tipzi-page {
+.pagina-tipzi .continut-tipzi {
   width: 100%;
   background: #fff;
   padding-left: 3px;
@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 
-.tipzipage .tipzi-toolbar {
+.pagina-tipzi .bara-unelte-tipzi {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -27,20 +27,20 @@
   flex-shrink: 0;
 }
 
-.tipzipage .title {
+.pagina-tipzi .titlu {
   font-size: 1.5rem;
   font-weight: bold;
   margin: 0;
 }
 
-.tipzipage .title-count {
+.pagina-tipzi .numar-titlu {
   font-size: 1rem;
   color: #555;
   margin-left: 6px;
   font-weight: normal;
 }
 
-.tipzipage .tipzi-toolbar-right {
+.pagina-tipzi .dreapta-bara-unelte-tipzi {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -48,23 +48,23 @@
   flex-shrink: 0;
 }
 
-.tipzipage .search-input {
+.pagina-tipzi .input-cautare {
   min-width: 240px;
 }
 
-.tipzipage .search-input .MuiOutlinedInput-root {
+.pagina-tipzi .input-cautare .MuiOutlinedInput-root {
   border-radius: 8px;
 }
 
-.tipzipage .tipzi-toolbar-right button,
-.tipzipage .new-btn {
+.pagina-tipzi .dreapta-bara-unelte-tipzi button,
+.pagina-tipzi .buton-nou {
   background-color: #1976d2;
   color: white;
   height: 36px;
   text-transform: none;
 }
 
-.tipzipage .table-container {
+.pagina-tipzi .container-tabel {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -73,19 +73,19 @@
   border-radius: 8px;
 }
 
-.tipzipage .MuiDataGrid-root {
+.pagina-tipzi .MuiDataGrid-root {
   height: 100% !important;
   background-color: #fff;
   border-radius: 8px;
   border: 1px solid #ddd;
 }
 
-.tipzipage .MuiDataGrid-columnHeaders {
+.pagina-tipzi .MuiDataGrid-columnHeaders {
   background-color: #d6d6d6;
   font-weight: bold;
 }
 
-.tipzipage .global-toast {
+.pagina-tipzi .toast-global {
   position: fixed;
   top: 90px;
   right: 20px;
@@ -100,108 +100,108 @@
 
 /* RESPONSIVE */
 @media (max-width: 480px) {
-  .tipzipage {
+  .pagina-tipzi {
     padding: 0;
     height: 100%;
     overflow: hidden;
   }
 
-  .tipzipage .tipzi-page {
+  .pagina-tipzi .continut-tipzi {
     padding: 12px;
     border-radius: 0;
     height: 100%;
     overflow: hidden;
   }
 
-  .tipzipage .tipzi-toolbar {
+  .pagina-tipzi .bara-unelte-tipzi {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
 
-  .tipzipage .title {
+  .pagina-tipzi .titlu {
     font-size: 1.2rem;
     text-align: center;
   }
 
-  .tipzipage .title-count {
+  .pagina-tipzi .numar-titlu {
     font-size: 0.9rem;
   }
 
-  .tipzipage .tipzi-toolbar-right {
+  .pagina-tipzi .dreapta-bara-unelte-tipzi {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
 
-  .tipzipage .search-input {
+  .pagina-tipzi .input-cautare {
     width: 100%;
     min-width: 100%;
   }
 
-  .tipzipage .new-btn {
+  .pagina-tipzi .buton-nou {
     width: 100%;
     height: 40px;
     font-size: 14px;
   }
 
-  .tipzipage .table-container {
+  .pagina-tipzi .container-tabel {
     margin-top: 12px;
     overflow-x: auto;
     overflow-y: auto;
   }
 
-  .tipzipage .MuiDataGrid-root {
+  .pagina-tipzi .MuiDataGrid-root {
     font-size: 12px;
     border-radius: 6px;
   }
 
-  .tipzipage .MuiDataGrid-columnHeaders {
+  .pagina-tipzi .MuiDataGrid-columnHeaders {
     font-size: 13px;
   }
 }
 
 @media (max-width: 768px) {
-  .tipzipage .tipzi-page {
+  .pagina-tipzi .continut-tipzi {
     padding: 16px;
   }
 
-  .tipzipage .tipzi-toolbar {
+  .pagina-tipzi .bara-unelte-tipzi {
     flex-wrap: wrap;
     gap: 10px;
   }
 
-  .tipzipage .tipzi-toolbar-right {
+  .pagina-tipzi .dreapta-bara-unelte-tipzi {
     flex-wrap: wrap;
     justify-content: flex-start;
     width: 100%;
   }
 
-  .tipzipage .search-input {
+  .pagina-tipzi .input-cautare {
     flex: 1;
     min-width: 180px;
   }
 
-  .tipzipage .new-btn {
+  .pagina-tipzi .buton-nou {
     flex-shrink: 0;
     height: 38px;
   }
 
-  .tipzipage .MuiDataGrid-root {
+  .pagina-tipzi .MuiDataGrid-root {
     font-size: 13px;
   }
 }
 
 @media (max-width: 1024px) {
-  .tipzipage .tipzi-page {
+  .pagina-tipzi .continut-tipzi {
     padding: 20px;
   }
 
-  .tipzipage .tipzi-toolbar {
+  .pagina-tipzi .bara-unelte-tipzi {
     gap: 14px;
   }
 
-  .tipzipage .search-input {
+  .pagina-tipzi .input-cautare {
     flex: 1;
   }
 }

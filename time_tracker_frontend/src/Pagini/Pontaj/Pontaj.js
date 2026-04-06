@@ -1,239 +1,239 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Box, Button, TextField, InputAdornment, IconButton
-} from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { Search, Add, Edit } from '@mui/icons-material';
-import axiosInstance from '../../Config/axiosInstance';
-import AddPontaj from './AddPontaj';
-import EditPontaj from './EditPontaj';
-import './Pontaj.css';
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { Search, Add, Edit } from "@mui/icons-material";
+import axiosInstance from "../../Config/axiosInstance";
+import AddPontaj from "./AddPontaj";
+import EditPontaj from "./EditPontaj";
+import "./Pontaj.css";
 
-const SEARCH_DEBOUNCE_MS = 300;
-const DEFAULT_PAGE_SIZE = 10;
+const INTERVAL_DEBOUNCE_CAUTARE = 300;
+const DIMENSIUNE_IMPLICITA_PAGINA = 10;
 
-const useDebounce = (value, delay) => {
-  const [debounced, setDebounced] = useState(value);
+const useDebounce = (valoare, intarziere) => {
+  const [valoareTemporizata, seteazaValoareTemporizata] = useState(valoare);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(t);
-  }, [value, delay]);
+    const temporizator = setTimeout(() => seteazaValoareTemporizata(valoare), intarziere);
+    return () => clearTimeout(temporizator);
+  }, [valoare, intarziere]);
 
-  return debounced;
+  return valoareTemporizata;
 };
 
-const normalizeTime = (timeValue) => {
-  if (!timeValue) return '-';
-  return String(timeValue).slice(0, 5);
+const normalizeazaOra = (valoareOra) => {
+  if (!valoareOra) return "-";
+  return String(valoareOra).slice(0, 5);
 };
 
-const formatHoursToHHMM = (value) => {
-  const numericValue = Number(value) || 0;
-  const totalMinutes = Math.round(numericValue * 60);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
+const formateazaOreInHHMM = (valoare) => {
+  const valoareNumerica = Number(valoare) || 0;
+  const totalMinute = Math.round(valoareNumerica * 60);
+  const ore = Math.floor(totalMinute / 60);
+  const minute = totalMinute % 60;
 
-  return `${hours}:${String(minutes).padStart(2, '0')}`;
+  return `${ore}:${String(minute).padStart(2, "0")}`;
 };
 
 const usePontaje = () => {
-  const [pontaje, setPontaje] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [listaPontaje, seteazaListaPontaje] = useState([]);
+  const [seIncarca, seteazaSeIncarca] = useState(true);
 
-  const fetchPontaje = useCallback(async () => {
+  const preiaPontaje = useCallback(async () => {
     try {
-      setLoading(true);
+      seteazaSeIncarca(true);
 
-      const [pontajRes, angRes, tipRes] = await Promise.all([
-        axiosInstance.get('/pontaje/'),
-        axiosInstance.get('/angajati/'),
-        axiosInstance.get('/tipuri-zile/'),
+      const [raspunsPontaje, raspunsAngajati, raspunsTipuriZi] = await Promise.all([
+        axiosInstance.get("/pontaje/"),
+        axiosInstance.get("/angajati/"),
+        axiosInstance.get("/tipuri-zile/"),
       ]);
 
-      const pontajeData = Array.isArray(pontajRes.data)
-        ? pontajRes.data
-        : pontajRes.data?.results || [];
+      const datePontaje = Array.isArray(raspunsPontaje.data)
+        ? raspunsPontaje.data
+        : raspunsPontaje.data?.results || [];
 
-      const angData = Array.isArray(angRes.data)
-        ? angRes.data
-        : angRes.data?.results || [];
+      const dateAngajati = Array.isArray(raspunsAngajati.data)
+        ? raspunsAngajati.data
+        : raspunsAngajati.data?.results || [];
 
-      const tipData = Array.isArray(tipRes.data)
-        ? tipRes.data
-        : tipRes.data?.results || [];
+      const dateTipuriZi = Array.isArray(raspunsTipuriZi.data)
+        ? raspunsTipuriZi.data
+        : raspunsTipuriZi.data?.results || [];
 
-      const angMap = {};
-      angData.forEach((a) => {
-        angMap[a.id] = `${a.nume} ${a.prenume}`;
+      const mapaAngajati = {};
+      dateAngajati.forEach((angajat) => {
+        mapaAngajati[angajat.id] = `${angajat.nume} ${angajat.prenume}`;
       });
 
-      const tipMap = {};
-      tipData.forEach((t) => {
-        tipMap[t.id] = t.prescurtare || t.tip_zi;
+      const mapaTipuriZi = {};
+      dateTipuriZi.forEach((tipZi) => {
+        mapaTipuriZi[tipZi.id] = tipZi.prescurtare || tipZi.tip_zi;
       });
 
-      const mapped = pontajeData.map((p, idx) => ({
-        id: p.id ?? idx,
-        ...p,
-        angajat_nume: angMap[p.angajat] || '-',
-        tip_zi: tipMap[p.tip] || '-',
-        data_display: p.data ? new Date(p.data).toLocaleDateString('ro-RO') : '-',
-        an_display: p.an ? new Date(p.an).getFullYear() : '-',
-        ora_start_display: normalizeTime(p.ora_start),
-        ora_sfarsit_display: normalizeTime(p.ora_sfarsit),
-        ore_lucrate_display: formatHoursToHHMM(p.ore_lucrate),
-        ore_suplimentare_display: formatHoursToHHMM(p.ore_lucru_suplimentare),
+      const pontajeMapate = datePontaje.map((pontaj, index) => ({
+        id: pontaj.id ?? index,
+        ...pontaj,
+        angajat_nume: mapaAngajati[pontaj.angajat] || "-",
+        tip_zi: mapaTipuriZi[pontaj.tip] || "-",
+        data_display: pontaj.data ? new Date(pontaj.data).toLocaleDateString("ro-RO") : "-",
+        an_display: pontaj.an ? new Date(pontaj.an).getFullYear() : "-",
+        ora_start_display: normalizeazaOra(pontaj.ora_start),
+        ora_sfarsit_display: normalizeazaOra(pontaj.ora_sfarsit),
+        ore_lucrate_display: formateazaOreInHHMM(pontaj.ore_lucrate),
+        ore_suplimentare_display: formateazaOreInHHMM(pontaj.ore_lucru_suplimentare),
       }));
 
-      setPontaje(mapped);
-    } catch (e) {
-      console.error('fetchPontaje error:', e);
+      seteazaListaPontaje(pontajeMapate);
+    } catch (eroare) {
+      console.error("Eroare la preluarea pontajelor:", eroare);
     } finally {
-      setLoading(false);
+      seteazaSeIncarca(false);
     }
   }, []);
 
-  return { pontaje, loading, fetchPontaje };
+  return { listaPontaje, seIncarca, preiaPontaje };
 };
 
 const Pontaj = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [openAddModal, setOpenAddModal] = useState(false);
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [selectedPontaj, setSelectedPontaj] = useState(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [termenCautare, seteazaTermenCautare] = useState("");
+  const [esteDeschisModalAdaugare, seteazaEsteDeschisModalAdaugare] = useState(false);
+  const [esteDeschisModalEditare, seteazaEsteDeschisModalEditare] = useState(false);
+  const [pontajSelectat, seteazaPontajSelectat] = useState(null);
+  const [afiseazaToast, seteazaAfiseazaToast] = useState(false);
+  const [mesajToast, seteazaMesajToast] = useState("");
 
-  const debouncedSearch = useDebounce(searchTerm, SEARCH_DEBOUNCE_MS);
-  const { pontaje, loading, fetchPontaje } = usePontaje();
+  const termenCautareTemporizat = useDebounce(termenCautare, INTERVAL_DEBOUNCE_CAUTARE);
+  const { listaPontaje, seIncarca, preiaPontaje } = usePontaje();
 
   useEffect(() => {
-    fetchPontaje();
-  }, [fetchPontaje]);
+    preiaPontaje();
+  }, [preiaPontaje]);
 
-  const handleEditPontaj = useCallback((pontaj) => {
-    setSelectedPontaj(pontaj);
-    setOpenEditModal(true);
+  const gestioneazaEditarePontaj = useCallback((pontaj) => {
+    seteazaPontajSelectat(pontaj);
+    seteazaEsteDeschisModalEditare(true);
   }, []);
 
-  const filteredRows = useMemo(() => {
-    let list = [...pontaje];
+  const randuriFiltrate = useMemo(() => {
+    let lista = [...listaPontaje];
 
-    if (debouncedSearch) {
-      const s = debouncedSearch.toLowerCase();
-      list = list.filter((p) =>
-        p.angajat_nume?.toLowerCase().includes(s) ||
-        p.luna?.toLowerCase().includes(s) ||
-        p.tip_zi?.toLowerCase().includes(s) ||
-        p.data_display?.toLowerCase().includes(s) ||
-        p.ore_lucrate_display?.toLowerCase().includes(s) ||
-        p.ore_suplimentare_display?.toLowerCase().includes(s)
+    if (termenCautareTemporizat) {
+      const termenMic = termenCautareTemporizat.toLowerCase();
+      lista = lista.filter((pontaj) =>
+        pontaj.angajat_nume?.toLowerCase().includes(termenMic) ||
+        pontaj.luna?.toLowerCase().includes(termenMic) ||
+        pontaj.tip_zi?.toLowerCase().includes(termenMic) ||
+        pontaj.data_display?.toLowerCase().includes(termenMic) ||
+        pontaj.ore_lucrate_display?.toLowerCase().includes(termenMic) ||
+        pontaj.ore_suplimentare_display?.toLowerCase().includes(termenMic)
       );
     }
 
-    return list;
-  }, [pontaje, debouncedSearch]);
+    return lista;
+  }, [listaPontaje, termenCautareTemporizat]);
 
-  const columns = useMemo(
+  const coloane = useMemo(
     () => [
       {
-        field: 'angajat_nume',
-        headerName: 'Angajat',
+        field: "angajat_nume",
+        headerName: "Angajat",
         flex: 1.4,
         minWidth: 180,
       },
       {
-        field: 'data_display',
-        headerName: 'Data',
+        field: "data_display",
+        headerName: "Data",
         flex: 1,
         minWidth: 130,
       },
       {
-        field: 'luna',
-        headerName: 'Luna',
+        field: "luna",
+        headerName: "Luna",
         flex: 0.9,
         minWidth: 120,
       },
       {
-        field: 'an_display',
-        headerName: 'An',
+        field: "an_display",
+        headerName: "An",
         flex: 0.9,
         minWidth: 120,
       },
       {
-        field: 'ora_start_display',
-        headerName: 'Ora start',
+        field: "ora_start_display",
+        headerName: "Ora start",
         flex: 0.8,
         minWidth: 110,
       },
       {
-        field: 'ora_sfarsit_display',
-        headerName: 'Ora sfârșit',
+        field: "ora_sfarsit_display",
+        headerName: "Ora sfârșit",
         flex: 0.8,
         minWidth: 120,
       },
       {
-        field: 'pauza_masa',
-        headerName: 'Pauză (min)',
+        field: "pauza_masa",
+        headerName: "Pauză (min)",
         flex: 0.9,
         minWidth: 120,
-        renderCell: (params) => params.value ?? 0,
+        renderCell: (parametri) => parametri.value ?? 0,
       },
       {
-        field: 'ore_lucrate_display',
-        headerName: 'Ore lucrate',
+        field: "ore_lucrate_display",
+        headerName: "Ore lucrate",
         flex: 0.9,
         minWidth: 120,
       },
       {
-        field: 'ore_suplimentare_display',
-        headerName: 'Ore supl.',
+        field: "ore_suplimentare_display",
+        headerName: "Ore supl.",
         flex: 0.9,
         minWidth: 110,
       },
       {
-        field: 'tip_zi',
-        headerName: 'Tip zi',
+        field: "tip_zi",
+        headerName: "Tip zi",
         flex: 0.9,
         minWidth: 110,
       },
       {
-        field: 'action',
-        headerName: 'Acțiuni',
+        field: "action",
+        headerName: "Acțiuni",
         width: 100,
         sortable: false,
         disableColumnMenu: true,
-        renderCell: (params) => (
+        renderCell: (parametri) => (
           <IconButton
-            sx={{ color: '#1976d2' }}
-            onClick={() => handleEditPontaj(params.row)}
+            sx={{ color: "#1976d2" }}
+            onClick={() => gestioneazaEditarePontaj(parametri.row)}
           >
             <Edit />
           </IconButton>
         ),
       },
     ],
-    [handleEditPontaj]
+    [gestioneazaEditarePontaj]
   );
 
   return (
-    <div className="pontajpage">
-      {showToast && <div className="global-toast">{toastMessage}</div>}
+    <div className="pagina-pontaj">
+      {afiseazaToast && <div className="toast-global">{mesajToast}</div>}
 
-      <div className="pontaj-page">
-        <Box className="pontaj-toolbar">
-          <h2 className="title">
+      <div className="continut-pagina-pontaj">
+        <Box className="bara-unelte-pontaj">
+          <h2 className="titlu-pagina">
             PONTAJ
           </h2>
 
-          <Box className="pontaj-toolbar-right">
+          <Box className="bara-unelte-dreapta">
             <TextField
               size="small"
               placeholder="Caută pontaj..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+              value={termenCautare}
+              onChange={(e) => seteazaTermenCautare(e.target.value)}
+              className="input-cautare"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -246,41 +246,41 @@ const Pontaj = () => {
             <Button
               variant="contained"
               startIcon={<Add />}
-              className="new-btn"
-              onClick={() => setOpenAddModal(true)}
+              className="buton-adaugare"
+              onClick={() => seteazaEsteDeschisModalAdaugare(true)}
             >
               ADAUGĂ
             </Button>
           </Box>
         </Box>
 
-        <div className="table-container">
+        <div className="container-tabel">
           <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            loading={loading}
+            rows={randuriFiltrate}
+            columns={coloane}
+            loading={seIncarca}
             disableRowSelectionOnClick
             pageSizeOptions={[10, 15, 20, 50]}
             initialState={{
               pagination: {
-                paginationModel: { page: 0, pageSize: DEFAULT_PAGE_SIZE },
+                paginationModel: { page: 0, pageSize: DIMENSIUNE_IMPLICITA_PAGINA },
               },
             }}
             rowHeight={50}
             autoHeight={false}
             sx={{
-              borderRadius: '8px',
-              height: '100%',
-              '& .MuiDataGrid-cell': {
-                alignItems: 'center',
-                display: 'flex',
+              borderRadius: "8px",
+              height: "100%",
+              "& .MuiDataGrid-cell": {
+                alignItems: "center",
+                display: "flex",
               },
-              '& .MuiDataGrid-cell:focus': {
-                outline: 'none',
+              "& .MuiDataGrid-cell:focus": {
+                outline: "none",
               },
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontWeight: '700', // sau 'bold'
-                fontSize: '0.95rem'
+              "& .MuiDataGrid-columnHeaderTitle": {
+                fontWeight: "700",
+                fontSize: "0.95rem"
               }
             }}
           />
@@ -288,32 +288,32 @@ const Pontaj = () => {
       </div>
 
       <AddPontaj
-        open={openAddModal}
-        onClose={(shouldReload, message) => {
-          setOpenAddModal(false);
-          if (shouldReload) {
-            fetchPontaje();
-            if (message) {
-              setToastMessage(message);
-              setShowToast(true);
-              setTimeout(() => setShowToast(false), 4000);
+        open={esteDeschisModalAdaugare}
+        onClose={(trebuieReincarcat, mesaj) => {
+          seteazaEsteDeschisModalAdaugare(false);
+          if (trebuieReincarcat) {
+            preiaPontaje();
+            if (mesaj) {
+              seteazaMesajToast(mesaj);
+              seteazaAfiseazaToast(true);
+              setTimeout(() => seteazaAfiseazaToast(false), 4000);
             }
           }
         }}
       />
 
       <EditPontaj
-        open={openEditModal}
-        pontajData={selectedPontaj}
-        onClose={(shouldReload, message) => {
-          setOpenEditModal(false);
-          setSelectedPontaj(null);
-          if (shouldReload) {
-            fetchPontaje();
-            if (message) {
-              setToastMessage(message);
-              setShowToast(true);
-              setTimeout(() => setShowToast(false), 4000);
+        open={esteDeschisModalEditare}
+        pontajData={pontajSelectat}
+        onClose={(trebuieReincarcat, mesaj) => {
+          seteazaEsteDeschisModalEditare(false);
+          seteazaPontajSelectat(null);
+          if (trebuieReincarcat) {
+            preiaPontaje();
+            if (mesaj) {
+              seteazaMesajToast(mesaj);
+              seteazaAfiseazaToast(true);
+              setTimeout(() => seteazaAfiseazaToast(false), 4000);
             }
           }
         }}

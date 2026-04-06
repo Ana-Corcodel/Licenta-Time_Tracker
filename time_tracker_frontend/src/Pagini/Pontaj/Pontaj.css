@@ -1,4 +1,4 @@
-.pontajpage .pontajpage {
+.pagina-pontaj {
   background-color: #f0f0f0;
   display: flex;
   justify-content: center;
@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.pontajpage .pontaj-page {
+.pagina-pontaj .continut-pagina-pontaj {
   width: 100%;
   background: #fff;
   padding-left: 3px;
@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 
-.pontajpage .pontaj-toolbar {
+.pagina-pontaj .bara-unelte-pontaj {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -27,20 +27,20 @@
   flex-shrink: 0;
 }
 
-.pontajpage .title {
+.pagina-pontaj .titlu-pagina {
   font-size: 1.5rem;
   font-weight: bold;
   margin: 0;
 }
 
-.pontajpage .title-count {
+.pagina-pontaj .titlu-numarare {
   font-size: 1rem;
   color: #555;
   margin-left: 6px;
   font-weight: normal;
 }
 
-.pontajpage .pontaj-toolbar-right {
+.pagina-pontaj .bara-unelte-dreapta {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -48,23 +48,23 @@
   flex-shrink: 0;
 }
 
-.pontajpage .search-input {
+.pagina-pontaj .input-cautare {
   min-width: 240px;
 }
 
-.pontajpage .search-input .MuiOutlinedInput-root {
+.pagina-pontaj .input-cautare .MuiOutlinedInput-root {
   border-radius: 8px;
 }
 
-.pontajpage .pontaj-toolbar-right button,
-.pontajpage .new-btn {
+.pagina-pontaj .bara-unelte-dreapta button,
+.pagina-pontaj .buton-adaugare {
   background-color: #1976d2;
   color: white;
   height: 36px;
   text-transform: none;
 }
 
-.pontajpage .table-container {
+.pagina-pontaj .container-tabel {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -73,19 +73,19 @@
   border-radius: 8px;
 }
 
-.pontajpage .pontajpage .MuiDataGrid-root {
+.pagina-pontaj .MuiDataGrid-root {
   height: 100% !important;
   background-color: #fff;
   border-radius: 8px;
   border: 1px solid #ddd;
 }
 
-.pontajpage .pontajpage .MuiDataGrid-columnHeaders {
+.pagina-pontaj .MuiDataGrid-columnHeaders {
   background-color: #d6d6d6;
   font-weight: bold;
 }
 
-.pontajpage .global-toast {
+.pagina-pontaj .toast-global {
   position: fixed;
   top: 90px;
   right: 20px;
@@ -99,108 +99,108 @@
 }
 
 @media (max-width: 480px) {
-  .pontajpage .pontajpage {
+  .pagina-pontaj {
     padding: 0;
     height: 100%;
     overflow: hidden;
   }
 
-  .pontajpage .pontaj-page {
+  .pagina-pontaj .continut-pagina-pontaj {
     padding: 12px;
     border-radius: 0;
     height: 100%;
     overflow: hidden;
   }
 
-  .pontajpage .pontaj-toolbar {
+  .pagina-pontaj .bara-unelte-pontaj {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
 
-  .pontajpage .title {
+  .pagina-pontaj .titlu-pagina {
     font-size: 1.2rem;
     text-align: center;
   }
 
-  .pontajpage .title-count {
+  .pagina-pontaj .titlu-numarare {
     font-size: 0.9rem;
   }
 
-  .pontajpage .pontaj-toolbar-right {
+  .pagina-pontaj .bara-unelte-dreapta {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
 
-  .pontajpage .search-input {
+  .pagina-pontaj .input-cautare {
     width: 100%;
     min-width: 100%;
   }
 
-  .pontajpage .new-btn {
+  .pagina-pontaj .buton-adaugare {
     width: 100%;
     height: 40px;
     font-size: 14px;
   }
 
-  .pontajpage .table-container {
+  .pagina-pontaj .container-tabel {
     margin-top: 12px;
     overflow-x: auto;
     overflow-y: auto;
   }
 
-  .pontajpage .MuiDataGrid-root {
+  .pagina-pontaj .MuiDataGrid-root {
     font-size: 12px;
     border-radius: 6px;
   }
 
-  .pontajpage .MuiDataGrid-columnHeaders {
+  .pagina-pontaj .MuiDataGrid-columnHeaders {
     font-size: 13px;
   }
 }
 
 @media (max-width: 768px) {
-  .pontajpage .pontaj-page {
+  .pagina-pontaj .continut-pagina-pontaj {
     padding: 16px;
   }
 
-  .pontajpage .pontaj-toolbar {
+  .pagina-pontaj .bara-unelte-pontaj {
     flex-wrap: wrap;
     gap: 10px;
   }
 
-  .pontajpage .pontaj-toolbar-right {
+  .pagina-pontaj .bara-unelte-dreapta {
     flex-wrap: wrap;
     justify-content: flex-start;
     width: 100%;
   }
 
-  .pontajpage .search-input {
+  .pagina-pontaj .input-cautare {
     flex: 1;
     min-width: 180px;
   }
 
-  .pontajpage .new-btn {
+  .pagina-pontaj .buton-adaugare {
     flex-shrink: 0;
     height: 38px;
   }
 
-  .pontajpage .MuiDataGrid-root {
+  .pagina-pontaj .MuiDataGrid-root {
     font-size: 13px;
   }
 }
 
 @media (max-width: 1024px) {
-  .pontajpage .pontaj-page {
+  .pagina-pontaj .continut-pagina-pontaj {
     padding: 20px;
   }
 
-  .pontajpage .pontaj-toolbar {
+  .pagina-pontaj .bara-unelte-pontaj {
     gap: 14px;
   }
 
-  .pontajpage .search-input {
+  .pagina-pontaj .input-cautare {
     flex: 1;
   }
 }

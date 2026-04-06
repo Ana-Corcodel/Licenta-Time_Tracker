@@ -1,10 +1,10 @@
-.page-addpontaj .add-pontaj-page {
+.pagina-adauga-pontaj .continut-pagina-adauga-pontaj {
   font-family: 'Arial', sans-serif !important;
   font-size: 14px;
   color: #1a1a1a;
 }
 
-.page-addpontaj .modal-overlay {
+.pagina-adauga-pontaj .overlay-modal {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -16,7 +16,7 @@
   z-index: 1000;
 }
 
-.page-addpontaj .modal {
+.pagina-adauga-pontaj .fereastra-modal {
   background: #fff;
   border-radius: 16px;
   width: 600px;
@@ -31,25 +31,25 @@
   overflow: hidden;
 }
 
-.page-addpontaj .modal::-webkit-scrollbar {
+.pagina-adauga-pontaj .fereastra-modal::-webkit-scrollbar {
   width: 8px;
 }
 
-.page-addpontaj .modal::-webkit-scrollbar-track {
+.pagina-adauga-pontaj .fereastra-modal::-webkit-scrollbar-track {
   background: #f5f5f5;
   border-radius: 8px;
 }
 
-.page-addpontaj .modal::-webkit-scrollbar-thumb {
+.pagina-adauga-pontaj .fereastra-modal::-webkit-scrollbar-thumb {
   background-color: #bdbdbd;
   border-radius: 8px;
 }
 
-.page-addpontaj .modal::-webkit-scrollbar-thumb:hover {
+.pagina-adauga-pontaj .fereastra-modal::-webkit-scrollbar-thumb:hover {
   background-color: #9e9e9e;
 }
 
-.page-addpontaj .modal-header {
+.pagina-adauga-pontaj .antet-modal {
   position: sticky;
   top: 0;
   z-index: 10;
@@ -63,14 +63,14 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.page-addpontaj .modal-header h2 {
+.pagina-adauga-pontaj .antet-modal h2 {
   font-size: 20px;
   font-weight: 600;
   margin: 0;
   color: #111827;
 }
 
-.page-addpontaj .close-btn {
+.pagina-adauga-pontaj .buton-inchidere {
   background: transparent;
   border: none;
   font-size: 28px;
@@ -86,12 +86,12 @@
   margin-left: 10px;
 }
 
-.page-addpontaj .close-btn:hover {
+.pagina-adauga-pontaj .buton-inchidere:hover {
   transform: scale(1.1);
   background-color: #f2f2f2;
 }
 
-.page-addpontaj .form {
+.pagina-adauga-pontaj .formular {
   flex: 1;
   overflow-y: auto;
   padding: 0 24px 24px 24px;
@@ -102,39 +102,39 @@
   scrollbar-color: #bdbdbd #f5f5f5;
 }
 
-.page-addpontaj .form::-webkit-scrollbar {
+.pagina-adauga-pontaj .formular::-webkit-scrollbar {
   width: 8px;
 }
 
-.page-addpontaj .form::-webkit-scrollbar-track {
+.pagina-adauga-pontaj .formular::-webkit-scrollbar-track {
   background: #f5f5f5;
   border-radius: 8px;
 }
 
-.page-addpontaj .form::-webkit-scrollbar-thumb {
+.pagina-adauga-pontaj .formular::-webkit-scrollbar-thumb {
   background-color: #bdbdbd;
   border-radius: 8px;
 }
 
-.page-addpontaj .form::-webkit-scrollbar-thumb:hover {
+.pagina-adauga-pontaj .formular::-webkit-scrollbar-thumb:hover {
   background-color: #9e9e9e;
 }
 
-.page-addpontaj .form-row {
+.pagina-adauga-pontaj .rand-formular {
   display: flex;
   gap: 10px;
   margin-bottom: 3px;
 }
 
-.page-addpontaj .form-field {
+.pagina-adauga-pontaj .camp-formular {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.page-addpontaj input,
-.page-addpontaj select,
-.page-addpontaj textarea {
+.pagina-adauga-pontaj input,
+.pagina-adauga-pontaj select,
+.pagina-adauga-pontaj textarea {
   padding: 8px 12px;
   font-size: 14px;
   font-family: 'Arial', sans-serif !important;
@@ -143,34 +143,34 @@
   transition: border-color 0.2s;
 }
 
-.page-addpontaj input:focus,
-.page-addpontaj select:focus,
-.page-addpontaj textarea:focus {
+.pagina-adauga-pontaj input:focus,
+.pagina-adauga-pontaj select:focus,
+.pagina-adauga-pontaj textarea:focus {
   border-color: #006ce4;
   outline: none;
 }
 
-.page-addpontaj input.readonly-field {
+.pagina-adauga-pontaj input.camp-readonly {
   background-color: #f5f5f5;
   color: #666;
   cursor: not-allowed;
 }
 
-.page-addpontaj .field-hint {
+.pagina-adauga-pontaj .indicatie-camp {
   font-size: 11px;
   color: #888;
   margin-top: 2px;
   font-style: italic;
 }
 
-.page-addpontaj .form-buttons {
+.pagina-adauga-pontaj .butoane-formular {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   margin-top: 24px;
 }
 
-.page-addpontaj .cancel-btn {
+.pagina-adauga-pontaj .buton-anulare {
   background: transparent;
   border: 1px solid #e0e0e0;
   color: #666;
@@ -180,17 +180,17 @@
   transition: all 0.2s ease-in-out;
 }
 
-.page-addpontaj .cancel-btn:hover {
+.pagina-adauga-pontaj .buton-anulare:hover {
   background-color: #f5f5f5;
   border-color: #bdbdbd;
   transform: translateY(-1px);
 }
 
-.page-addpontaj .cancel-btn:active {
+.pagina-adauga-pontaj .buton-anulare:active {
   transform: translateY(0);
 }
 
-.page-addpontaj .submit-btn {
+.pagina-adauga-pontaj .buton-salvare {
   background: #2e7d32;
   color: #fff;
   border: none;
@@ -200,41 +200,41 @@
   transition: all 0.2s ease-in-out;
 }
 
-.page-addpontaj .submit-btn:hover:not(:disabled) {
+.pagina-adauga-pontaj .buton-salvare:hover:not(:disabled) {
   background-color: #276627;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.page-addpontaj .submit-btn:active:not(:disabled) {
+.pagina-adauga-pontaj .buton-salvare:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.page-addpontaj .submit-btn:disabled {
+.pagina-adauga-pontaj .buton-salvare:disabled {
   background-color: #cccccc;
   color: #666666;
   transform: none;
   box-shadow: none;
 }
 
-.page-addpontaj .alert {
+.pagina-adauga-pontaj .alerta {
   padding: 8px 12px;
   border-radius: 4px;
   margin: 0 24px 16px 24px;
   font-size: 14px;
 }
 
-.page-addpontaj .alert.error {
+.pagina-adauga-pontaj .alerta.eroare {
   background: #ffe6e6;
   color: #c80000;
 }
 
-.page-addpontaj .alert.success {
+.pagina-adauga-pontaj .alerta.succes {
   background: #e6ffe6;
   color: #0a8a0a;
 }
 
-.page-addpontaj .loading-overlay {
+.pagina-adauga-pontaj .overlay-incarcare {
   position: absolute;
   top: 0;
   left: 0;
@@ -248,7 +248,7 @@
   z-index: 20;
 }
 
-.page-addpontaj .loader {
+.pagina-adauga-pontaj .loader {
   border: 4px solid #f3f3f3;
   border-top: 4px solid #006ce4;
   border-radius: 50%;
@@ -267,24 +267,24 @@
   }
 }
 
-.page-addpontaj .field-error {
+.pagina-adauga-pontaj .eroare-camp {
   color: #d32f2f;
   font-size: 12px;
   margin-top: 4px;
   display: block;
 }
 
-.page-addpontaj .field-error-border {
+.pagina-adauga-pontaj .chenar-eroare-camp {
   border-color: #d32f2f !important;
   border-width: 2px !important;
 }
 
-.page-addpontaj .required {
+.pagina-adauga-pontaj .obligatoriu {
   color: #d32f2f;
   margin-left: 2px;
 }
 
-.page-addpontaj .label-left {
+.pagina-adauga-pontaj .eticheta-stanga {
   display: block;
   text-align: left;
   width: 100%;
@@ -293,23 +293,21 @@
   color: #333;
 }
 
-/* Stiluri pentru DatePicker */
-.page-addpontaj .react-datepicker-wrapper {
+.pagina-adauga-pontaj .react-datepicker-wrapper {
   width: 100%;
 }
 
-.page-addpontaj .react-datepicker__input-container input {
+.pagina-adauga-pontaj .react-datepicker__input-container input {
   width: 100%;
 }
 
-/* Stiluri pentru react-select */
-.page-addpontaj .multiselect-field {
+.pagina-adauga-pontaj .camp-multiselect {
   font-size: 14px;
   font-family: 'Arial', sans-serif !important;
   width: 100%;
 }
 
-.page-addpontaj .multiselect-field .select__control {
+.pagina-adauga-pontaj .camp-multiselect .select__control {
   border: 1px solid #000 !important;
   border-radius: 6px !important;
   min-height: 38px !important;
@@ -320,64 +318,64 @@
   transition: all 0.2s ease !important;
 }
 
-.page-addpontaj .multiselect-field .select__control:hover {
+.pagina-adauga-pontaj .camp-multiselect .select__control:hover {
   border-color: #999 !important;
   background-color: #f0f0f0 !important;
 }
 
-.page-addpontaj .multiselect-field .select__control--is-focused {
+.pagina-adauga-pontaj .camp-multiselect .select__control--is-focused {
   border-color: #006ce4 !important;
   outline: none !important;
   box-shadow: 0 0 0 2px rgba(0, 108, 228, 0.15) !important;
   background-color: #fff !important;
 }
 
-.page-addpontaj .multiselect-field .select__placeholder {
+.pagina-adauga-pontaj .camp-multiselect .select__placeholder {
   color: #999 !important;
   font-size: 14px !important;
 }
 
-.page-addpontaj .multiselect-field .select__single-value {
+.pagina-adauga-pontaj .camp-multiselect .select__single-value {
   color: #1a1a1a !important;
   font-size: 14px !important;
 }
 
-.page-addpontaj .multiselect-field .select__menu {
+.pagina-adauga-pontaj .camp-multiselect .select__menu {
   z-index: 9999 !important;
 }
 
-.page-addpontaj .multiselect-field .select__option {
+.pagina-adauga-pontaj .camp-multiselect .select__option {
   font-size: 14px !important;
 }
 
-.page-addpontaj .multiselect-field .select__option--is-focused {
+.pagina-adauga-pontaj .camp-multiselect .select__option--is-focused {
   background-color: #f0f0f0 !important;
 }
 
-.page-addpontaj .multiselect-field .select__option--is-selected {
+.pagina-adauga-pontaj .camp-multiselect .select__option--is-selected {
   background-color: #e6f2ff !important;
   color: #006ce4 !important;
 }
 
-.page-addpontaj .select-error .select__control {
+.pagina-adauga-pontaj .select-cu-eroare .select__control {
   border-color: #d32f2f !important;
   border-width: 2px !important;
 }
 
-.page-addpontaj .select-error .select__control:hover {
+.pagina-adauga-pontaj .select-cu-eroare .select__control:hover {
   border-color: #d32f2f !important;
 }
 
-.page-addpontaj .skeleton {
+.pagina-adauga-pontaj .skeleton {
   height: 38px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+  animation: incarcare-skeleton 1.5s infinite;
   border-radius: 6px;
   border: 1px solid #ddd;
 }
 
-@keyframes loading {
+@keyframes incarcare-skeleton {
   0% {
     background-position: 200% 0;
   }
@@ -386,8 +384,7 @@
   }
 }
 
-/* Global toast */
-.page-addpontaj .global-toast {
+.pagina-adauga-pontaj .toast-global {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -397,11 +394,11 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 9999;
-  animation: slideIn 0.3s ease;
+  animation: intrare-toast 0.3s ease;
   font-weight: 500;
 }
 
-@keyframes slideIn {
+@keyframes intrare-toast {
   from {
     transform: translateX(100%);
     opacity: 0;
@@ -412,41 +409,40 @@
   }
 }
 
-/* Responsive */
 @media (max-width: 480px) {
-  .page-addpontaj .modal {
+  .pagina-adauga-pontaj .fereastra-modal {
     width: 95%;
     padding: 0;
   }
 
-  .page-addpontaj .modal-header {
+  .pagina-adauga-pontaj .antet-modal {
     padding: 16px 16px 8px 16px;
   }
 
-  .page-addpontaj .modal-header h2 {
+  .pagina-adauga-pontaj .antet-modal h2 {
     font-size: 18px;
   }
 
-  .page-addpontaj .form {
+  .pagina-adauga-pontaj .formular {
     padding: 0 16px 16px 16px;
   }
 
-  .page-addpontaj .form-row {
+  .pagina-adauga-pontaj .rand-formular {
     flex-direction: column;
     gap: 8px;
   }
 
-  .page-addpontaj .form-buttons {
+  .pagina-adauga-pontaj .butoane-formular {
     flex-direction: column;
     gap: 10px;
   }
 
-  .page-addpontaj .cancel-btn,
-  .page-addpontaj .submit-btn {
+  .pagina-adauga-pontaj .buton-anulare,
+  .pagina-adauga-pontaj .buton-salvare {
     width: 100%;
   }
 
-  .page-addpontaj .global-toast {
+  .pagina-adauga-pontaj .toast-global {
     left: 20px;
     right: 20px;
     text-align: center;

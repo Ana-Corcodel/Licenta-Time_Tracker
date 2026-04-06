@@ -2,7 +2,7 @@
   box-sizing: border-box;
 }
 
-.login-page {
+.pagina-logare {
   position: relative;
   min-height: 100vh;
   display: flex;
@@ -17,7 +17,7 @@
     linear-gradient(135deg, #0f2027 0%, #203a43 45%, #2c5364 100%);
 }
 
-.login-overlay {
+.pagina-logare .overlay-logare {
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -28,12 +28,12 @@
   pointer-events: none;
 }
 
-.login-card {
+.pagina-logare .card-logare {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 450px;
-  padding: 28px 32px; /* 🔥 mai compact */
+  padding: 28px 32px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -42,54 +42,38 @@
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
 }
 
-.login-header {
+.pagina-logare .header-logare {
   text-align: center;
-  margin-bottom: -40px; /* 🔥 redus */
+  margin-bottom: -40px;
 }
 
-/* 🔥 LOGO COMPLET OPTIMIZAT */
-.login-logo-full {
+.pagina-logare .logo-logare {
   width: 200px;
   height: auto;
   object-fit: contain;
-  margin-bottom: 6px; /* 🔥 redus */
+  margin-bottom: 6px;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
 }
 
-.login-title {
-  margin: 0;
-  color: #ffffff;
-  font-size: 30px;
-  font-weight: 700;
-}
-
-.login-subtitle {
-  margin-top: 10px;
-  margin-bottom: 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.login-form {
+.pagina-logare .formular-logare {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-.form-group {
+.pagina-logare .grup-form {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.form-label {
+.pagina-logare .eticheta-form {
   color: #f5fbff;
   font-size: 14px;
   font-weight: 600;
 }
 
-.form-input {
+.pagina-logare .input-form {
   width: 100%;
   height: 52px;
   padding: 0 16px;
@@ -102,17 +86,17 @@
   transition: all 0.25s ease;
 }
 
-.form-input::placeholder {
+.pagina-logare .input-form::placeholder {
   color: rgba(255, 255, 255, 0.62);
 }
 
-.form-input:focus {
+.pagina-logare .input-form:focus {
   border-color: rgba(158, 216, 255, 0.9);
   background: rgba(255, 255, 255, 0.18);
   box-shadow: 0 0 0 4px rgba(158, 216, 255, 0.16);
 }
 
-.login-button {
+.pagina-logare .buton-logare {
   margin-top: 6px;
   height: 54px;
   border: none;
@@ -126,21 +110,21 @@
   transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s ease;
 }
 
-.login-button:hover {
+.pagina-logare .buton-logare:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 32px rgba(0, 0, 0, 0.22);
 }
 
-.login-button:active {
+.pagina-logare .buton-logare:active {
   transform: translateY(0);
 }
 
-.login-button:disabled {
+.pagina-logare .buton-logare:disabled {
   opacity: 0.75;
   cursor: not-allowed;
 }
 
-.login-error {
+.pagina-logare .eroare-logare {
   padding: 12px 14px;
   border-radius: 12px;
   background: rgba(255, 82, 82, 0.14);
@@ -150,34 +134,18 @@
   text-align: center;
 }
 
-.login-footer {
-  margin-top: 20px; /* 🔥 redus */
-  text-align: center;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 13px;
-  letter-spacing: 0.2px;
-}
-
 @media (max-width: 520px) {
-  .login-card {
+  .pagina-logare .card-logare {
     padding: 24px 20px;
     border-radius: 20px;
   }
 
-  .login-title {
-    font-size: 26px;
-  }
-
-  .login-subtitle {
-    font-size: 14px;
-  }
-
-  .login-logo-full {
+  .pagina-logare .logo-logare {
     width: 170px;
   }
 
-  .form-input,
-  .login-button {
+  .pagina-logare .input-form,
+  .pagina-logare .buton-logare {
     height: 48px;
   }
 }

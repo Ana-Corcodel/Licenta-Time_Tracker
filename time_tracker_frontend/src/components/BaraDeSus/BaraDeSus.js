@@ -10,7 +10,7 @@ import axiosInstance from "../../Config/axiosInstance";
 const BaraDeSus = ({ comutaMeniu }) => {
   const [numeUtilizator, setNumeUtilizator] = useState('');
   const [notificari, setNotificari] = useState([]);
-  const [afiseazaNotificari, setAfiseazaNotificari] = useState(false);
+  const [esteDeschisaListaNotificari, setEsteDeschisaListaNotificari] = useState(false);
 
   useEffect(() => {
     const preiaUtilizator = async () => {
@@ -18,18 +18,18 @@ const BaraDeSus = ({ comutaMeniu }) => {
         const raspuns = await axiosInstance.get('/api/utilizator-curent/');
 
         if (raspuns.data?.autentificat && raspuns.data?.user) {
-          const user = raspuns.data.user;
+          const utilizator = raspuns.data.user;
 
-          if (user.nume && user.prenume) {
-            setNumeUtilizator(`${user.nume} ${user.prenume}`);
-          } else if (user.username) {
-            setNumeUtilizator(user.username);
+          if (utilizator.nume && utilizator.prenume) {
+            setNumeUtilizator(`${utilizator.nume} ${utilizator.prenume}`);
+          } else if (utilizator.username) {
+            setNumeUtilizator(utilizator.username);
           } else {
-            setNumeUtilizator(user.email);
+            setNumeUtilizator(utilizator.email);
           }
         }
-      } catch (error) {
-        console.error('Eroare la preluarea utilizatorului:', error);
+      } catch (eroare) {
+        console.error('Eroare la preluarea utilizatorului:', eroare);
       }
     };
 
@@ -37,8 +37,8 @@ const BaraDeSus = ({ comutaMeniu }) => {
       try {
         const raspuns = await axiosInstance.get('/get_notifications/');
         setNotificari(raspuns.data);
-      } catch (error) {
-        console.error('Eroare la preluarea notificărilor:', error);
+      } catch (eroare) {
+        console.error('Eroare la preluarea notificărilor:', eroare);
       }
     };
 
@@ -46,69 +46,71 @@ const BaraDeSus = ({ comutaMeniu }) => {
     preiaNotificari();
   }, []);
 
-  const comutaNotificari = () => {
-    setAfiseazaNotificari(!afiseazaNotificari);
+  const comutaAfisareNotificari = () => {
+    setEsteDeschisaListaNotificari(!esteDeschisaListaNotificari);
   };
 
   const stergeNotificare = async (id) => {
     try {
       await axiosInstance.delete(`/delete_notification/${id}/`);
-      const notificariActualizate = notificari.filter((n) => n.id !== id);
+      const notificariActualizate = notificari.filter((notificare) => notificare.id !== id);
       setNotificari(notificariActualizate);
-    } catch (err) {
-      console.error('Eroare la ștergerea notificării:', err);
+    } catch (eroare) {
+      console.error('Eroare la ștergerea notificării:', eroare);
     }
   };
 
   return (
-    <div className="topbar">
-      <div className="logo_section">
-        <div className="logo">
-          <img src={logo} alt="Logo" className="logo" />
+    <div className="bara-sus">
+      <div className="sectiune-logo">
+        <div className="container-logo">
+          <img src={logo} alt="Logo" className="imagine-logo" />
         </div>
-        <div className="app-name">
+
+        <div className="nume-aplicatie">
           <h1>TimeTracker</h1>
         </div>
       </div>
 
-      <div className="user-section">
-        <button className="menu-button" onClick={comutaMeniu}>
+      <div className="sectiune-utilizator">
+        <button className="buton-meniu" onClick={comutaMeniu}>
           <MenuIcon fontSize="medium" style={{ marginRight: '6px' }} />
         </button>
 
-        <div className="notification-container">
-          <button className="notification" onClick={comutaNotificari}>
+        <div className="container-notificari">
+          <button className="buton-notificari" onClick={comutaAfisareNotificari}>
             <NotificationsIcon fontSize="medium" style={{ marginRight: '4px' }} />
             {notificari.length > 0 && (
-              <span className="notification-badge">{notificari.length}</span>
+              <span className="insigna-notificari">{notificari.length}</span>
             )}
           </button>
 
-          {afiseazaNotificari && (
-            <div className="notification-dropdown">
+          {esteDeschisaListaNotificari && (
+            <div className="lista-notificari">
               {notificari.length > 0 ? (
-                notificari.map((n) => (
-                  <div key={n.id} className="notification-item">
-                    <p className="notification-text">
-                      {n.description} {new Date(n.date).toLocaleDateString()}
+                notificari.map((notificare) => (
+                  <div key={notificare.id} className="element-notificare">
+                    <p className="text-notificare">
+                      {notificare.description} {new Date(notificare.date).toLocaleDateString()}
                     </p>
+
                     <CloseIcon
-                      className="close-icon"
-                      onClick={() => stergeNotificare(n.id)}
+                      className="icon-inchidere"
+                      onClick={() => stergeNotificare(notificare.id)}
                     />
                   </div>
                 ))
               ) : (
-                <p className="no-notifications">Nu ai notificări!</p>
+                <p className="fara-notificari">Nu ai notificări!</p>
               )}
             </div>
           )}
         </div>
 
-        <div className="user">
+        <div className="utilizator">
           <p>{numeUtilizator}</p>
           <UserIcon
-            className="User_icon"
+            className="icon-utilizator"
             fontSize="medium"
             style={{ marginRight: '6px', marginLeft: '6px' }}
           />

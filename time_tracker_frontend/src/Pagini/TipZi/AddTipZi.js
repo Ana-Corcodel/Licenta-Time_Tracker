@@ -3,216 +3,220 @@ import axiosInstance from "../../Config/axiosInstance";
 import "./AddTipZi.css";
 
 const AddTipZi = ({ open, onClose }) => {
-    // State-uri principale
-    const [formData, setFormData] = useState({
+    // Stările principale
+    const [dateFormular, setDateFormular] = useState({
         prescurtare: "",
         tip_zi: "",
     });
-    
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
-    const [showToast, setShowToast] = useState(false);
-    const [fieldErrors, setFieldErrors] = useState({});
 
-    // Reset form when modal opens
+    const [seIncarca, setSeIncarca] = useState(false);
+    const [eroare, setEroare] = useState("");
+    const [succes, setSucces] = useState("");
+    const [afiseazaToast, setAfiseazaToast] = useState(false);
+    const [eroriCampuri, setEroriCampuri] = useState({});
+
+    // Resetăm formularul când se deschide modalul
     useEffect(() => {
         if (open) {
-            setFormData({
+            setDateFormular({
                 prescurtare: "",
                 tip_zi: "",
             });
-            setError("");
-            setSuccess("");
-            setFieldErrors({});
+            setEroare("");
+            setSucces("");
+            setEroriCampuri({});
         }
     }, [open]);
 
-    // Gestionare modificare câmpuri
-    const handleChange = useCallback((field) => (e) => {
-        let value = e.target.value;
+    // Gestionarea modificării câmpurilor
+    const gestioneazaSchimbarea = useCallback((camp) => (e) => {
+        let valoare = e.target.value;
 
-        // Pentru prescurtare, limităm la 10 caractere (conform modelului)
-        if (field === "prescurtare" && value.length > 10) {
-            value = value.slice(0, 10);
+        // Pentru prescurtare, limităm la 10 caractere
+        if (camp === "prescurtare" && valoare.length > 10) {
+            valoare = valoare.slice(0, 10);
         }
 
-        setFormData(prev => ({ ...prev, [field]: value }));
-        setFieldErrors(prev => ({ ...prev, [field]: "" }));
+        setDateFormular((anterior) => ({ ...anterior, [camp]: valoare }));
+        setEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
     }, []);
 
-    // Validare formular
-    const validateForm = useCallback(() => {
-        const errors = {};
+    // Validarea formularului
+    const valideazaFormularul = useCallback(() => {
+        const erori = {};
 
-        if (!formData.prescurtare.trim()) {
-            errors.prescurtare = "Prescurtarea este obligatorie";
-        } else if (formData.prescurtare.length > 10) {
-            errors.prescurtare = "Prescurtarea nu poate depăși 10 caractere";
+        if (!dateFormular.prescurtare.trim()) {
+            erori.prescurtare = "Prescurtarea este obligatorie";
+        } else if (dateFormular.prescurtare.length > 10) {
+            erori.prescurtare = "Prescurtarea nu poate depăși 10 caractere";
         }
 
-        if (!formData.tip_zi.trim()) {
-            errors.tip_zi = "Tipul zilei este obligatoriu";
+        if (!dateFormular.tip_zi.trim()) {
+            erori.tip_zi = "Tipul zilei este obligatoriu";
         }
 
-        setFieldErrors(errors);
-        return Object.keys(errors).length === 0;
-    }, [formData]);
+        setEroriCampuri(erori);
+        return Object.keys(erori).length === 0;
+    }, [dateFormular]);
 
     // Reset și închidere modal
-    const handleCancel = useCallback(() => {
-        setFormData({
+    const gestioneazaAnularea = useCallback(() => {
+        setDateFormular({
             prescurtare: "",
             tip_zi: "",
         });
-        setError("");
-        setSuccess("");
-        setFieldErrors({});
+        setEroare("");
+        setSucces("");
+        setEroriCampuri({});
         onClose(false);
     }, [onClose]);
 
-    // Submit formular
-    const handleSubmit = useCallback(async () => {
-        setError("");
-        setSuccess("");
-        setFieldErrors({});
+    // Trimiterea formularului
+    const gestioneazaTrimiterea = useCallback(async () => {
+        setEroare("");
+        setSucces("");
+        setEroriCampuri({});
 
-        const isValid = validateForm();
-        if (!isValid) return;
+        const esteValid = valideazaFormularul();
+        if (!esteValid) return;
 
-        setLoading(true);
+        setSeIncarca(true);
 
         try {
             const payload = {
-                prescurtare: formData.prescurtare.trim(),
-                tip_zi: formData.tip_zi.trim(),
+                prescurtare: dateFormular.prescurtare.trim(),
+                tip_zi: dateFormular.tip_zi.trim(),
             };
 
-            const res = await axiosInstance.post("/tipuri-zile/", payload);
+            const raspuns = await axiosInstance.post("/tipuri-zile/", payload);
 
-            if (res.status === 201 || res.status === 200) {
-                setShowToast(true);
-                setTimeout(() => setShowToast(false), 4000);
-                onClose(true, "Tip zi adăugat cu succes!");
+            if (raspuns.status === 201 || raspuns.status === 200) {
+                setAfiseazaToast(true);
+                setTimeout(() => setAfiseazaToast(false), 4000);
+                onClose(true, "Tip de zi adăugat cu succes!");
             } else {
-                setError("Răspuns neașteptat de la server");
+                setEroare("Răspuns neașteptat de la server");
             }
         } catch (err) {
-            let message = "Eroare la crearea tipului de zi";
-            
+            let mesaj = "Eroare la crearea tipului de zi";
+
             if (err.response?.data?.detail) {
-                message = err.response.data.detail;
+                mesaj = err.response.data.detail;
             } else if (err.response?.data?.message) {
-                message = err.response.data.message;
+                mesaj = err.response.data.message;
             } else if (err.response?.data) {
                 // Afișăm erorile de validare detaliate
-                const validationErrors = err.response.data;
-                if (typeof validationErrors === 'object') {
-                    // Verificăm dacă există eroare pentru câmpul prescurtare (unic)
-                    if (validationErrors.prescurtare && Array.isArray(validationErrors.prescurtare)) {
-                        message = validationErrors.prescurtare[0];
-                        setFieldErrors(prev => ({ ...prev, prescurtare: validationErrors.prescurtare[0] }));
+                const eroriValidare = err.response.data;
+                if (typeof eroriValidare === "object") {
+                    if (eroriValidare.prescurtare && Array.isArray(eroriValidare.prescurtare)) {
+                        mesaj = eroriValidare.prescurtare[0];
+                        setEroriCampuri((anterior) => ({
+                            ...anterior,
+                            prescurtare: eroriValidare.prescurtare[0],
+                        }));
                     } else {
-                        Object.keys(validationErrors).forEach(key => {
-                            if (Array.isArray(validationErrors[key])) {
-                                message = validationErrors[key][0];
+                        Object.keys(eroriValidare).forEach((cheie) => {
+                            if (Array.isArray(eroriValidare[cheie])) {
+                                mesaj = eroriValidare[cheie][0];
                             }
                         });
                     }
                 }
             }
-            
-            if (!fieldErrors.prescurtare) {
-                setError(message);
+
+            if (!eroriCampuri.prescurtare) {
+                setEroare(mesaj);
             }
-            
-            console.error("Eroare la submit:", err);
+
+            console.error("Eroare la trimitere:", err);
         } finally {
-            setLoading(false);
+            setSeIncarca(false);
         }
-    }, [formData, validateForm, onClose, fieldErrors]);
+    }, [dateFormular, valideazaFormularul, onClose, eroriCampuri]);
 
     if (!open) return null;
 
     return (
         <>
-            {showToast && <div className="global-toast">✅ Tip zi adăugat cu succes!</div>}
+            {afiseazaToast && <div className="toast-global">✅ Tip de zi adăugat cu succes!</div>}
 
-            <div className="page-addtipzi">
-                <div className="add-tipzi-page">
-                    <div className="modal-overlay">
+            <div className="pagina-adaugare-tipzi">
+                <div className="pagina-tipzi-adaugare">
+                    <div className="suprapunere-modal">
                         <div className="modal">
-                            {/* Header modal */}
-                            <div className="modal-header">
+                            {/* Antet modal */}
+                            <div className="antet-modal">
                                 <h2>Adaugă Tip Zi</h2>
-                                <button className="close-btn" onClick={handleCancel}>×</button>
+                                <button className="buton-inchidere" onClick={gestioneazaAnularea}>×</button>
                             </div>
 
-                            <hr className="header-divider" />
+                            <hr className="separator-antet" />
 
-                            {/* Overlay loading */}
-                            {loading && (
-                                <div className="loading-overlay">
-                                    <div className="loader"></div>
+                            {/* Suprapunere încărcare */}
+                            {seIncarca && (
+                                <div className="suprapunere-incarcare">
+                                    <div className="incarcator"></div>
                                     <span>Se salvează tipul de zi...</span>
                                 </div>
                             )}
 
                             {/* Mesaje eroare */}
-                            {error && <div className="alert error">{error}</div>}
-                            {success && <div className="alert success">{success}</div>}
+                            {eroare && <div className="alerta eroare">{eroare}</div>}
+                            {succes && <div className="alerta succes">{succes}</div>}
 
-                            <div className="form">
+                            <div className="formular">
                                 {/* Prescurtare */}
-                                <div className="form-field">
-                                    <label className="label-left">
-                                        Prescurtare <span className="required">*</span>
-                                        <span className="char-counter">
-                                            ({formData.prescurtare.length}/10)
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">
+                                        Prescurtare <span className="obligatoriu">*</span>
+                                        <span className="contor-caractere">
+                                            ({dateFormular.prescurtare.length}/10)
                                         </span>
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="Ex: LU, MA, MI, etc."
-                                        value={formData.prescurtare}
-                                        onChange={handleChange("prescurtare")}
-                                        className={`input-left ${fieldErrors.prescurtare ? "field-error-border" : ""}`}
+                                        placeholder="Ex: LU, MA, MI etc."
+                                        value={dateFormular.prescurtare}
+                                        onChange={gestioneazaSchimbarea("prescurtare")}
+                                        className={`input-stanga ${eroriCampuri.prescurtare ? "chenar-eroare-camp" : ""}`}
                                         maxLength="10"
                                         required
                                     />
-                                    {fieldErrors.prescurtare && (
-                                        <span className="field-error error-left">{fieldErrors.prescurtare}</span>
+                                    {eroriCampuri.prescurtare && (
+                                        <span className="eroare-camp eroare-stanga">{eroriCampuri.prescurtare}</span>
                                     )}
                                 </div>
 
                                 {/* Tip zi */}
-                                <div className="form-field">
-                                    <label className="label-left">Tip zi <span className="required">*</span></label>
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">
+                                        Tip zi <span className="obligatoriu">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         placeholder="Ex: Lucru, Concediu, Sărbătoare legală"
-                                        value={formData.tip_zi}
-                                        onChange={handleChange("tip_zi")}
-                                        className={`input-left ${fieldErrors.tip_zi ? "field-error-border" : ""}`}
+                                        value={dateFormular.tip_zi}
+                                        onChange={gestioneazaSchimbarea("tip_zi")}
+                                        className={`input-stanga ${eroriCampuri.tip_zi ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {fieldErrors.tip_zi && (
-                                        <span className="field-error error-left">{fieldErrors.tip_zi}</span>
+                                    {eroriCampuri.tip_zi && (
+                                        <span className="eroare-camp eroare-stanga">{eroriCampuri.tip_zi}</span>
                                     )}
                                 </div>
 
                                 {/* Butoane formular */}
-                                <div className="form-buttons">
-                                    <button className="cancel-btn" onClick={handleCancel}>
+                                <div className="butoane-formular">
+                                    <button className="buton-anulare" onClick={gestioneazaAnularea}>
                                         Anulează
                                     </button>
 
                                     <button
-                                        className={`submit-btn ${loading ? "disabled" : ""}`}
-                                        onClick={!loading ? handleSubmit : undefined}
-                                        disabled={loading}
+                                        className={`buton-trimitere ${seIncarca ? "dezactivat" : ""}`}
+                                        onClick={!seIncarca ? gestioneazaTrimiterea : undefined}
+                                        disabled={seIncarca}
                                     >
-                                        {loading ? "Se salvează..." : "Salvează"}
+                                        {seIncarca ? "Se salvează..." : "Salvează"}
                                     </button>
                                 </div>
                             </div>

@@ -10,11 +10,11 @@ import "./AddPontaj.css";
 registerLocale("ro", ro);
 
 const EditPontaj = ({ open, pontajData, onClose }) => {
-    const [angajati, setAngajati] = useState([]);
-    const [tipuriZi, setTipuriZi] = useState([]);
-    const [loadingOptions, setLoadingOptions] = useState(false);
+    const [listaAngajati, seteazaListaAngajati] = useState([]);
+    const [listaTipuriZi, seteazaListaTipuriZi] = useState([]);
+    const [seIncarcaOptiunile, seteazaSeIncarcaOptiunile] = useState(false);
 
-    const [formData, setFormData] = useState({
+    const [dateFormular, seteazaDateFormular] = useState({
         angajat: null,
         luna: "",
         an: new Date(),
@@ -27,13 +27,13 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         ore_lucru_suplimentare: 0,
     });
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
-    const [showToast, setShowToast] = useState(false);
-    const [fieldErrors, setFieldErrors] = useState({});
+    const [seIncarca, seteazaSeIncarca] = useState(false);
+    const [mesajEroare, seteazaMesajEroare] = useState("");
+    const [mesajSucces, seteazaMesajSucces] = useState("");
+    const [afiseazaToast, seteazaAfiseazaToast] = useState(false);
+    const [eroriCampuri, seteazaEroriCampuri] = useState({});
 
-    const getInitialFormData = useCallback(() => ({
+    const obtineDateInitialeFormular = useCallback(() => ({
         angajat: null,
         luna: "",
         an: new Date(),
@@ -46,246 +46,246 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         ore_lucru_suplimentare: 0,
     }), []);
 
-    const normalizeTime = (timeValue) => {
-        if (!timeValue) return "";
-        return String(timeValue).slice(0, 5);
+    const normalizeazaOra = (valoareOra) => {
+        if (!valoareOra) return "";
+        return String(valoareOra).slice(0, 5);
     };
 
-    const timeToMinutes = (time) => {
-        if (!time) return 0;
-        const [h, m] = String(time).split(":").map(Number);
-        return h * 60 + m;
+    const transformaOraInMinute = (ora) => {
+        if (!ora) return 0;
+        const [ore, minute] = String(ora).split(":").map(Number);
+        return ore * 60 + minute;
     };
 
-    const formatHoursToHHMM = (value) => {
-        const numericValue = Number(value) || 0;
-        const totalMinutes = Math.round(numericValue * 60);
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
+    const formateazaOreInHHMM = (valoare) => {
+        const valoareNumerica = Number(valoare) || 0;
+        const totalMinute = Math.round(valoareNumerica * 60);
+        const ore = Math.floor(totalMinute / 60);
+        const minute = totalMinute % 60;
 
-        return `${hours}:${String(minutes).padStart(2, "0")}`;
+        return `${ore}:${String(minute).padStart(2, "0")}`;
     };
 
-    const fetchOptions = useCallback(async () => {
-        setLoadingOptions(true);
+    const incarcaOptiuni = useCallback(async () => {
+        seteazaSeIncarcaOptiunile(true);
         try {
-            const [angajatiRes, tipuriRes] = await Promise.all([
+            const [raspunsAngajati, raspunsTipuri] = await Promise.all([
                 axiosInstance.get("/angajati/"),
                 axiosInstance.get("/tipuri-zile/")
             ]);
 
-            const angajatiData = Array.isArray(angajatiRes.data)
-                ? angajatiRes.data
-                : angajatiRes.data?.results || [];
+            const dateAngajati = Array.isArray(raspunsAngajati.data)
+                ? raspunsAngajati.data
+                : raspunsAngajati.data?.results || [];
 
-            const tipuriData = Array.isArray(tipuriRes.data)
-                ? tipuriRes.data
-                : tipuriRes.data?.results || [];
+            const dateTipuri = Array.isArray(raspunsTipuri.data)
+                ? raspunsTipuri.data
+                : raspunsTipuri.data?.results || [];
 
-            const angajatiFormatted = angajatiData.map(a => ({
-                value: a.id,
-                label: `${a.nume} ${a.prenume}`,
-                ...a
+            const angajatiFormatati = dateAngajati.map(angajat => ({
+                value: angajat.id,
+                label: `${angajat.nume} ${angajat.prenume}`,
+                ...angajat
             }));
 
-            const tipuriFormatted = tipuriData.map(t => ({
-                value: t.id,
-                label: t.tip_zi,
-                prescurtare: t.prescurtare,
-                ...t
+            const tipuriFormatate = dateTipuri.map(tipZi => ({
+                value: tipZi.id,
+                label: tipZi.tip_zi,
+                prescurtare: tipZi.prescurtare,
+                ...tipZi
             }));
 
-            setAngajati(angajatiFormatted);
-            setTipuriZi(tipuriFormatted);
+            seteazaListaAngajati(angajatiFormatati);
+            seteazaListaTipuriZi(tipuriFormatate);
 
             return {
-                angajatiFormatted,
-                tipuriFormatted,
+                angajatiFormatati,
+                tipuriFormatate,
             };
-        } catch (err) {
-            console.error("Eroare la încărcarea opțiunilor:", err);
-            setError("Nu s-au putut încărca opțiunile necesare");
+        } catch (eroare) {
+            console.error("Eroare la încărcarea opțiunilor:", eroare);
+            seteazaMesajEroare("Nu s-au putut încărca opțiunile necesare");
             return {
-                angajatiFormatted: [],
-                tipuriFormatted: [],
+                angajatiFormatati: [],
+                tipuriFormatate: [],
             };
         } finally {
-            setLoadingOptions(false);
+            seteazaSeIncarcaOptiunile(false);
         }
     }, []);
 
     useEffect(() => {
         if (open) {
-            fetchOptions();
+            incarcaOptiuni();
         }
-    }, [open, fetchOptions]);
+    }, [open, incarcaOptiuni]);
 
-    const initializeForm = useCallback(async () => {
+    const initializeazaFormular = useCallback(async () => {
         if (!pontajData) return;
 
-        setError("");
-        setSuccess("");
-        setFieldErrors({});
+        seteazaMesajEroare("");
+        seteazaMesajSucces("");
+        seteazaEroriCampuri({});
 
         try {
-            let currentAngajati = angajati;
-            let currentTipuriZi = tipuriZi;
+            let angajatiCurenti = listaAngajati;
+            let tipuriCurente = listaTipuriZi;
 
-            if (angajati.length === 0 || tipuriZi.length === 0) {
-                const loaded = await fetchOptions();
-                currentAngajati = loaded.angajatiFormatted;
-                currentTipuriZi = loaded.tipuriFormatted;
+            if (listaAngajati.length === 0 || listaTipuriZi.length === 0) {
+                const dateIncarcate = await incarcaOptiuni();
+                angajatiCurenti = dateIncarcate.angajatiFormatati;
+                tipuriCurente = dateIncarcate.tipuriFormatate;
             }
 
-            const angajatId =
+            const idAngajat =
                 typeof pontajData.angajat === "object"
                     ? pontajData.angajat?.id
                     : pontajData.angajat;
 
-            const tipId =
+            const idTip =
                 typeof pontajData.tip === "object"
                     ? pontajData.tip?.id
                     : pontajData.tip;
 
             const angajatSelectat =
-                currentAngajati.find(a => a.value === angajatId) || null;
+                angajatiCurenti.find(angajat => angajat.value === idAngajat) || null;
 
             const tipSelectat =
-                currentTipuriZi.find(t => t.value === tipId) || null;
+                tipuriCurente.find(tipZi => tipZi.value === idTip) || null;
 
-            const dataObj = pontajData.data ? new Date(pontajData.data) : new Date();
-            const anObj = pontajData.an ? new Date(pontajData.an) : new Date();
+            const dataObiect = pontajData.data ? new Date(pontajData.data) : new Date();
+            const anObiect = pontajData.an ? new Date(pontajData.an) : new Date();
 
-            setFormData({
+            seteazaDateFormular({
                 angajat: angajatSelectat,
                 luna: pontajData.luna || "",
-                an: anObj,
-                ora_start: normalizeTime(pontajData.ora_start) || "09:00",
-                ora_sfarsit: normalizeTime(pontajData.ora_sfarsit) || "17:00",
+                an: anObiect,
+                ora_start: normalizeazaOra(pontajData.ora_start) || "09:00",
+                ora_sfarsit: normalizeazaOra(pontajData.ora_sfarsit) || "17:00",
                 pauza_masa: pontajData.pauza_masa ?? angajatSelectat?.ora_pauza ?? 30,
                 tip: tipSelectat,
-                data: dataObj,
+                data: dataObiect,
                 ore_lucrate: Number(pontajData.ore_lucrate) || 0,
                 ore_lucru_suplimentare: Number(pontajData.ore_lucru_suplimentare) || 0,
             });
-        } catch (err) {
-            console.error("Eroare la inițializarea formularului:", err);
-            setError("Nu s-au putut încărca datele pentru editare");
+        } catch (eroare) {
+            console.error("Eroare la inițializarea formularului:", eroare);
+            seteazaMesajEroare("Nu s-au putut încărca datele pentru editare");
         }
-    }, [pontajData, angajati, tipuriZi, fetchOptions]);
+    }, [pontajData, listaAngajati, listaTipuriZi, incarcaOptiuni]);
 
     useEffect(() => {
         if (open && pontajData) {
-            initializeForm();
+            initializeazaFormular();
         }
-    }, [open, pontajData, initializeForm]);
+    }, [open, pontajData, initializeazaFormular]);
 
-    const calculateOreLucrate = useCallback((start, sfarsit, pauza) => {
-        if (!start || !sfarsit) return 0;
+    const calculeazaOreLucrate = useCallback((oraInceput, oraSfarsit, pauza) => {
+        if (!oraInceput || !oraSfarsit) return 0;
 
-        const startMinutes = timeToMinutes(start);
-        const sfarsitMinutes = timeToMinutes(sfarsit);
+        const minuteInceput = transformaOraInMinute(oraInceput);
+        const minuteSfarsit = transformaOraInMinute(oraSfarsit);
 
-        let totalMinutes = sfarsitMinutes - startMinutes;
-        if (totalMinutes < 0) totalMinutes += 24 * 60;
+        let totalMinute = minuteSfarsit - minuteInceput;
+        if (totalMinute < 0) totalMinute += 24 * 60;
 
-        const minuteLucrate = Math.max(0, totalMinutes - (Number(pauza) || 0));
+        const minuteLucrate = Math.max(0, totalMinute - (Number(pauza) || 0));
         return Math.round((minuteLucrate / 60) * 100) / 100;
     }, []);
 
-    const calculateOreSuplimentare = useCallback((pontajEnd, programEnd) => {
-        if (!pontajEnd || !programEnd) return 0;
+    const calculeazaOreSuplimentare = useCallback((oraSfarsitPontaj, oraSfarsitProgram) => {
+        if (!oraSfarsitPontaj || !oraSfarsitProgram) return 0;
 
-        const pontajEndMinutes = timeToMinutes(pontajEnd);
-        const programEndMinutes = timeToMinutes(programEnd);
+        const minuteSfarsitPontaj = transformaOraInMinute(oraSfarsitPontaj);
+        const minuteSfarsitProgram = transformaOraInMinute(oraSfarsitProgram);
 
-        let extraMinutes = pontajEndMinutes - programEndMinutes;
-        if (extraMinutes < 0) extraMinutes = 0;
+        let minuteSuplimentare = minuteSfarsitPontaj - minuteSfarsitProgram;
+        if (minuteSuplimentare < 0) minuteSuplimentare = 0;
 
-        return Math.round((extraMinutes / 60) * 100) / 100;
+        return Math.round((minuteSuplimentare / 60) * 100) / 100;
     }, []);
 
     useEffect(() => {
-        if (formData.data) {
+        if (dateFormular.data) {
             const luni = [
                 "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
                 "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
             ];
-            const luna = luni[formData.data.getMonth()];
-            setFormData(prev => {
-                if (prev.luna === luna) return prev;
-                return { ...prev, luna };
+            const lunaCurenta = luni[dateFormular.data.getMonth()];
+            seteazaDateFormular((anterior) => {
+                if (anterior.luna === lunaCurenta) return anterior;
+                return { ...anterior, luna: lunaCurenta };
             });
         }
-    }, [formData.data]);
+    }, [dateFormular.data]);
 
     useEffect(() => {
-        const oreLucrate = calculateOreLucrate(
-            formData.ora_start,
-            formData.ora_sfarsit,
-            formData.pauza_masa
+        const oreLucrate = calculeazaOreLucrate(
+            dateFormular.ora_start,
+            dateFormular.ora_sfarsit,
+            dateFormular.pauza_masa
         );
 
-        const programEnd = normalizeTime(formData.angajat?.ora_sfarsit);
+        const oraFinalProgram = normalizeazaOra(dateFormular.angajat?.ora_sfarsit);
 
-        const oreSuplimentare = calculateOreSuplimentare(
-            formData.ora_sfarsit,
-            programEnd
+        const oreSuplimentare = calculeazaOreSuplimentare(
+            dateFormular.ora_sfarsit,
+            oraFinalProgram
         );
 
-        setFormData(prev => {
+        seteazaDateFormular((anterior) => {
             if (
-                prev.ore_lucrate === oreLucrate &&
-                prev.ore_lucru_suplimentare === oreSuplimentare
+                anterior.ore_lucrate === oreLucrate &&
+                anterior.ore_lucru_suplimentare === oreSuplimentare
             ) {
-                return prev;
+                return anterior;
             }
 
             return {
-                ...prev,
+                ...anterior,
                 ore_lucrate: oreLucrate,
                 ore_lucru_suplimentare: oreSuplimentare,
             };
         });
     }, [
-        formData.ora_start,
-        formData.ora_sfarsit,
-        formData.pauza_masa,
-        formData.angajat,
-        calculateOreLucrate,
-        calculateOreSuplimentare
+        dateFormular.ora_start,
+        dateFormular.ora_sfarsit,
+        dateFormular.pauza_masa,
+        dateFormular.angajat,
+        calculeazaOreLucrate,
+        calculeazaOreSuplimentare
     ]);
 
-    const handleChange = useCallback((field) => (e) => {
-        let value = e.target.value;
+    const gestioneazaSchimbareCamp = useCallback((camp) => (e) => {
+        let valoare = e.target.value;
 
-        if (field === "pauza_masa") {
-            value = parseInt(value, 10);
-            if (Number.isNaN(value)) value = 0;
-            if (value < 0) value = 0;
-            if (value > 180) value = 180;
+        if (camp === "pauza_masa") {
+            valoare = parseInt(valoare, 10);
+            if (Number.isNaN(valoare)) valoare = 0;
+            if (valoare < 0) valoare = 0;
+            if (valoare > 180) valoare = 180;
         }
 
-        setFormData(prev => ({ ...prev, [field]: value }));
-        setFieldErrors(prev => ({ ...prev, [field]: "" }));
+        seteazaDateFormular((anterior) => ({ ...anterior, [camp]: valoare }));
+        seteazaEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
     }, []);
 
-    const handleTimeChange = useCallback((field) => (e) => {
-        const value = e.target.value;
-        setFormData(prev => ({ ...prev, [field]: value }));
-        setFieldErrors(prev => ({ ...prev, [field]: "" }));
+    const gestioneazaSchimbareOra = useCallback((camp) => (e) => {
+        const valoare = e.target.value;
+        seteazaDateFormular((anterior) => ({ ...anterior, [camp]: valoare }));
+        seteazaEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
     }, []);
 
-    const handleAngajatChange = useCallback((selectedOption) => {
-        setFormData(prev => ({
-            ...prev,
-            angajat: selectedOption,
-            pauza_masa: selectedOption?.ora_pauza ?? 30,
-            ora_start: normalizeTime(selectedOption?.ora_incepere) || "09:00",
-            ora_sfarsit: normalizeTime(selectedOption?.ora_sfarsit) || "17:00",
+    const gestioneazaSchimbareAngajat = useCallback((optiuneSelectata) => {
+        seteazaDateFormular((anterior) => ({
+            ...anterior,
+            angajat: optiuneSelectata,
+            pauza_masa: optiuneSelectata?.ora_pauza ?? 30,
+            ora_start: normalizeazaOra(optiuneSelectata?.ora_incepere) || "09:00",
+            ora_sfarsit: normalizeazaOra(optiuneSelectata?.ora_sfarsit) || "17:00",
         }));
-        setFieldErrors(prev => ({
-            ...prev,
+        seteazaEroriCampuri((anterior) => ({
+            ...anterior,
             angajat: "",
             pauza_masa: "",
             ora_start: "",
@@ -293,114 +293,114 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         }));
     }, []);
 
-    const handleTipChange = useCallback((selectedOption) => {
-        setFormData(prev => ({ ...prev, tip: selectedOption }));
-        setFieldErrors(prev => ({ ...prev, tip: "" }));
+    const gestioneazaSchimbareTip = useCallback((optiuneSelectata) => {
+        seteazaDateFormular((anterior) => ({ ...anterior, tip: optiuneSelectata }));
+        seteazaEroriCampuri((anterior) => ({ ...anterior, tip: "" }));
     }, []);
 
-    const handleDateChange = useCallback((date) => {
-        setFormData(prev => ({ ...prev, data: date, an: date || new Date() }));
-        setFieldErrors(prev => ({ ...prev, data: "" }));
+    const gestioneazaSchimbareData = useCallback((dataSelectata) => {
+        seteazaDateFormular((anterior) => ({ ...anterior, data: dataSelectata, an: dataSelectata || new Date() }));
+        seteazaEroriCampuri((anterior) => ({ ...anterior, data: "" }));
     }, []);
 
-    const validateForm = useCallback(() => {
-        const errors = {};
+    const valideazaFormular = useCallback(() => {
+        const erori = {};
 
-        if (!formData.angajat) errors.angajat = "Angajatul este obligatoriu";
-        if (!formData.data) errors.data = "Data este obligatorie";
-        if (!formData.ora_start) errors.ora_start = "Ora de început este obligatorie";
-        if (!formData.ora_sfarsit) errors.ora_sfarsit = "Ora de sfârșit este obligatorie";
-        if (!formData.tip) errors.tip = "Tipul de zi este obligatoriu";
+        if (!dateFormular.angajat) erori.angajat = "Angajatul este obligatoriu";
+        if (!dateFormular.data) erori.data = "Data este obligatorie";
+        if (!dateFormular.ora_start) erori.ora_start = "Ora de început este obligatorie";
+        if (!dateFormular.ora_sfarsit) erori.ora_sfarsit = "Ora de sfârșit este obligatorie";
+        if (!dateFormular.tip) erori.tip = "Tipul de zi este obligatoriu";
 
-        if (formData.pauza_masa < 0) {
-            errors.pauza_masa = "Pauza nu poate fi negativă";
+        if (dateFormular.pauza_masa < 0) {
+            erori.pauza_masa = "Pauza nu poate fi negativă";
         }
 
-        if (formData.ora_start && formData.ora_sfarsit) {
-            const startMinutes = timeToMinutes(formData.ora_start);
-            const sfarsitMinutes = timeToMinutes(formData.ora_sfarsit);
+        if (dateFormular.ora_start && dateFormular.ora_sfarsit) {
+            const minuteInceput = transformaOraInMinute(dateFormular.ora_start);
+            const minuteSfarsit = transformaOraInMinute(dateFormular.ora_sfarsit);
 
-            if (sfarsitMinutes <= startMinutes && sfarsitMinutes + 24 * 60 - startMinutes > 12 * 60) {
-                errors.ora_sfarsit = "Intervalul pare prea lung pentru trecerea peste noapte";
+            if (minuteSfarsit <= minuteInceput && minuteSfarsit + 24 * 60 - minuteInceput > 12 * 60) {
+                erori.ora_sfarsit = "Intervalul pare prea lung pentru trecerea peste noapte";
             }
         }
 
-        setFieldErrors(errors);
-        return Object.keys(errors).length === 0;
-    }, [formData]);
+        seteazaEroriCampuri(erori);
+        return Object.keys(erori).length === 0;
+    }, [dateFormular]);
 
-    const handleCancel = useCallback(() => {
-        setFormData(getInitialFormData());
-        setError("");
-        setSuccess("");
-        setFieldErrors({});
+    const gestioneazaAnulare = useCallback(() => {
+        seteazaDateFormular(obtineDateInitialeFormular());
+        seteazaMesajEroare("");
+        seteazaMesajSucces("");
+        seteazaEroriCampuri({});
         onClose(false);
-    }, [getInitialFormData, onClose]);
+    }, [obtineDateInitialeFormular, onClose]);
 
-    const handleSubmit = useCallback(async () => {
-        setError("");
-        setSuccess("");
-        setFieldErrors({});
+    const gestioneazaActualizare = useCallback(async () => {
+        seteazaMesajEroare("");
+        seteazaMesajSucces("");
+        seteazaEroriCampuri({});
 
-        const isValid = validateForm();
-        if (!isValid) return;
+        const esteValid = valideazaFormular();
+        if (!esteValid) return;
 
-        setLoading(true);
+        seteazaSeIncarca(true);
 
         try {
-            const dataFormatted = formData.data.toISOString().split("T")[0];
-            const anFormatted = `${formData.an.getFullYear()}-01-01`;
+            const dataFormatata = dateFormular.data.toISOString().split("T")[0];
+            const anFormatat = `${dateFormular.an.getFullYear()}-01-01`;
 
             const payload = {
-                angajat: formData.angajat.value,
-                luna: formData.luna,
-                an: anFormatted,
-                ora_start: formData.ora_start,
-                ora_sfarsit: formData.ora_sfarsit,
-                pauza_masa: parseInt(formData.pauza_masa, 10) || 0,
-                tip: formData.tip.value,
-                data: dataFormatted,
-                ore_lucrate: formData.ore_lucrate,
-                ore_lucru_suplimentare: formData.ore_lucru_suplimentare,
+                angajat: dateFormular.angajat.value,
+                luna: dateFormular.luna,
+                an: anFormatat,
+                ora_start: dateFormular.ora_start,
+                ora_sfarsit: dateFormular.ora_sfarsit,
+                pauza_masa: parseInt(dateFormular.pauza_masa, 10) || 0,
+                tip: dateFormular.tip.value,
+                data: dataFormatata,
+                ore_lucrate: dateFormular.ore_lucrate,
+                ore_lucru_suplimentare: dateFormular.ore_lucru_suplimentare,
             };
 
-            const res = await axiosInstance.put(`/pontaje/${pontajData.id}/`, payload);
+            const raspuns = await axiosInstance.put(`/pontaje/${pontajData.id}/`, payload);
 
-            if (res.status === 200) {
-                setShowToast(true);
-                setTimeout(() => setShowToast(false), 4000);
+            if (raspuns.status === 200) {
+                seteazaAfiseazaToast(true);
+                setTimeout(() => seteazaAfiseazaToast(false), 4000);
                 onClose(true, "Pontaj actualizat cu succes!");
             } else {
-                setError("Răspuns neașteptat de la server");
+                seteazaMesajEroare("Răspuns neașteptat de la server");
             }
-        } catch (err) {
-            let message = "Eroare la actualizarea pontajului";
-            if (err.response?.data?.detail) message = err.response.data.detail;
-            else if (err.response?.data?.message) message = err.response.data.message;
-            else if (err.response?.data) {
-                const validationErrors = err.response.data;
-                if (typeof validationErrors === "object") {
-                    const firstKey = Object.keys(validationErrors)[0];
-                    if (firstKey && Array.isArray(validationErrors[firstKey])) {
-                        message = validationErrors[firstKey][0];
+        } catch (eroare) {
+            let mesaj = "Eroare la actualizarea pontajului";
+            if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
+            else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
+            else if (eroare.response?.data) {
+                const eroriValidare = eroare.response.data;
+                if (typeof eroriValidare === "object") {
+                    const primaCheie = Object.keys(eroriValidare)[0];
+                    if (primaCheie && Array.isArray(eroriValidare[primaCheie])) {
+                        mesaj = eroriValidare[primaCheie][0];
                     }
                 }
             }
-            setError(message);
-            console.error("Eroare la submit:", err);
+            seteazaMesajEroare(mesaj);
+            console.error("Eroare la submit:", eroare);
         } finally {
-            setLoading(false);
+            seteazaSeIncarca(false);
         }
-    }, [formData, validateForm, pontajData, onClose]);
+    }, [dateFormular, valideazaFormular, pontajData, onClose]);
 
-    const getCustomSelectStyles = (fieldName) => ({
-        control: (base, state) => ({
-            ...base,
-            border: fieldErrors[fieldName] ? "1px solid #d32f2f" :
-                state.isFocused ? "1px solid #007BFF" : "1px solid #ccc",
+    const obtineStiluriPersonalizateSelect = (numeCamp) => ({
+        control: (baza, stare) => ({
+            ...baza,
+            border: eroriCampuri[numeCamp] ? "1px solid #d32f2f" :
+                stare.isFocused ? "1px solid #007BFF" : "1px solid #ccc",
             "&:hover": {
-                border: fieldErrors[fieldName] ? "1px solid #d32f2f" :
-                    state.isFocused ? "1px solid #007BFF" : "1px solid #888"
+                border: eroriCampuri[numeCamp] ? "1px solid #d32f2f" :
+                    stare.isFocused ? "1px solid #007BFF" : "1px solid #888"
             },
             fontSize: "14px",
             fontFamily: "Arial, sans-serif",
@@ -409,8 +409,8 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
             boxShadow: "none",
             borderRadius: "4px",
         }),
-        valueContainer: (base) => ({
-            ...base,
+        valueContainer: (baza) => ({
+            ...baza,
             padding: "0 8px",
             height: "100%",
             display: "flex",
@@ -418,8 +418,8 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
             justifyContent: "flex-start",
             textAlign: "left"
         }),
-        input: (base) => ({
-            ...base,
+        input: (baza) => ({
+            ...baza,
             color: "#1a1a1a",
             margin: "0",
             padding: "0",
@@ -432,8 +432,8 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                 textAlign: "left"
             }
         }),
-        placeholder: (base) => ({
-            ...base,
+        placeholder: (baza) => ({
+            ...baza,
             color: "#999",
             fontSize: "14px",
             textAlign: "left",
@@ -441,8 +441,8 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
             alignItems: "center",
             justifyContent: "flex-start"
         }),
-        singleValue: (base) => ({
-            ...base,
+        singleValue: (baza) => ({
+            ...baza,
             color: "#1a1a1a",
             fontSize: "14px",
             textAlign: "left",
@@ -450,16 +450,16 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
             alignItems: "center",
             justifyContent: "flex-start"
         }),
-        menu: (base) => ({
-            ...base,
+        menu: (baza) => ({
+            ...baza,
             zIndex: 9999,
             fontSize: "14px",
             textAlign: "left"
         }),
-        option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isSelected ? "#e6f2ff" : state.isFocused ? "#f0f0f0" : "#fff",
-            color: state.isSelected ? "#006ce4" : "#1a1a1a",
+        option: (baza, stare) => ({
+            ...baza,
+            backgroundColor: stare.isSelected ? "#e6f2ff" : stare.isFocused ? "#f0f0f0" : "#fff",
+            color: stare.isSelected ? "#006ce4" : "#1a1a1a",
             fontSize: "14px",
             textAlign: "left",
             "&:active": {
@@ -472,195 +472,195 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
 
     return (
         <>
-            {showToast && <div className="global-toast">✅ Pontaj actualizat cu succes!</div>}
+            {afiseazaToast && <div className="toast-global">✅ Pontaj actualizat cu succes!</div>}
 
-            <div className="page-addpontaj">
-                <div className="add-pontaj-page">
-                    <div className="modal-overlay">
-                        <div className="modal">
-                            <div className="modal-header">
+            <div className="pagina-adauga-pontaj">
+                <div className="continut-pagina-adauga-pontaj">
+                    <div className="overlay-modal">
+                        <div className="fereastra-modal">
+                            <div className="antet-modal">
                                 <h2>Editează Pontaj</h2>
-                                <button className="close-btn" onClick={handleCancel}>×</button>
+                                <button className="buton-inchidere" onClick={gestioneazaAnulare}>×</button>
                             </div>
 
-                            <hr className="header-divider" />
+                            <hr className="separator-antet" />
 
-                            {(loading || loadingOptions) && (
-                                <div className="loading-overlay">
+                            {(seIncarca || seIncarcaOptiunile) && (
+                                <div className="overlay-incarcare">
                                     <div className="loader"></div>
-                                    <span>{loadingOptions ? "Se încarcă opțiunile..." : "Se actualizează pontajul..."}</span>
+                                    <span>{seIncarcaOptiunile ? "Se încarcă opțiunile..." : "Se actualizează pontajul..."}</span>
                                 </div>
                             )}
 
-                            {error && <div className="alert error">{error}</div>}
-                            {success && <div className="alert success">{success}</div>}
+                            {mesajEroare && <div className="alerta eroare">{mesajEroare}</div>}
+                            {mesajSucces && <div className="alerta succes">{mesajSucces}</div>}
 
-                            <div className="form">
-                                <div className="form-field">
-                                    <label className="label-left">Angajat <span className="required">*</span></label>
-                                    {loadingOptions ? (
+                            <div className="formular">
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Angajat <span className="obligatoriu">*</span></label>
+                                    {seIncarcaOptiunile ? (
                                         <div className="skeleton"></div>
                                     ) : (
                                         <>
                                             <Select
                                                 name="angajat"
-                                                value={formData.angajat}
-                                                onChange={handleAngajatChange}
-                                                options={angajati}
+                                                value={dateFormular.angajat}
+                                                onChange={gestioneazaSchimbareAngajat}
+                                                options={listaAngajati}
                                                 placeholder="Selectează angajat"
-                                                className={`multiselect-field ${fieldErrors.angajat ? "select-error" : ""}`}
+                                                className={`camp-multiselect ${eroriCampuri.angajat ? "select-cu-eroare" : ""}`}
                                                 classNamePrefix="select"
                                                 isSearchable={true}
                                                 isClearable={true}
-                                                styles={getCustomSelectStyles("angajat")}
+                                                styles={obtineStiluriPersonalizateSelect("angajat")}
                                             />
-                                            {fieldErrors.angajat && (
-                                                <span className="field-error error-left">{fieldErrors.angajat}</span>
+                                            {eroriCampuri.angajat && (
+                                                <span className="eroare-camp eroare-stanga">{eroriCampuri.angajat}</span>
                                             )}
                                         </>
                                     )}
                                 </div>
 
-                                <div className="form-field">
-                                    <label className="label-left">Data <span className="required">*</span></label>
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Data <span className="obligatoriu">*</span></label>
                                     <DatePicker
-                                        selected={formData.data}
-                                        onChange={handleDateChange}
+                                        selected={dateFormular.data}
+                                        onChange={gestioneazaSchimbareData}
                                         dateFormat="dd/MM/yyyy"
                                         locale="ro"
                                         placeholderText="Selectează data"
-                                        className={`input-left ${fieldErrors.data ? "field-error-border" : ""}`}
-                                        wrapperClassName="datepicker-wrapper"
+                                        className={`input-stanga ${eroriCampuri.data ? "chenar-eroare-camp" : ""}`}
+                                        wrapperClassName="wrapper-datepicker"
                                     />
-                                    {fieldErrors.data && (
-                                        <span className="field-error error-left">{fieldErrors.data}</span>
+                                    {eroriCampuri.data && (
+                                        <span className="eroare-camp eroare-stanga">{eroriCampuri.data}</span>
                                     )}
                                 </div>
 
-                                <div className="form-field">
-                                    <label className="label-left">Luna</label>
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Luna</label>
                                     <input
                                         type="text"
-                                        value={formData.luna}
+                                        value={dateFormular.luna}
                                         readOnly
                                         disabled
-                                        className="input-left readonly-field"
+                                        className="input-stanga camp-readonly"
                                     />
                                 </div>
 
-                                <div className="form-row">
-                                    <div className="form-field">
-                                        <label className="label-left">Ora start <span className="required">*</span></label>
+                                <div className="rand-formular">
+                                    <div className="camp-formular">
+                                        <label className="eticheta-stanga">Ora start <span className="obligatoriu">*</span></label>
                                         <input
                                             type="time"
-                                            value={formData.ora_start}
-                                            onChange={handleTimeChange("ora_start")}
-                                            className={`input-left ${fieldErrors.ora_start ? "field-error-border" : ""}`}
+                                            value={dateFormular.ora_start}
+                                            onChange={gestioneazaSchimbareOra("ora_start")}
+                                            className={`input-stanga ${eroriCampuri.ora_start ? "chenar-eroare-camp" : ""}`}
                                         />
-                                        {fieldErrors.ora_start && (
-                                            <span className="field-error error-left">{fieldErrors.ora_start}</span>
+                                        {eroriCampuri.ora_start && (
+                                            <span className="eroare-camp eroare-stanga">{eroriCampuri.ora_start}</span>
                                         )}
                                     </div>
 
-                                    <div className="form-field">
-                                        <label className="label-left">Ora sfârșit <span className="required">*</span></label>
+                                    <div className="camp-formular">
+                                        <label className="eticheta-stanga">Ora sfârșit <span className="obligatoriu">*</span></label>
                                         <input
                                             type="time"
-                                            value={formData.ora_sfarsit}
-                                            onChange={handleTimeChange("ora_sfarsit")}
-                                            className={`input-left ${fieldErrors.ora_sfarsit ? "field-error-border" : ""}`}
+                                            value={dateFormular.ora_sfarsit}
+                                            onChange={gestioneazaSchimbareOra("ora_sfarsit")}
+                                            className={`input-stanga ${eroriCampuri.ora_sfarsit ? "chenar-eroare-camp" : ""}`}
                                         />
-                                        {fieldErrors.ora_sfarsit && (
-                                            <span className="field-error error-left">{fieldErrors.ora_sfarsit}</span>
+                                        {eroriCampuri.ora_sfarsit && (
+                                            <span className="eroare-camp eroare-stanga">{eroriCampuri.ora_sfarsit}</span>
                                         )}
                                     </div>
                                 </div>
 
-                                <div className="form-row">
-                                    <div className="form-field">
-                                        <label className="label-left">Pauză (minute)</label>
+                                <div className="rand-formular">
+                                    <div className="camp-formular">
+                                        <label className="eticheta-stanga">Pauză (minute)</label>
                                         <input
                                             type="number"
                                             placeholder="30"
-                                            value={formData.pauza_masa}
-                                            onChange={handleChange("pauza_masa")}
-                                            className={`input-left ${fieldErrors.pauza_masa ? "field-error-border" : ""}`}
+                                            value={dateFormular.pauza_masa}
+                                            onChange={gestioneazaSchimbareCamp("pauza_masa")}
+                                            className={`input-stanga ${eroriCampuri.pauza_masa ? "chenar-eroare-camp" : ""}`}
                                             min="0"
                                             max="180"
                                         />
-                                        <small className="field-hint">
+                                        <small className="indicatie-camp">
                                             Preluată automat din angajat, dar poate fi modificată
                                         </small>
-                                        {fieldErrors.pauza_masa && (
-                                            <span className="field-error error-left">{fieldErrors.pauza_masa}</span>
+                                        {eroriCampuri.pauza_masa && (
+                                            <span className="eroare-camp eroare-stanga">{eroriCampuri.pauza_masa}</span>
                                         )}
                                     </div>
 
-                                    <div className="form-field">
-                                        <label className="label-left">Ore suplimentare</label>
+                                    <div className="camp-formular">
+                                        <label className="eticheta-stanga">Ore suplimentare</label>
                                         <input
                                             type="text"
-                                            value={formatHoursToHHMM(formData.ore_lucru_suplimentare)}
+                                            value={formateazaOreInHHMM(dateFormular.ore_lucru_suplimentare)}
                                             readOnly
                                             disabled
-                                            className="input-left readonly-field"
+                                            className="input-stanga camp-readonly"
                                         />
-                                        <small className="field-hint">
-                                            Calculat automat după programul angajatului ({Number(formData.ore_lucru_suplimentare || 0).toFixed(2)} h)
+                                        <small className="indicatie-camp">
+                                            Calculat automat după programul angajatului ({Number(dateFormular.ore_lucru_suplimentare || 0).toFixed(2)} h)
                                         </small>
                                     </div>
                                 </div>
 
-                                <div className="form-field">
-                                    <label className="label-left">Tip zi <span className="required">*</span></label>
-                                    {loadingOptions ? (
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Tip zi <span className="obligatoriu">*</span></label>
+                                    {seIncarcaOptiunile ? (
                                         <div className="skeleton"></div>
                                     ) : (
                                         <>
                                             <Select
                                                 name="tip"
-                                                value={formData.tip}
-                                                onChange={handleTipChange}
-                                                options={tipuriZi}
+                                                value={dateFormular.tip}
+                                                onChange={gestioneazaSchimbareTip}
+                                                options={listaTipuriZi}
                                                 placeholder="Selectează tipul zilei"
-                                                className={`multiselect-field ${fieldErrors.tip ? "select-error" : ""}`}
+                                                className={`camp-multiselect ${eroriCampuri.tip ? "select-cu-eroare" : ""}`}
                                                 classNamePrefix="select"
                                                 isSearchable={true}
                                                 isClearable={true}
-                                                styles={getCustomSelectStyles("tip")}
+                                                styles={obtineStiluriPersonalizateSelect("tip")}
                                             />
-                                            {fieldErrors.tip && (
-                                                <span className="field-error error-left">{fieldErrors.tip}</span>
+                                            {eroriCampuri.tip && (
+                                                <span className="eroare-camp eroare-stanga">{eroriCampuri.tip}</span>
                                             )}
                                         </>
                                     )}
                                 </div>
 
-                                <div className="form-field">
-                                    <label className="label-left">Ore lucrate</label>
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Ore lucrate</label>
                                     <input
                                         type="text"
-                                        value={formatHoursToHHMM(formData.ore_lucrate)}
+                                        value={formateazaOreInHHMM(dateFormular.ore_lucrate)}
                                         readOnly
                                         disabled
-                                        className="input-left readonly-field"
+                                        className="input-stanga camp-readonly"
                                     />
-                                    <small className="field-hint">
-                                        Calculat automat ({Number(formData.ore_lucrate || 0).toFixed(2)} h)
+                                    <small className="indicatie-camp">
+                                        Calculat automat ({Number(dateFormular.ore_lucrate || 0).toFixed(2)} h)
                                     </small>
                                 </div>
 
-                                <div className="form-buttons">
-                                    <button className="cancel-btn" onClick={handleCancel}>
+                                <div className="butoane-formular">
+                                    <button className="buton-anulare" onClick={gestioneazaAnulare}>
                                         Anulează
                                     </button>
 
                                     <button
-                                        className={`submit-btn ${loading ? "disabled" : ""}`}
-                                        onClick={!loading ? handleSubmit : undefined}
-                                        disabled={loading}
+                                        className={`buton-salvare ${seIncarca ? "dezactivat" : ""}`}
+                                        onClick={!seIncarca ? gestioneazaActualizare : undefined}
+                                        disabled={seIncarca}
                                     >
-                                        {loading ? "Se actualizează..." : "Actualizează"}
+                                        {seIncarca ? "Se actualizează..." : "Actualizează"}
                                     </button>
                                 </div>
                             </div>

@@ -11,44 +11,44 @@ import axiosInstance from '../../Config/axiosInstance';
 
 const grupuriMeniu = [
   {
-    section: 'General',
-    icon: <HomeIcon className="icon section-icon" />,
-    items: [
+    sectiune: 'General',
+    icon: <HomeIcon className="icon pictograma-sectiune" />,
+    elemente: [
       {
-        name: 'Acasă',
+        nume: 'Acasă',
         url: '/',
         icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
   },
   {
-    section: 'Administrare',
-    icon: <PeopleIcon className="icon section-icon" />,
-    items: [
+    sectiune: 'Administrare',
+    icon: <PeopleIcon className="icon pictograma-sectiune" />,
+    elemente: [
       {
-        name: 'Angajați',
+        nume: 'Angajați',
         url: '/administrare-angajati',
         icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
   },
   {
-    section: 'Pontaje',
-    icon: <AccessTimeIcon className="icon section-icon" />,
-    items: [
+    sectiune: 'Pontaje',
+    icon: <AccessTimeIcon className="icon pictograma-sectiune" />,
+    elemente: [
       {
-        name: 'Pontaje',
+        nume: 'Pontaje',
         url: '/pontaje',
         icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
   },
   {
-    section: 'Tipuri de zile',
-    icon: <CalendarMonthIcon className="icon section-icon" />,
-    items: [
+    sectiune: 'Tipuri de zile',
+    icon: <CalendarMonthIcon className="icon pictograma-sectiune" />,
+    elemente: [
       {
-        name: 'Tipuri de zile',
+        nume: 'Tipuri de zile',
         url: '/tipuri-zile',
         icon: <TrackChangesSharpIcon className="icon" />
       }
@@ -57,48 +57,48 @@ const grupuriMeniu = [
 ];
 
 const Meniu = ({ esteDeschis, seteazaDeschis, seteazaEsteAutentificat }) => {
-  const navigate = useNavigate();
+  const navigheaza = useNavigate();
 
   const delogare = async () => {
     try {
       await axiosInstance.post('/api/logout/');
       localStorage.clear();
       seteazaEsteAutentificat(false);
-      navigate('/logare', { replace: true });
-    } catch (error) {
-      console.error('Eroare la delogare:', error);
-      alert(`Logout-ul a eșuat. Status: ${error.response?.status || 'necunoscut'}`);
+      navigheaza('/logare', { replace: true });
+    } catch (eroare) {
+      console.error('Eroare la delogare:', eroare);
+      alert(`Logout-ul a eșuat. Status: ${eroare.response?.status || 'necunoscut'}`);
     }
   };
 
-  const handleClick = () => {
+  const gestioneazaClick = () => {
     if (window.innerWidth <= 768) {
       seteazaDeschis(false);
     }
   };
 
   return (
-    <div className="menu">
-      <div className={`sidebar ${esteDeschis ? 'open' : ''}`}>
-        <ul className="meniu">
+    <div className="meniu-lateral-container">
+      <div className={`bara-laterala ${esteDeschis ? 'deschis' : ''}`}>
+        <ul className="lista-meniu">
           {grupuriMeniu.map((grup) => (
-            <div key={grup.section}>
-              <div className="section-title">
+            <div key={grup.sectiune}>
+              <div className="titlu-sectiune">
                 {grup.icon}
-                <span>{grup.section}</span>
+                <span>{grup.sectiune}</span>
               </div>
 
-              {grup.items.map((item, index) => (
-                <li key={index} className="menu-item">
+              {grup.elemente.map((element, index) => (
+                <li key={index} className="element-meniu">
                   <NavLink
-                    to={item.url}
-                    onClick={handleClick}
+                    to={element.url}
+                    onClick={gestioneazaClick}
                     className={({ isActive }) =>
-                      isActive ? 'menu-link active' : 'menu-link'
+                      isActive ? 'link-meniu activ' : 'link-meniu'
                     }
                   >
-                    {item.icon}
-                    <span>{item.name}</span>
+                    {element.icon}
+                    <span>{element.nume}</span>
                   </NavLink>
                 </li>
               ))}
@@ -106,7 +106,7 @@ const Meniu = ({ esteDeschis, seteazaDeschis, seteazaEsteAutentificat }) => {
           ))}
         </ul>
 
-        <button className="settings-button" onClick={delogare}>
+        <button className="buton-delogare" onClick={delogare}>
           <LogoutIcon className="icon" />
           Delogare
         </button>

@@ -13,123 +13,123 @@ import {
 
 const ZILE_SCURTE = ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sâm"];
 
-const formatDateKey = (date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+const formateazaCheieData = (data) => {
+  const an = data.getFullYear();
+  const luna = String(data.getMonth() + 1).padStart(2, "0");
+  const zi = String(data.getDate()).padStart(2, "0");
+  return `${an}-${luna}-${zi}`;
 };
 
-const parseOre = (value) => {
-  if (value == null || value === "") return 0;
+const parseazaOre = (valoare) => {
+  if (valoare == null || valoare === "") return 0;
 
-  if (typeof value === "number") return value;
+  if (typeof valoare === "number") return valoare;
 
-  const parsed = parseFloat(String(value).replace(",", "."));
-  return Number.isNaN(parsed) ? 0 : parsed;
+  const valoareParsata = parseFloat(String(valoare).replace(",", "."));
+  return Number.isNaN(valoareParsata) ? 0 : valoareParsata;
 };
 
 export default function Acasa() {
   const [pontaje, setPontaje] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [seIncarca, setSeIncarca] = useState(true);
 
   useEffect(() => {
-    const fetchPontaje = async () => {
+    const preiaPontaje = async () => {
       try {
-        setLoading(true);
-        const res = await axiosInstance.get("/pontaje/");
-        const data = Array.isArray(res.data) ? res.data : res.data?.results;
-        setPontaje(data || []);
-      } catch (error) {
-        console.error("Eroare la încărcarea pontajelor:", error);
+        setSeIncarca(true);
+        const raspuns = await axiosInstance.get("/pontaje/");
+        const date = Array.isArray(raspuns.data) ? raspuns.data : raspuns.data?.results;
+        setPontaje(date || []);
+      } catch (eroare) {
+        console.error("Eroare la încărcarea pontajelor:", eroare);
         setPontaje([]);
       } finally {
-        setLoading(false);
+        setSeIncarca(false);
       }
     };
 
-    fetchPontaje();
+    preiaPontaje();
   }, []);
 
-  const data = useMemo(() => {
+  const dateGrafic = useMemo(() => {
     const azi = new Date();
     azi.setHours(0, 0, 0, 0);
 
-    const ultimele7Zile = [];
+    const ultimeleSapteZile = [];
 
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(azi);
-      d.setDate(azi.getDate() - i);
+      const dataCurenta = new Date(azi);
+      dataCurenta.setDate(azi.getDate() - i);
 
-      ultimele7Zile.push({
-        fullDate: new Date(d),
-        key: formatDateKey(d),
-        zi: ZILE_SCURTE[d.getDay()],
+      ultimeleSapteZile.push({
+        dataCompleta: new Date(dataCurenta),
+        cheie: formateazaCheieData(dataCurenta),
+        zi: ZILE_SCURTE[dataCurenta.getDay()],
         ore: 0,
       });
     }
 
-    const mapZile = {};
-    ultimele7Zile.forEach((item) => {
-      mapZile[item.key] = item;
+    const mapareZile = {};
+    ultimeleSapteZile.forEach((element) => {
+      mapareZile[element.cheie] = element;
     });
 
-    pontaje.forEach((p) => {
-      if (!p.data) return;
+    pontaje.forEach((pontaj) => {
+      if (!pontaj.data) return;
 
-      const dataPontaj = new Date(p.data);
+      const dataPontaj = new Date(pontaj.data);
       dataPontaj.setHours(0, 0, 0, 0);
 
-      const key = formatDateKey(dataPontaj);
+      const cheie = formateazaCheieData(dataPontaj);
 
-      if (mapZile[key]) {
-        mapZile[key].ore += parseOre(p.ore_lucrate);
+      if (mapareZile[cheie]) {
+        mapareZile[cheie].ore += parseazaOre(pontaj.ore_lucrate);
       }
     });
 
-    return ultimele7Zile;
+    return ultimeleSapteZile;
   }, [pontaje]);
 
   const totalOre = useMemo(() => {
-    return data.reduce((acc, x) => acc + (x.ore || 0), 0);
-  }, [data]);
+    return dateGrafic.reduce((acumulator, element) => acumulator + (element.ore || 0), 0);
+  }, [dateGrafic]);
 
   const mediaOre = useMemo(() => {
-    return data.length ? totalOre / data.length : 0;
-  }, [totalOre, data.length]);
+    return dateGrafic.length ? totalOre / dateGrafic.length : 0;
+  }, [totalOre, dateGrafic.length]);
 
   return (
     <div className="pagina-acasa">
       <h1>Bun venit în aplicația TimeTracker!</h1>
       <p>Această aplicație este concepută pentru a vă eficientiza pontajul de zi cu zi.</p>
 
-      <div className="acasa-card">
-        <div className="acasa-card-header">
+      <div className="card-acasa">
+        <div className="antet-card-acasa">
           <div>
             <h2>Ore lucrate (ultimele 7 zile)</h2>
-            <p className="muted">
+            <p className="text-estompat">
               Total: <b>{totalOre.toFixed(1)}h</b> • Medie: <b>{mediaOre.toFixed(1)}h/zi</b>
             </p>
           </div>
         </div>
 
-        <div className="acasa-chart">
-          {loading ? (
-            <div className="acasa-loading">Se încarcă datele...</div>
+        <div className="grafic-acasa">
+          {seIncarca ? (
+            <div className="incarcare-acasa">Se încarcă datele...</div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+              <BarChart data={dateGrafic} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="zi" />
                 <YAxis />
                 <Tooltip
-                  formatter={(value) => [`${Number(value).toFixed(1)} h`, "Ore"]}
-                  labelFormatter={(label, payload) => {
+                  formatter={(valoare) => [`${Number(valoare).toFixed(1)} h`, "Ore"]}
+                  labelFormatter={(eticheta, payload) => {
                     if (payload && payload.length > 0) {
-                      const item = payload[0].payload;
-                      return `${label} - ${item.key}`;
+                      const element = payload[0].payload;
+                      return `${eticheta} - ${element.cheie}`;
                     }
-                    return `Zi: ${label}`;
+                    return `Zi: ${eticheta}`;
                   }}
                 />
                 <Bar dataKey="ore" radius={[8, 8, 0, 0]} />

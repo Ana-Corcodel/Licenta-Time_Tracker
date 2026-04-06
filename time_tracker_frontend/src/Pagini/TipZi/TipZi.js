@@ -1,138 +1,138 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Box, Button, TextField, InputAdornment, IconButton
-} from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { Search, Add, Edit } from '@mui/icons-material';
-import axiosInstance from '../../Config/axiosInstance';
-import AddTipZi from './AddTipZi';
-import EditTipZi from './EditTipZi';
-import './TipZi.css';
+} from "@mui/material";
+import { Search, Add, Edit } from "@mui/icons-material";
+import { DataGrid } from "@mui/x-data-grid";
+import axiosInstance from "../../Config/axiosInstance";
+import AddTipZi from "./AddTipZi";
+import EditTipZi from "./EditTipZi";
+import "./TipZi.css";
 
-const SEARCH_DEBOUNCE_MS = 300;
-const DEFAULT_PAGE_SIZE = 10;
+const DEBOUNCE_CAUTARE_MS = 300;
+const DIMENSIUNE_PAGINA_IMPLICITA = 10;
 
-const useDebounce = (value, delay) => {
-  const [debounced, setDebounced] = useState(value);
+const useDebounce = (valoare, intarziere) => {
+  const [valoareCuIntarziere, setValoareCuIntarziere] = useState(valoare);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(t);
-  }, [value, delay]);
+    const temporizator = setTimeout(() => setValoareCuIntarziere(valoare), intarziere);
+    return () => clearTimeout(temporizator);
+  }, [valoare, intarziere]);
 
-  return debounced;
+  return valoareCuIntarziere;
 };
 
 const useTipZi = () => {
   const [tipuriZi, setTipuriZi] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [seIncarca, setSeIncarca] = useState(true);
 
-  const fetchTipuriZi = useCallback(async () => {
+  const preiaTipuriZi = useCallback(async () => {
     try {
-      setLoading(true);
-      const res = await axiosInstance.get('/tipuri-zile/');
-      setTipuriZi(res.data || []);
-    } catch (err) {
-      console.error('fetchTipuriZi error:', err);
+      setSeIncarca(true);
+      const raspuns = await axiosInstance.get("/tipuri-zile/");
+      setTipuriZi(raspuns.data || []);
+    } catch (eroare) {
+      console.error("Eroare la preluarea tipurilor de zi:", eroare);
     } finally {
-      setLoading(false);
+      setSeIncarca(false);
     }
   }, []);
 
-  return { tipuriZi, loading, fetchTipuriZi };
+  return { tipuriZi, seIncarca, preiaTipuriZi };
 };
 
 const TipZi = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [openAddModal, setOpenAddModal] = useState(false);
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [selectedTip, setSelectedTip] = useState(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [termenCautare, setTermenCautare] = useState("");
+  const [modalAdaugareDeschis, setModalAdaugareDeschis] = useState(false);
+  const [modalEditareDeschis, setModalEditareDeschis] = useState(false);
+  const [tipSelectat, setTipSelectat] = useState(null);
+  const [afiseazaToast, setAfiseazaToast] = useState(false);
+  const [mesajToast, setMesajToast] = useState("");
 
-  const debouncedSearch = useDebounce(searchTerm, SEARCH_DEBOUNCE_MS);
-  const { tipuriZi, loading, fetchTipuriZi } = useTipZi();
+  const cautareCuIntarziere = useDebounce(termenCautare, DEBOUNCE_CAUTARE_MS);
+  const { tipuriZi, seIncarca, preiaTipuriZi } = useTipZi();
 
   useEffect(() => {
-    fetchTipuriZi();
-  }, [fetchTipuriZi]);
+    preiaTipuriZi();
+  }, [preiaTipuriZi]);
 
-  const handleEditTip = useCallback((tip) => {
-    setSelectedTip(tip);
-    setOpenEditModal(true);
+  const gestioneazaEditareaTipului = useCallback((tip) => {
+    setTipSelectat(tip);
+    setModalEditareDeschis(true);
   }, []);
 
-  const filteredRows = useMemo(() => {
-    let list = [...tipuriZi];
+  const randuriFiltrate = useMemo(() => {
+    let lista = [...tipuriZi];
 
-    if (debouncedSearch) {
-      const s = debouncedSearch.toLowerCase();
-      list = list.filter((t) =>
-        t.prescurtare?.toLowerCase().includes(s) ||
-        t.tip_zi?.toLowerCase().includes(s)
+    if (cautareCuIntarziere) {
+      const termen = cautareCuIntarziere.toLowerCase();
+      lista = lista.filter((tip) =>
+        tip.prescurtare?.toLowerCase().includes(termen) ||
+        tip.tip_zi?.toLowerCase().includes(termen)
       );
     }
 
-    return list.map((t, idx) => ({
-      id: t.id ?? idx,
-      ...t,
+    return lista.map((tip, index) => ({
+      id: tip.id ?? index,
+      ...tip,
     }));
-  }, [tipuriZi, debouncedSearch]);
+  }, [tipuriZi, cautareCuIntarziere]);
 
-  const columns = useMemo(
+  const coloane = useMemo(
     () => [
       {
-        field: 'prescurtare',
-        headerName: 'Prescurtare',
+        field: "prescurtare",
+        headerName: "Prescurtare",
         flex: 0.8,
         minWidth: 140,
       },
       {
-        field: 'tip_zi',
-        headerName: 'Tip zi',
+        field: "tip_zi",
+        headerName: "Tip zi",
         flex: 1.4,
         minWidth: 200,
       },
       {
-        field: 'action',
-        headerName: 'Acțiuni',
+        field: "actiune",
+        headerName: "Acțiuni",
         width: 100,
         sortable: false,
         disableColumnMenu: true,
-        renderCell: (params) => (
+        renderCell: (parametri) => (
           <IconButton
-            sx={{ color: '#1976d2' }}
-            onClick={() => handleEditTip(params.row)}
+            sx={{ color: "#1976d2" }}
+            onClick={() => gestioneazaEditareaTipului(parametri.row)}
           >
             <Edit />
           </IconButton>
         ),
       },
     ],
-    [handleEditTip]
+    [gestioneazaEditareaTipului]
   );
 
   return (
-    <div className="tipzipage">
-      {showToast && <div className="global-toast">{toastMessage}</div>}
+    <div className="pagina-tipzi">
+      {afiseazaToast && <div className="toast-global">{mesajToast}</div>}
 
-      <div className="tipzi-page">
-        <Box className="tipzi-toolbar">
-          <h2 className="title">
+      <div className="continut-tipzi">
+        <Box className="bara-unelte-tipzi">
+          <h2 className="titlu">
             TIP ZI
           </h2>
 
-          <Box className="tipzi-toolbar-right">
+          <Box className="dreapta-bara-unelte-tipzi">
             <TextField
               size="small"
               placeholder="Caută tip zi..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+              value={termenCautare}
+              onChange={(e) => setTermenCautare(e.target.value)}
+              className="input-cautare"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Search sx={{ color: '#424242' }} />
+                    <Search sx={{ color: "#424242" }} />
                   </InputAdornment>
                 ),
               }}
@@ -141,77 +141,77 @@ const TipZi = () => {
             <Button
               variant="contained"
               startIcon={<Add />}
-              className="new-btn"
-              onClick={() => setOpenAddModal(true)}
+              className="buton-nou"
+              onClick={() => setModalAdaugareDeschis(true)}
             >
               ADAUGĂ
             </Button>
           </Box>
         </Box>
 
-        <div className="table-container">
+        <div className="container-tabel">
           <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            loading={loading}
+            rows={randuriFiltrate}
+            columns={coloane}
+            loading={seIncarca}
             disableRowSelectionOnClick
             pageSizeOptions={[10, 15, 20, 25, 50]}
             initialState={{
               pagination: {
                 paginationModel: {
                   page: 0,
-                  pageSize: DEFAULT_PAGE_SIZE,
+                  pageSize: DIMENSIUNE_PAGINA_IMPLICITA,
                 },
               },
             }}
             rowHeight={50}
             autoHeight={false}
             sx={{
-              borderRadius: '8px',
-              height: '100%',
-              '& .MuiDataGrid-cell': {
-                alignItems: 'center',
-                display: 'flex',
+              borderRadius: "8px",
+              height: "100%",
+              "& .MuiDataGrid-cell": {
+                alignItems: "center",
+                display: "flex",
               },
-              '& .MuiDataGrid-cell:focus': {
-                outline: 'none',
+              "& .MuiDataGrid-cell:focus": {
+                outline: "none",
               },
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontWeight: '700', // sau 'bold'
-                fontSize: '0.95rem'
-              }
+              "& .MuiDataGrid-columnHeaderTitle": {
+                fontWeight: "700",
+                fontSize: "0.95rem",
+              },
             }}
           />
         </div>
       </div>
 
       <AddTipZi
-        open={openAddModal}
-        onClose={(shouldReload, message) => {
-          setOpenAddModal(false);
-          if (shouldReload) {
-            fetchTipuriZi();
-            if (message) {
-              setToastMessage(message);
-              setShowToast(true);
-              setTimeout(() => setShowToast(false), 4000);
+        open={modalAdaugareDeschis}
+        onClose={(trebuieReincarcat, mesaj) => {
+          setModalAdaugareDeschis(false);
+          if (trebuieReincarcat) {
+            preiaTipuriZi();
+            if (mesaj) {
+              setMesajToast(mesaj);
+              setAfiseazaToast(true);
+              setTimeout(() => setAfiseazaToast(false), 4000);
             }
           }
         }}
       />
 
       <EditTipZi
-        open={openEditModal}
-        tipData={selectedTip}
-        onClose={(shouldReload, message) => {
-          setOpenEditModal(false);
-          setSelectedTip(null);
-          if (shouldReload) {
-            fetchTipuriZi();
-            if (message) {
-              setToastMessage(message);
-              setShowToast(true);
-              setTimeout(() => setShowToast(false), 4000);
+        open={modalEditareDeschis}
+        tipData={tipSelectat}
+        onClose={(trebuieReincarcat, mesaj) => {
+          setModalEditareDeschis(false);
+          setTipSelectat(null);
+          if (trebuieReincarcat) {
+            preiaTipuriZi();
+            if (mesaj) {
+              setMesajToast(mesaj);
+              setAfiseazaToast(true);
+              setTimeout(() => setAfiseazaToast(false), 4000);
             }
           }
         }}

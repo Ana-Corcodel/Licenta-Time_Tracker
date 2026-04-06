@@ -6,17 +6,16 @@ import "react-datepicker/dist/react-datepicker.css";
 import Select from "react-select";
 import "./AddAngajati.css";
 
-// Înregistrăm localizarea pentru react-datepicker
 registerLocale("ro", ro);
 
 const AddAngajati = ({ open, onClose }) => {
-    const statusOptions = [
-        { value: 'activ', label: 'Activ' },
-        { value: 'inactiv', label: 'Inactiv' },
-        { value: 'suspendat', label: 'Suspendat' },
+    const optiuniStatus = [
+        { value: "activ", label: "Activ" },
+        { value: "inactiv", label: "Inactiv" },
+        { value: "suspendat", label: "Suspendat" },
     ];
 
-    const initialFormData = useMemo(
+    const dateInitialeFormular = useMemo(
         () => ({
             nume: "",
             prenume: "",
@@ -32,181 +31,188 @@ const AddAngajati = ({ open, onClose }) => {
         []
     );
 
-    const [formData, setFormData] = useState(initialFormData);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
-    const [fieldErrors, setFieldErrors] = useState({});
+    const [dateFormular, setDateFormular] = useState(dateInitialeFormular);
+    const [seIncarca, setSeIncarca] = useState(false);
+    const [mesajEroare, setMesajEroare] = useState("");
+    const [mesajSucces, setMesajSucces] = useState("");
+    const [eroriCampuri, setEroriCampuri] = useState({});
 
     useEffect(() => {
         if (open) {
-            setFormData(initialFormData);
-            setError("");
-            setSuccess("");
-            setFieldErrors({});
+            setDateFormular(dateInitialeFormular);
+            setMesajEroare("");
+            setMesajSucces("");
+            setEroriCampuri({});
         }
-    }, [open, initialFormData]);
+    }, [open, dateInitialeFormular]);
 
-    const handleChange = useCallback(
-        (field) => (e) => {
-            let value = e.target.value;
+    const gestioneazaSchimbare = useCallback(
+        (camp) => (e) => {
+            let valoare = e.target.value;
 
-            if (field === "telefon") {
-                value = value.replace(/\D/g, "");
-                if (value.length > 15) {
-                    value = value.slice(0, 15);
+            if (camp === "telefon") {
+                valoare = valoare.replace(/\D/g, "");
+                if (valoare.length > 15) {
+                    valoare = valoare.slice(0, 15);
                 }
             }
 
-            if (field === "ora_pauza") {
-                value = parseInt(value) || 0;
+            if (camp === "ora_pauza") {
+                valoare = parseInt(valoare) || 0;
             }
 
-            setFormData((prev) => ({ ...prev, [field]: value }));
-            setFieldErrors((prev) => ({ ...prev, [field]: "" }));
+            setDateFormular((anterior) => ({ ...anterior, [camp]: valoare }));
+            setEroriCampuri((anterior) => ({ ...anterior, [camp]: "" }));
         },
         []
     );
 
-    const handleStatusChange = useCallback((selectedOption) => {
-        const value = selectedOption ? selectedOption.value : "";
-        setFormData((prev) => ({ ...prev, status: value }));
-        setFieldErrors((prev) => ({ ...prev, status: "" }));
+    const gestioneazaSchimbareStatus = useCallback((optiuneSelectata) => {
+        const valoare = optiuneSelectata ? optiuneSelectata.value : "";
+        setDateFormular((anterior) => ({ ...anterior, status: valoare }));
+        setEroriCampuri((anterior) => ({ ...anterior, status: "" }));
     }, []);
 
-    const validateForm = useCallback(() => {
-        const errors = {};
+    const valideazaFormular = useCallback(() => {
+        const erori = {};
 
-        if (!formData.nume.trim()) errors.nume = "Numele este obligatoriu";
-        if (!formData.prenume.trim()) errors.prenume = "Prenumele este obligatoriu";
-        if (!formData.functie.trim()) errors.functie = "Funcția este obligatorie";
-        if (!formData.telefon.trim()) errors.telefon = "Telefonul este obligatoriu";
-        if (!formData.status) errors.status = "Statusul este obligatoriu";
+        if (!dateFormular.nume.trim()) erori.nume = "Numele este obligatoriu";
+        if (!dateFormular.prenume.trim()) erori.prenume = "Prenumele este obligatoriu";
+        if (!dateFormular.functie.trim()) erori.functie = "Funcția este obligatorie";
+        if (!dateFormular.telefon.trim()) erori.telefon = "Telefonul este obligatoriu";
+        if (!dateFormular.status) erori.status = "Statusul este obligatoriu";
 
-        if (!formData.ora_incepere) errors.ora_incepere = "Ora de începere este obligatorie";
-        if (!formData.ora_sfarsit) errors.ora_sfarsit = "Ora de sfârșit este obligatorie";
+        if (!dateFormular.ora_incepere) erori.ora_incepere = "Ora de începere este obligatorie";
+        if (!dateFormular.ora_sfarsit) erori.ora_sfarsit = "Ora de sfârșit este obligatorie";
 
-        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            errors.email = "Email invalid";
+        if (dateFormular.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dateFormular.email)) {
+            erori.email = "Email invalid";
         }
 
-        setFieldErrors(errors);
-        return Object.keys(errors).length === 0;
-    }, [formData]);
+        setEroriCampuri(erori);
+        return Object.keys(erori).length === 0;
+    }, [dateFormular]);
 
-    const handleCancel = useCallback(() => {
-        setFormData(initialFormData);
-        setError("");
-        setSuccess("");
-        setFieldErrors({});
+    const gestioneazaAnulare = useCallback(() => {
+        setDateFormular(dateInitialeFormular);
+        setMesajEroare("");
+        setMesajSucces("");
+        setEroriCampuri({});
         onClose(false);
-    }, [initialFormData, onClose]);
+    }, [dateInitialeFormular, onClose]);
 
-    const handleSubmit = useCallback(async () => {
-        setError("");
-        setSuccess("");
-        setFieldErrors({});
+    const gestioneazaSalvare = useCallback(async () => {
+        setMesajEroare("");
+        setMesajSucces("");
+        setEroriCampuri({});
 
-        const isValid = validateForm();
-        if (!isValid) return;
+        const esteValid = valideazaFormular();
+        if (!esteValid) return;
 
-        setLoading(true);
+        setSeIncarca(true);
 
         try {
             const payload = {
-                ...formData,
-                ora_pauza: parseInt(formData.ora_pauza) || 30,
+                ...dateFormular,
+                ora_pauza: parseInt(dateFormular.ora_pauza) || 30,
             };
 
-            const res = await axiosInstance.post("/angajati/", payload);
+            const raspuns = await axiosInstance.post("/angajati/", payload);
 
-            if (res.status === 201 || res.status === 200) {
+            if (raspuns.status === 201 || raspuns.status === 200) {
                 onClose(true, "Angajat adăugat cu succes!");
             } else {
-                setError("Răspuns neașteptat de la server");
+                setMesajEroare("Răspuns neașteptat de la server");
             }
-        } catch (err) {
-            let message = "Eroare la crearea angajatului";
-            if (err.response?.data?.detail) message = err.response.data.detail;
-            else if (err.response?.data?.message) message = err.response.data.message;
-            setError(message);
-            console.error("Eroare la submit:", err);
-        } finally {
-            setLoading(false);
-        }
-    }, [formData, validateForm, onClose]);
+        } catch (eroare) {
+            let mesaj = "Eroare la crearea angajatului";
+            if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
+            else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
 
-    const getCustomSelectStyles = (fieldName) => ({
-        control: (base, state) => ({
-            ...base,
-            border: fieldErrors[fieldName] ? '1px solid #d32f2f' :
-                state.isFocused ? '1px solid #007BFF' : '1px solid #ccc',
-            '&:hover': {
-                border: fieldErrors[fieldName] ? '1px solid #d32f2f' :
-                    state.isFocused ? '1px solid #007BFF' : '1px solid #888'
+            setMesajEroare(mesaj);
+            console.error("Eroare la salvare:", eroare);
+        } finally {
+            setSeIncarca(false);
+        }
+    }, [dateFormular, valideazaFormular, onClose]);
+
+    const obtineStiluriSelectPersonalizat = (numeCamp) => ({
+        control: (baza, stare) => ({
+            ...baza,
+            border: eroriCampuri[numeCamp]
+                ? "1px solid #d32f2f"
+                : stare.isFocused
+                    ? "1px solid #007BFF"
+                    : "1px solid #ccc",
+            "&:hover": {
+                border: eroriCampuri[numeCamp]
+                    ? "1px solid #d32f2f"
+                    : stare.isFocused
+                        ? "1px solid #007BFF"
+                        : "1px solid #888"
             },
-            fontSize: '14px',
-            fontFamily: 'Arial, sans-serif',
-            minHeight: '38px',
-            backgroundColor: state.isFocused ? '#fff' : '#fff',
-            boxShadow: 'none',
-            borderRadius: '4px',
+            fontSize: "14px",
+            fontFamily: "Arial, sans-serif",
+            minHeight: "38px",
+            backgroundColor: "#fff",
+            boxShadow: "none",
+            borderRadius: "4px",
         }),
-        valueContainer: (base) => ({
-            ...base,
-            padding: '0 8px',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            textAlign: 'left'
+        valueContainer: (baza) => ({
+            ...baza,
+            padding: "0 8px",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            textAlign: "left"
         }),
-        input: (base) => ({
-            ...base,
-            color: '#1a1a1a',
-            margin: '0',
-            padding: '0',
-            '& input': {
-                boxShadow: 'none !important',
-                border: 'none !important',
-                outline: 'none !important',
-                padding: '0',
-                margin: '0',
-                textAlign: 'left'
+        input: (baza) => ({
+            ...baza,
+            color: "#1a1a1a",
+            margin: "0",
+            padding: "0",
+            "& input": {
+                boxShadow: "none !important",
+                border: "none !important",
+                outline: "none !important",
+                padding: "0",
+                margin: "0",
+                textAlign: "left"
             }
         }),
-        placeholder: (base) => ({
-            ...base,
-            color: '#999',
-            fontSize: '14px',
-            textAlign: 'left',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start'
+        placeholder: (baza) => ({
+            ...baza,
+            color: "#999",
+            fontSize: "14px",
+            textAlign: "left",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start"
         }),
-        singleValue: (base) => ({
-            ...base,
-            color: '#1a1a1a',
-            fontSize: '14px',
-            textAlign: 'left',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start'
+        singleValue: (baza) => ({
+            ...baza,
+            color: "#1a1a1a",
+            fontSize: "14px",
+            textAlign: "left",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start"
         }),
-        menu: (base) => ({
-            ...base,
+        menu: (baza) => ({
+            ...baza,
             zIndex: 9999,
-            fontSize: '14px',
-            textAlign: 'left'
+            fontSize: "14px",
+            textAlign: "left"
         }),
-        option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isSelected ? '#e6f2ff' : state.isFocused ? '#f0f0f0' : '#fff',
-            color: state.isSelected ? '#006ce4' : '#1a1a1a',
-            fontSize: '14px',
-            textAlign: 'left',
-            '&:activ': {
-                backgroundColor: '#e6f2ff',
+        option: (baza, stare) => ({
+            ...baza,
+            backgroundColor: stare.isSelected ? "#e6f2ff" : stare.isFocused ? "#f0f0f0" : "#fff",
+            color: stare.isSelected ? "#006ce4" : "#1a1a1a",
+            fontSize: "14px",
+            textAlign: "left",
+            "&:active": {
+                backgroundColor: "#e6f2ff",
             }
         }),
     });
@@ -214,95 +220,95 @@ const AddAngajati = ({ open, onClose }) => {
     if (!open) return null;
 
     return (
-        <div className="page-addangajat">
-            <div className="add-angajat-page">
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <div className="modal-header">
+        <div className="pagina-adauga-angajat">
+            <div className="pagina-formular-angajat">
+                <div className="fundal-modal">
+                    <div className="fereastra-modal">
+                        <div className="antet-modal">
                             <h2>Adaugă Angajat</h2>
-                            <button className="close-btn" onClick={handleCancel}>×</button>
+                            <button className="buton-inchidere" onClick={gestioneazaAnulare}>×</button>
                         </div>
 
-                        <hr className="header-divider" />
+                        <hr className="linie-antet" />
 
-                        {loading && (
-                            <div className="loading-overlay">
-                                <div className="loader"></div>
+                        {seIncarca && (
+                            <div className="suprapunere-incarcare">
+                                <div className="incarcator"></div>
                                 <span>Se creează angajatul...</span>
                             </div>
                         )}
 
-                        {error && <div className="alert error">{error}</div>}
-                        {success && <div className="alert success">{success}</div>}
+                        {mesajEroare && <div className="alerta eroare">{mesajEroare}</div>}
+                        {mesajSucces && <div className="alerta succes">{mesajSucces}</div>}
 
-                        <div className="form">
-                            <div className="form-row">
-                                <div className="form-field">
-                                    <label className="label-left">Nume <span className="required">*</span></label>
+                        <div className="formular">
+                            <div className="rand-formular">
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Nume <span className="obligatoriu">*</span></label>
                                     <input
                                         type="text"
                                         placeholder="Introdu numele"
-                                        value={formData.nume}
-                                        onChange={handleChange("nume")}
-                                        className={`input-left ${fieldErrors.nume ? "field-error-border" : ""}`}
+                                        value={dateFormular.nume}
+                                        onChange={gestioneazaSchimbare("nume")}
+                                        className={`input-stanga ${eroriCampuri.nume ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {fieldErrors.nume && <span className="field-error error-left">{fieldErrors.nume}</span>}
+                                    {eroriCampuri.nume && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.nume}</span>}
                                 </div>
 
-                                <div className="form-field">
-                                    <label className="label-left">Prenume <span className="required">*</span></label>
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Prenume <span className="obligatoriu">*</span></label>
                                     <input
                                         type="text"
                                         placeholder="Introdu prenumele"
-                                        value={formData.prenume}
-                                        onChange={handleChange("prenume")}
-                                        className={`input-left ${fieldErrors.prenume ? "field-error-border" : ""}`}
+                                        value={dateFormular.prenume}
+                                        onChange={gestioneazaSchimbare("prenume")}
+                                        className={`input-stanga ${eroriCampuri.prenume ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {fieldErrors.prenume && <span className="field-error error-left">{fieldErrors.prenume}</span>}
+                                    {eroriCampuri.prenume && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.prenume}</span>}
                                 </div>
                             </div>
 
-                            <div className="form-row">
-                                <div className="form-field">
-                                    <label className="label-left">Funcție <span className="required">*</span></label>
+                            <div className="rand-formular">
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Funcție <span className="obligatoriu">*</span></label>
                                     <input
                                         type="text"
                                         placeholder="Introdu funcția"
-                                        value={formData.functie}
-                                        onChange={handleChange("functie")}
-                                        className={`input-left ${fieldErrors.functie ? "field-error-border" : ""}`}
+                                        value={dateFormular.functie}
+                                        onChange={gestioneazaSchimbare("functie")}
+                                        className={`input-stanga ${eroriCampuri.functie ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {fieldErrors.functie && <span className="field-error error-left">{fieldErrors.functie}</span>}
+                                    {eroriCampuri.functie && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.functie}</span>}
                                 </div>
 
-                                <div className="form-field">
-                                    <label className="label-left">Status <span className="required">*</span></label>
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Status <span className="obligatoriu">*</span></label>
 
                                     <Select
                                         name="status"
-                                        value={statusOptions.find(option => option.value === formData.status)}
-                                        onChange={handleStatusChange}
-                                        options={statusOptions}
+                                        value={optiuniStatus.find(optiune => optiune.value === dateFormular.status)}
+                                        onChange={gestioneazaSchimbareStatus}
+                                        options={optiuniStatus}
                                         placeholder="Selectează status"
-                                        className={`multiselect-field ${fieldErrors.status ? 'select-error' : ''}`}
+                                        className={`camp-select-multiplu ${eroriCampuri.status ? "select-eroare" : ""}`}
                                         classNamePrefix="select"
                                         isSearchable={true}
                                         isClearable={true}
-                                        styles={getCustomSelectStyles("status")}
+                                        styles={obtineStiluriSelectPersonalizat("status")}
                                     />
 
-                                    {fieldErrors.status && <span className="field-error error-left">{fieldErrors.status}</span>}
+                                    {eroriCampuri.status && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.status}</span>}
                                 </div>
                             </div>
 
-                            <div className="form-row">
-                                <div className="form-field phone-field">
-                                    <label className="label-left">Telefon <span className="required">*</span></label>
-                                    <div className="input-with-icon">
-                                        <span className="phone-icon">
+                            <div className="rand-formular">
+                                <div className="camp-formular camp-telefon">
+                                    <label className="eticheta-stanga">Telefon <span className="obligatoriu">*</span></label>
+                                    <div className="input-cu-icon">
+                                        <span className="icon-telefon">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 24 24">
                                                 <path d="M22 16.92v3a1.999 1.999 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z" />
                                             </svg>
@@ -311,95 +317,95 @@ const AddAngajati = ({ open, onClose }) => {
                                         <input
                                             type="text"
                                             placeholder="Introdu numărul de telefon"
-                                            value={formData.telefon}
-                                            onChange={handleChange("telefon")}
-                                            className={`input-left ${fieldErrors.telefon ? "field-error-border" : ""}`}
+                                            value={dateFormular.telefon}
+                                            onChange={gestioneazaSchimbare("telefon")}
+                                            className={`input-stanga ${eroriCampuri.telefon ? "chenar-eroare-camp" : ""}`}
                                             required
                                         />
                                     </div>
-                                    {fieldErrors.telefon && <span className="field-error error-left">{fieldErrors.telefon}</span>}
+                                    {eroriCampuri.telefon && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.telefon}</span>}
                                 </div>
 
-                                <div className="form-field">
-                                    <label className="label-left">Email</label>
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">Email</label>
                                     <input
                                         type="email"
                                         placeholder="Introdu email (opțional)"
-                                        value={formData.email || ""}
-                                        onChange={handleChange("email")}
-                                        className={`input-left ${fieldErrors.email ? "field-error-border" : ""}`}
+                                        value={dateFormular.email || ""}
+                                        onChange={gestioneazaSchimbare("email")}
+                                        className={`input-stanga ${eroriCampuri.email ? "chenar-eroare-camp" : ""}`}
                                     />
-                                    {fieldErrors.email && <span className="field-error error-left">{fieldErrors.email}</span>}
+                                    {eroriCampuri.email && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.email}</span>}
                                 </div>
                             </div>
 
-                            <div className="form-field">
-                                <label className="label-left">Locație</label>
+                            <div className="camp-formular">
+                                <label className="eticheta-stanga">Locație</label>
                                 <input
                                     type="text"
                                     placeholder="Introdu locația (opțional)"
-                                    value={formData.locatie || ""}
-                                    onChange={handleChange("locatie")}
-                                    className="input-left"
+                                    value={dateFormular.locatie || ""}
+                                    onChange={gestioneazaSchimbare("locatie")}
+                                    className="input-stanga"
                                 />
                             </div>
 
-                            <div className="form-row">
-                                <div className="form-field">
-                                    <label className="label-left">
-                                        Ora începere <span className="required">*</span>
+                            <div className="rand-formular">
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">
+                                        Ora începere <span className="obligatoriu">*</span>
                                     </label>
                                     <input
                                         type="time"
-                                        value={formData.ora_incepere}
-                                        onChange={handleChange("ora_incepere")}
-                                        className={`input-left ${fieldErrors.ora_incepere ? "field-error-border" : ""}`}
+                                        value={dateFormular.ora_incepere}
+                                        onChange={gestioneazaSchimbare("ora_incepere")}
+                                        className={`input-stanga ${eroriCampuri.ora_incepere ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {fieldErrors.ora_incepere && (
-                                        <span className="field-error error-left">{fieldErrors.ora_incepere}</span>
+                                    {eroriCampuri.ora_incepere && (
+                                        <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_incepere}</span>
                                     )}
                                 </div>
 
-                                <div className="form-field">
-                                    <label className="label-left">
-                                        Ora sfârșit <span className="required">*</span>
+                                <div className="camp-formular">
+                                    <label className="eticheta-stanga">
+                                        Ora sfârșit <span className="obligatoriu">*</span>
                                     </label>
                                     <input
                                         type="time"
-                                        value={formData.ora_sfarsit}
-                                        onChange={handleChange("ora_sfarsit")}
-                                        className={`input-left ${fieldErrors.ora_sfarsit ? "field-error-border" : ""}`}
+                                        value={dateFormular.ora_sfarsit}
+                                        onChange={gestioneazaSchimbare("ora_sfarsit")}
+                                        className={`input-stanga ${eroriCampuri.ora_sfarsit ? "chenar-eroare-camp" : ""}`}
                                         required
                                     />
-                                    {fieldErrors.ora_sfarsit && (
-                                        <span className="field-error error-left">{fieldErrors.ora_sfarsit}</span>
+                                    {eroriCampuri.ora_sfarsit && (
+                                        <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_sfarsit}</span>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="form-field">
-                                <label className="label-left">Pauză (minute)</label>
+                            <div className="camp-formular">
+                                <label className="eticheta-stanga">Pauză (minute)</label>
                                 <input
                                     type="number"
                                     placeholder="30"
-                                    value={formData.ora_pauza}
-                                    onChange={handleChange("ora_pauza")}
-                                    className="input-left"
+                                    value={dateFormular.ora_pauza}
+                                    onChange={gestioneazaSchimbare("ora_pauza")}
+                                    className="input-stanga"
                                     min="0"
                                     max="120"
                                 />
                             </div>
 
-                            <div className="form-buttons">
-                                <button className="cancel-btn" onClick={handleCancel}>Anulează</button>
+                            <div className="butoane-formular">
+                                <button className="buton-anulare" onClick={gestioneazaAnulare}>Anulează</button>
 
                                 <button
-                                    className={`submit-btn ${loading ? "disabled" : ""}`}
-                                    onClick={!loading ? handleSubmit : undefined}
-                                    disabled={loading}
+                                    className={`buton-salvare ${seIncarca ? "dezactivat" : ""}`}
+                                    onClick={!seIncarca ? gestioneazaSalvare : undefined}
+                                    disabled={seIncarca}
                                 >
-                                    {loading ? "Se salvează..." : "Salvează"}
+                                    {seIncarca ? "Se salvează..." : "Salvează"}
                                 </button>
                             </div>
                         </div>
