@@ -154,18 +154,11 @@ class ConcediuView(APIView):
         data = {}
 
         for key in request.data.keys():
-            values = request.data.getlist(key) if hasattr(request.data, "getlist") else [request.data.get(key)]
+            if key in ["attach", "attachments", "keep_attachments"]:
+                continue
 
-            if key == "attach":
-                if len(values) == 1 and isinstance(values[0], str):
-                    try:
-                        data[key] = json.loads(values[0])
-                    except json.JSONDecodeError:
-                        data[key] = values
-                else:
-                    data[key] = values
-            else:
-                data[key] = values[0] if values else None
+            values = request.data.getlist(key) if hasattr(request.data, "getlist") else [request.data.get(key)]
+            data[key] = values[0] if values else None
 
         return data
 
@@ -199,7 +192,7 @@ class ConcediuView(APIView):
         if serializer.is_valid():
             concediu = serializer.save()
 
-            files = request.FILES.getlist("attachments")
+            files = request.FILES.getlist("attach")
             self._attach_files(concediu, files)
 
             out_serializer = ConcediuSerializer(concediu)
@@ -224,7 +217,7 @@ class ConcediuView(APIView):
                 qs = concediu.attach.exclude(id__in=keep_ids)
                 concediu.attach.remove(*qs)
 
-            files = request.FILES.getlist("attachments")
+            files = request.FILES.getlist("attach")
             self._attach_files(concediu, files)
 
             out_serializer = ConcediuSerializer(concediu)

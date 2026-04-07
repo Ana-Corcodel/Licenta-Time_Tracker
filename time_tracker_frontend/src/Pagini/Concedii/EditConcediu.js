@@ -5,6 +5,12 @@ import { registerLocale } from "react-datepicker";
 import { ro } from "date-fns/locale";
 import "react-datepicker/dist/react-datepicker.css";
 import Select from "react-select";
+import { useDropzone } from "react-dropzone";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import DescriptionIcon from "@mui/icons-material/Description";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
 import "./AddConcediu.css";
 
 registerLocale("ro", ro);
@@ -28,15 +34,27 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     durata: 1,
     an_concediu: new Date().getFullYear(),
     tip_concediu: null,
-    attach: [],
   });
 
   const [attachExistente, seteazaAttachExistente] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [dropzoneKey, setDropzoneKey] = useState(Date.now());
+  const [errorNotification, setErrorNotification] = useState("");
+
   const [seIncarca, seteazaSeIncarca] = useState(false);
   const [mesajEroare, seteazaMesajEroare] = useState("");
   const [mesajSucces, seteazaMesajSucces] = useState("");
   const [afiseazaToast, seteazaAfiseazaToast] = useState(false);
   const [eroriCampuri, seteazaEroriCampuri] = useState({});
+
+  const RAW_API_BASE =
+    process.env.REACT_APP_API_URL ||
+    axiosInstance.defaults.baseURL ||
+    window.location.origin;
+
+  const API_BASE_URL = String(RAW_API_BASE)
+    .replace(/\/api\/?$/, "")
+    .replace(/\/+$/, "");
 
   const obtineDateInitialeFormular = useCallback(() => {
     const azi = new Date();
@@ -48,8 +66,12 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       durata: 1,
       an_concediu: azi.getFullYear(),
       tip_concediu: null,
-      attach: [],
     };
+  }, []);
+
+  const showError = useCallback((message, timeout = 5000) => {
+    setErrorNotification(message);
+    setTimeout(() => setErrorNotification(""), timeout);
   }, []);
 
   const calculeazaDurata = useCallback((dataStart, dataSfarsit) => {
@@ -122,12 +144,35 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     }
   }, [open, incarcaOptiuni]);
 
+  const normalizeazaAttachment = useCallback((fisier, index) => {
+    if (!fisier) return null;
+
+    const rawFile = fisier.file || fisier.url || fisier.file_url || "";
+    const filename =
+      fisier.filename ||
+      (typeof rawFile === "string" ? rawFile.split("/").pop() : null) ||
+      `Fisier ${index + 1}`;
+
+    return {
+      id: fisier.id || null,
+      filename,
+      file: fisier.file || null,
+      url: fisier.url || null,
+      file_url: fisier.file_url || null,
+      file_size: fisier.file_size || fisier.size || 0,
+      uploaded_at: fisier.uploaded_at || null,
+    };
+  }, []);
+
   const initializeazaFormular = useCallback(async () => {
     if (!concediuData) return;
 
     seteazaMesajEroare("");
     seteazaMesajSucces("");
     seteazaEroriCampuri({});
+    setErrorNotification("");
+    setFiles([]);
+    setDropzoneKey(Date.now());
 
     try {
       let angajatiCurenti = listaAngajati;
@@ -155,58 +200,46 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       const tipConcediuSelectat =
         tipuriCurente.find((tip) => tip.value === idTipConcediu) || null;
 
-      const dataStart = concediuData.data_start ? new Date(concediuData.data_start) : new Date();
-      const dataSfarsit = concediuData.data_sfarsit ? new Date(concediuData.data_sfarsit) : new Date();
+      const dataStart = concediuData.data_start
+        ? new Date(concediuData.data_start)
+        : new Date();
+
+      const dataSfarsit = concediuData.data_sfarsit
+        ? new Date(concediuData.data_sfarsit)
+        : new Date();
 
       seteazaDateFormular({
         angajat: angajatSelectat,
         data_start: dataStart,
         data_sfarsit: dataSfarsit,
-        durata: Number(concediuData.durata) || calculeazaDurata(dataStart, dataSfarsit),
-        an_concediu:
-          Number(concediuData.an_concediu) || dataStart.getFullYear(),
+        durata: Number(concediuData.durata) || calculeazaDurata(dataStart, dataSfarsit) || 1,
+        an_concediu: Number(concediuData.an_concediu) || dataStart.getFullYear(),
         tip_concediu: tipConcediuSelectat,
-        attach: [],
       });
 
-      seteazaAttachExistente(extrageListaAttach(concediuData.attach));
+      const listaAttach = extrageListaAttach(concediuData.attach_files)
+        .map((fisier, index) => normalizeazaAttachment(fisier, index))
+        .filter(Boolean);
+
+      seteazaAttachExistente(listaAttach);
     } catch (eroare) {
       console.error("Eroare la inițializarea formularului:", eroare);
       seteazaMesajEroare("Nu s-au putut încărca datele pentru editare");
     }
-  }, [concediuData, listaAngajati, listaTipuriConcediu, incarcaOptiuni, calculeazaDurata]);
+  }, [
+    concediuData,
+    listaAngajati,
+    listaTipuriConcediu,
+    incarcaOptiuni,
+    calculeazaDurata,
+    normalizeazaAttachment,
+  ]);
 
   useEffect(() => {
     if (open && concediuData) {
       initializeazaFormular();
     }
   }, [open, concediuData, initializeazaFormular]);
-
-  useEffect(() => {
-    const durataCalculata = calculeazaDurata(
-      dateFormular.data_start,
-      dateFormular.data_sfarsit
-    );
-
-    const anCalculat = dateFormular.data_start
-      ? new Date(dateFormular.data_start).getFullYear()
-      : new Date().getFullYear();
-
-    seteazaDateFormular((anterior) => {
-      if (
-        anterior.durata === durataCalculata &&
-        anterior.an_concediu === anCalculat
-      ) {
-        return anterior;
-      }
-
-      return {
-        ...anterior,
-        durata: durataCalculata,
-        an_concediu: anCalculat,
-      };
-    });
-  }, [dateFormular.data_start, dateFormular.data_sfarsit, calculeazaDurata]);
 
   const gestioneazaSchimbareAngajat = useCallback((optiuneSelectata) => {
     seteazaDateFormular((anterior) => ({
@@ -239,10 +272,16 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
           ? dataSelectata
           : anterior.data_sfarsit;
 
+      const durataCalculata = calculeazaDurata(dataSelectata, dataSfarsitNoua);
+
       return {
         ...anterior,
         data_start: dataSelectata,
         data_sfarsit: dataSfarsitNoua,
+        durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
+        an_concediu: dataSelectata
+          ? new Date(dataSelectata).getFullYear()
+          : anterior.an_concediu,
       };
     });
 
@@ -251,33 +290,321 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       data_start: "",
       data_sfarsit: "",
     }));
-  }, []);
+  }, [calculeazaDurata]);
 
   const gestioneazaSchimbareDataSfarsit = useCallback((dataSelectata) => {
-    seteazaDateFormular((anterior) => ({
-      ...anterior,
-      data_sfarsit: dataSelectata,
-    }));
+    seteazaDateFormular((anterior) => {
+      const durataCalculata = calculeazaDurata(anterior.data_start, dataSelectata);
+
+      return {
+        ...anterior,
+        data_sfarsit: dataSelectata,
+        durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
+      };
+    });
 
     seteazaEroriCampuri((anterior) => ({
       ...anterior,
       data_sfarsit: "",
     }));
-  }, []);
+  }, [calculeazaDurata]);
 
-  const gestioneazaSchimbareAttach = useCallback((e) => {
-    const fisiere = Array.from(e.target.files || []);
+  const gestioneazaSchimbareDurata = useCallback((e) => {
+    const valoare = e.target.value;
 
-    seteazaDateFormular((anterior) => ({
-      ...anterior,
-      attach: fisiere,
-    }));
+    if (valoare === "") {
+      seteazaDateFormular((anterior) => ({
+        ...anterior,
+        durata: "",
+      }));
+    } else {
+      const numar = parseInt(valoare, 10);
+
+      seteazaDateFormular((anterior) => ({
+        ...anterior,
+        durata: Number.isNaN(numar) ? "" : numar,
+      }));
+    }
 
     seteazaEroriCampuri((anterior) => ({
       ...anterior,
-      attach: "",
+      durata: "",
     }));
   }, []);
+
+  const gestioneazaSchimbareAnConcediu = useCallback((e) => {
+    const valoare = e.target.value;
+
+    if (valoare === "") {
+      seteazaDateFormular((anterior) => ({
+        ...anterior,
+        an_concediu: "",
+      }));
+    } else {
+      const numar = parseInt(valoare, 10);
+
+      seteazaDateFormular((anterior) => ({
+        ...anterior,
+        an_concediu: Number.isNaN(numar) ? "" : numar,
+      }));
+    }
+
+    seteazaEroriCampuri((anterior) => ({
+      ...anterior,
+      an_concediu: "",
+    }));
+  }, []);
+
+  const getFileUrl = (file) => {
+    if (!file) return null;
+
+    if (file.file_url) return file.file_url;
+    if (file.url) return file.url;
+
+    if (file.file) {
+      const rawPath = String(file.file);
+
+      if (
+        rawPath.startsWith("http://") ||
+        rawPath.startsWith("https://") ||
+        rawPath.startsWith("blob:")
+      ) {
+        return rawPath;
+      }
+
+      const normalizedPath = rawPath.startsWith("/")
+        ? rawPath
+        : `/media/${rawPath.replace(/^media\//, "")}`;
+
+      return `${API_BASE_URL}${normalizedPath}`;
+    }
+
+    return null;
+  };
+
+  const getExistingFileName = (file) => {
+    if (file?.filename) return file.filename;
+
+    if (typeof file?.file === "string") {
+      const parts = file.file.split("/");
+      return parts[parts.length - 1];
+    }
+
+    return "download";
+  };
+
+  const isPdfExistingFile = (file) => {
+    const filename = getExistingFileName(file).toLowerCase();
+    return filename.endsWith(".pdf");
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      "application/pdf": [],
+      "application/msword": [],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [],
+      "image/jpeg": [],
+      "image/png": [],
+      "application/vnd.ms-excel": [],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
+      "text/plain": [],
+    },
+    multiple: true,
+    maxSize: 1024 * 1024 * 100,
+    onDrop: (acceptedFiles, rejectedFiles) => {
+      if (rejectedFiles.length > 0) {
+        const tooLarge = rejectedFiles.filter(
+          (f) => f.errors[0]?.code === "file-too-large"
+        );
+        if (tooLarge.length > 0) {
+          showError(`Fișierul ${tooLarge[0].file.name} depășește 100MB`, 3000);
+        }
+      }
+
+      if (acceptedFiles.length > 0) {
+        setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
+        seteazaEroriCampuri((anterior) => ({
+          ...anterior,
+          attach: "",
+        }));
+      }
+    },
+  });
+
+  const handleRemoveFile = (indexToRemove, isExisting = false) => {
+    if (isExisting) {
+      seteazaAttachExistente((prev) =>
+        prev.filter((_, index) => index !== indexToRemove)
+      );
+    } else {
+      setFiles((prevFiles) => {
+        const updatedFiles = prevFiles.filter((_, index) => index !== indexToRemove);
+        if (updatedFiles.length === 0) {
+          setDropzoneKey(Date.now());
+        }
+        return updatedFiles;
+      });
+    }
+  };
+
+  const handleFileClick = async (file, isExisting = false) => {
+    if (isExisting) {
+      const fileUrl = getFileUrl(file);
+
+      if (!fileUrl) {
+        showError("Fișierul nu are URL disponibil");
+        return;
+      }
+
+      try {
+        const response = await fetch(fileUrl);
+        if (!response.ok) {
+          throw new Error("Failed to fetch file");
+        }
+
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const filename = getExistingFileName(file);
+
+        if (isPdfExistingFile(file)) {
+          const newWindow = window.open();
+          if (!newWindow) {
+            showError("Popup blocat. Permite popup pentru preview PDF.");
+            URL.revokeObjectURL(objectUrl);
+            return;
+          }
+
+          newWindow.document.write(`
+            <html>
+              <head>
+                <title>${filename}</title>
+                <style>
+                  body { margin: 0; height: 100vh; }
+                  embed { width: 100%; height: 100%; }
+                </style>
+              </head>
+              <body>
+                <embed src="${objectUrl}" type="application/pdf" />
+              </body>
+            </html>
+          `);
+          newWindow.document.close();
+
+          setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+        } else {
+          const a = document.createElement("a");
+          a.href = objectUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+          setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+        }
+      } catch (error) {
+        console.error("Error opening existing file:", error);
+        showError("Fișierul selectat nu a putut fi deschis/descarcat.");
+      }
+
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+
+    if (file.type === "application/pdf") {
+      const newWindow = window.open();
+      if (!newWindow) {
+        showError("Popup blocat. Permite popup pentru preview PDF.");
+        URL.revokeObjectURL(url);
+        return;
+      }
+
+      newWindow.document.write(`
+        <html>
+          <head>
+            <title>${file.name}</title>
+            <style>
+              body { margin: 0; height: 100vh; }
+              embed { width: 100%; height: 100%; }
+            </style>
+          </head>
+          <body>
+            <embed src="${url}" type="application/pdf" />
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } else {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  };
+
+  const getFileIcon = (file, isExisting = false) => {
+    if (isExisting) {
+      const filename = file.filename || file.file?.name || file.file || "";
+      const extension = filename.split(".").pop()?.toLowerCase() || "";
+
+      if (extension === "pdf") {
+        return <PictureAsPdfIcon style={{ fontSize: 24, color: "#d32f2f" }} />;
+      } else if (["doc", "docx"].includes(extension)) {
+        return <DescriptionIcon style={{ fontSize: 24, color: "#1976d2" }} />;
+      } else if (["xls", "xlsx"].includes(extension)) {
+        return <DescriptionIcon style={{ fontSize: 24, color: "#2e7d32" }} />;
+      } else if (["jpg", "jpeg", "png", "gif", "webp"].includes(extension)) {
+        return <InsertDriveFileIcon style={{ fontSize: 24, color: "#9c27b0" }} />;
+      } else {
+        return <InsertDriveFileIcon style={{ fontSize: 24, color: "#757575" }} />;
+      }
+    }
+
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      return <PictureAsPdfIcon style={{ fontSize: 24, color: "#d32f2f" }} />;
+    } else if (
+      fileType === "application/msword" ||
+      fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      return <DescriptionIcon style={{ fontSize: 24, color: "#1976d2" }} />;
+    } else if (
+      fileType === "application/vnd.ms-excel" ||
+      fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      return <DescriptionIcon style={{ fontSize: 24, color: "#2e7d32" }} />;
+    } else if (fileType.startsWith("image/")) {
+      return <InsertDriveFileIcon style={{ fontSize: 24, color: "#9c27b0" }} />;
+    } else {
+      return <InsertDriveFileIcon style={{ fontSize: 24, color: "#757575" }} />;
+    }
+  };
+
+  const validateFiles = () => {
+    if (files.length === 0) return true;
+
+    const MAX_FILE_SIZE = 100 * 1024 * 1024;
+    const oversizedFiles = files.filter((file) => file.size > MAX_FILE_SIZE);
+
+    if (oversizedFiles.length > 0) {
+      showError(
+        `Următoarele fișiere depășesc limita de 100MB:\n${oversizedFiles
+          .map((f) => f.name)
+          .join("\n")}`,
+        5000
+      );
+      return false;
+    }
+
+    return true;
+  };
 
   const valideazaFormular = useCallback(() => {
     const erori = {};
@@ -287,16 +614,24 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     if (!dateFormular.data_sfarsit) erori.data_sfarsit = "Data de sfârșit este obligatorie";
     if (!dateFormular.tip_concediu) erori.tip_concediu = "Tipul concediului este obligatoriu";
 
+    if (dateFormular.durata === "" || Number(dateFormular.durata) <= 0) {
+      erori.durata = "Durata concediului trebuie să fie de cel puțin 1 zi";
+    }
+
+    if (
+      dateFormular.an_concediu === "" ||
+      Number.isNaN(Number(dateFormular.an_concediu)) ||
+      String(dateFormular.an_concediu).length !== 4
+    ) {
+      erori.an_concediu = "Anul concediului trebuie să fie valid";
+    }
+
     if (
       dateFormular.data_start &&
       dateFormular.data_sfarsit &&
       new Date(dateFormular.data_sfarsit) < new Date(dateFormular.data_start)
     ) {
       erori.data_sfarsit = "Data de sfârșit nu poate fi mai mică decât data de început";
-    }
-
-    if (dateFormular.durata <= 0) {
-      erori.data_sfarsit = "Durata concediului trebuie să fie de cel puțin 1 zi";
     }
 
     seteazaEroriCampuri(erori);
@@ -306,9 +641,12 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
   const gestioneazaAnulare = useCallback(() => {
     seteazaDateFormular(obtineDateInitialeFormular());
     seteazaAttachExistente([]);
+    setFiles([]);
+    setDropzoneKey(Date.now());
     seteazaMesajEroare("");
     seteazaMesajSucces("");
     seteazaEroriCampuri({});
+    setErrorNotification("");
     onClose(false);
   }, [obtineDateInitialeFormular, onClose]);
 
@@ -316,6 +654,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     seteazaMesajEroare("");
     seteazaMesajSucces("");
     seteazaEroriCampuri({});
+
+    if (!validateFiles()) return;
 
     const esteValid = valideazaFormular();
     if (!esteValid) return;
@@ -332,9 +672,19 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       formData.append("an_concediu", String(dateFormular.an_concediu));
       formData.append("tip_concediu", dateFormular.tip_concediu.value);
 
-      dateFormular.attach.forEach((fisier) => {
-        formData.append("attach", fisier);
-      });
+      if (attachExistente.length > 0) {
+        attachExistente.forEach((attachment) => {
+          if (attachment.id) {
+            formData.append("keep_attach", attachment.id);
+          }
+        });
+      }
+
+      if (files.length > 0) {
+        files.forEach((fisier) => {
+          formData.append("attach", fisier);
+        });
+      }
 
       const raspuns = await axiosInstance.put(
         `/api/concedii/${concediuData.id}/`,
@@ -358,7 +708,13 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
 
       if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
       else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
-      else if (eroare.response?.data) {
+      else if (
+        eroare.response?.data?.attach ||
+        (typeof eroare.response?.data === "object" &&
+          JSON.stringify(eroare.response.data).toLowerCase().includes("file"))
+      ) {
+        mesaj = "Eroare la încărcarea fișierelor. Verifică tipul și dimensiunea acestora.";
+      } else if (eroare.response?.data) {
         const eroriValidare = eroare.response.data;
         if (typeof eroriValidare === "object") {
           const primaCheie = Object.keys(eroriValidare)[0];
@@ -373,7 +729,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     } finally {
       seteazaSeIncarca(false);
     }
-  }, [dateFormular, valideazaFormular, concediuData, onClose]);
+  }, [dateFormular, validateFiles, valideazaFormular, attachExistente, files, concediuData, onClose]);
 
   const obtineStiluriPersonalizateSelect = (numeCamp) => ({
     control: (baza, stare) => ({
@@ -465,7 +821,13 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
 
   return (
     <>
-      {afiseazaToast && <div className="toast-global">✅ Concediu actualizat cu succes!</div>}
+      {errorNotification && (
+        <div className="error-notification">{errorNotification}</div>
+      )}
+
+      {afiseazaToast && (
+        <div className="toast-global">✅ Concediu actualizat cu succes!</div>
+      )}
 
       <div className="pagina-adauga-concediu">
         <div className="continut-pagina-adauga-concediu">
@@ -473,7 +835,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
             <div className="fereastra-modal">
               <div className="antet-modal">
                 <h2>Editează Concediu</h2>
-                <button className="buton-inchidere" onClick={gestioneazaAnulare}>×</button>
+                <button className="buton-inchidere" onClick={gestioneazaAnulare}>
+                  ×
+                </button>
               </div>
 
               <hr className="separator-antet" />
@@ -481,7 +845,11 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
               {(seIncarca || seIncarcaOptiunile) && (
                 <div className="overlay-incarcare">
                   <div className="loader"></div>
-                  <span>{seIncarcaOptiunile ? "Se încarcă opțiunile..." : "Se actualizează concediul..."}</span>
+                  <span>
+                    {seIncarcaOptiunile
+                      ? "Se încarcă opțiunile..."
+                      : "Se actualizează concediul..."}
+                  </span>
                 </div>
               )}
 
@@ -505,12 +873,14 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                         placeholder="Selectează angajat"
                         className={`camp-multiselect ${eroriCampuri.angajat ? "select-cu-eroare" : ""}`}
                         classNamePrefix="select"
-                        isSearchable={true}
-                        isClearable={true}
+                        isSearchable
+                        isClearable
                         styles={obtineStiluriPersonalizateSelect("angajat")}
                       />
                       {eroriCampuri.angajat && (
-                        <span className="eroare-camp eroare-stanga">{eroriCampuri.angajat}</span>
+                        <span className="eroare-camp eroare-stanga">
+                          {eroriCampuri.angajat}
+                        </span>
                       )}
                     </>
                   )}
@@ -531,7 +901,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       wrapperClassName="wrapper-datepicker"
                     />
                     {eroriCampuri.data_start && (
-                      <span className="eroare-camp eroare-stanga">{eroriCampuri.data_start}</span>
+                      <span className="eroare-camp eroare-stanga">
+                        {eroriCampuri.data_start}
+                      </span>
                     )}
                   </div>
 
@@ -550,32 +922,49 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       wrapperClassName="wrapper-datepicker"
                     />
                     {eroriCampuri.data_sfarsit && (
-                      <span className="eroare-camp eroare-stanga">{eroriCampuri.data_sfarsit}</span>
+                      <span className="eroare-camp eroare-stanga">
+                        {eroriCampuri.data_sfarsit}
+                      </span>
                     )}
                   </div>
                 </div>
 
                 <div className="rand-formular">
                   <div className="camp-formular">
-                    <label className="eticheta-stanga">Durată (zile)</label>
+                    <label className="eticheta-stanga">
+                      Durată (zile) <span className="obligatoriu">*</span>
+                    </label>
                     <input
-                      type="text"
+                      type="number"
                       value={dateFormular.durata}
-                      readOnly
-                      disabled
-                      className="input-stanga camp-readonly"
+                      onChange={gestioneazaSchimbareDurata}
+                      className={`input-stanga ${eroriCampuri.durata ? "chenar-eroare-camp" : ""}`}
+                      min="1"
                     />
+                    {eroriCampuri.durata && (
+                      <span className="eroare-camp eroare-stanga">
+                        {eroriCampuri.durata}
+                      </span>
+                    )}
                   </div>
 
                   <div className="camp-formular">
-                    <label className="eticheta-stanga">An concediu</label>
+                    <label className="eticheta-stanga">
+                      An concediu <span className="obligatoriu">*</span>
+                    </label>
                     <input
-                      type="text"
+                      type="number"
                       value={dateFormular.an_concediu}
-                      readOnly
-                      disabled
-                      className="input-stanga camp-readonly"
+                      onChange={gestioneazaSchimbareAnConcediu}
+                      className={`input-stanga ${eroriCampuri.an_concediu ? "chenar-eroare-camp" : ""}`}
+                      min="2000"
+                      max="2100"
                     />
+                    {eroriCampuri.an_concediu && (
+                      <span className="eroare-camp eroare-stanga">
+                        {eroriCampuri.an_concediu}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -595,55 +984,133 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                         placeholder="Selectează tipul concediului"
                         className={`camp-multiselect ${eroriCampuri.tip_concediu ? "select-cu-eroare" : ""}`}
                         classNamePrefix="select"
-                        isSearchable={true}
-                        isClearable={true}
+                        isSearchable
+                        isClearable
                         styles={obtineStiluriPersonalizateSelect("tip_concediu")}
                       />
                       {eroriCampuri.tip_concediu && (
-                        <span className="eroare-camp eroare-stanga">{eroriCampuri.tip_concediu}</span>
+                        <span className="eroare-camp eroare-stanga">
+                          {eroriCampuri.tip_concediu}
+                        </span>
                       )}
                     </>
                   )}
                 </div>
 
                 <div className="camp-formular">
-                  <label className="eticheta-stanga">Atașamente existente</label>
-                  {attachExistente.length > 0 ? (
-                    <div className="lista-fisiere">
-                      {attachExistente.map((fisier, index) => (
-                        <div key={fisier.id || index} className="fisier-atasat">
-                          {fisier.filename || fisier.file || `Fișier ${index + 1}`}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <input
-                      type="text"
-                      value="Nu există atașamente"
-                      readOnly
-                      disabled
-                      className="input-stanga camp-readonly"
-                    />
-                  )}
-                </div>
+                  <label className="eticheta-stanga">Atașamente</label>
 
-                <div className="camp-formular">
-                  <label className="eticheta-stanga">Adaugă atașamente noi</label>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={gestioneazaSchimbareAttach}
-                    className="input-stanga"
-                  />
-                  {dateFormular.attach.length > 0 && (
-                    <div className="lista-fisiere">
-                      {dateFormular.attach.map((fisier, index) => (
-                        <div key={`${fisier.name}-${index}`} className="fisier-atasat">
-                          {fisier.name}
-                        </div>
-                      ))}
+                  {attachExistente.length > 0 && (
+                    <div className="existing-files-section">
+                      <h4>Fișiere existente ({attachExistente.length})</h4>
+                      <div className="files-list">
+                        {attachExistente.map((attachment, index) => {
+                          const fileUrl = getFileUrl(attachment);
+
+                          return (
+                            <div
+                              key={attachment.id || index}
+                              className="file-preview-item existing"
+                            >
+                              <div className="file-info">
+                                {getFileIcon(attachment, true)}
+                                <span
+                                  className="file-name clickable"
+                                  title={
+                                    !fileUrl
+                                      ? "Fișierul nu are URL disponibil"
+                                      : isPdfExistingFile(attachment)
+                                      ? "Click pentru preview PDF"
+                                      : "Click pentru download fișier"
+                                  }
+                                  onClick={() => handleFileClick(attachment, true)}
+                                  style={!fileUrl ? { color: "#999", cursor: "not-allowed" } : {}}
+                                >
+                                  {attachment.filename?.length > 40
+                                    ? `${attachment.filename.substring(0, 40)}...`
+                                    : attachment.filename || "Fișier necunoscut"}
+                                </span>
+                                <span className="file-size">
+                                  {attachment.file_size
+                                    ? `${(attachment.file_size / 1024).toFixed(1)} KB`
+                                    : ""}
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                className="remove-file-button"
+                                onClick={() => handleRemoveFile(index, true)}
+                                title="Șterge fișierul la salvare"
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
+
+                  <div key={dropzoneKey} className="dropzone-wrapper">
+                    <div {...getRootProps({ className: "dropzone" })}>
+                      <input {...getInputProps()} />
+                      <div className="dropzone-content">
+                        {isDragActive ? (
+                          <p>Lasă fișierele aici...</p>
+                        ) : (
+                          <p>Trage fișierele aici sau apasă pentru selectare</p>
+                        )}
+                        <CloudUploadIcon style={{ fontSize: 40, color: "#888" }} />
+                      </div>
+                    </div>
+
+                    {files.length > 0 && (
+                      <div className="new-files-section">
+                        <h4>Fișiere noi de încărcat ({files.length})</h4>
+                        <div className="files-list">
+                          {files.map((file, index) => (
+                            <div key={index} className="file-preview-item">
+                              <div className="file-info">
+                                {getFileIcon(file)}
+                                <span
+                                  className="file-name clickable"
+                                  title={
+                                    file.type === "application/pdf"
+                                      ? "Click pentru preview PDF"
+                                      : "Click pentru download fișier"
+                                  }
+                                  onClick={() => handleFileClick(file)}
+                                >
+                                  {file.name.length > 40
+                                    ? `${file.name.substring(0, 40)}...`
+                                    : file.name}
+                                </span>
+                                <span className="file-size">
+                                  {(file.size / 1024).toFixed(1)} KB
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                className="remove-file-button"
+                                onClick={() => handleRemoveFile(index)}
+                                title="Șterge fișier"
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="file-hint">
+                    * Tipuri acceptate: PDF, Word, Excel, Imagini, Text. Sunt permise
+                    mai multe fișiere (maxim 100MB per fișier). Apasă pe numele
+                    fișierului pentru preview PDF sau download pentru celelalte.
+                  </p>
                 </div>
 
                 <div className="butoane-formular">

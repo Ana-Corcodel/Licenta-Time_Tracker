@@ -112,12 +112,11 @@ const Concedii = () => {
       const concediiMapate = date.map((concediu, index) => ({
         id: concediu.id ?? index,
         ...concediu,
-        angajat_display: extrageNumeAngajat(concediu.angajat),
+        angajat_display: concediu.angajat_label,
         data_start_display: formateazaData(concediu.data_start),
         data_sfarsit_display: formateazaData(concediu.data_sfarsit),
-        tip_concediu_display: extrageTipConcediu(concediu.tip_concediu),
-        attach_count: extrageListaAttach(concediu.attach).length,
-      }));
+        tip_concediu_display: concediu.tip_concediu_label,
+        attach_count: extrageListaAttach(concediu.attach_files).length,      }));
 
       setConcedii(concediiMapate);
     } catch (eroare) {

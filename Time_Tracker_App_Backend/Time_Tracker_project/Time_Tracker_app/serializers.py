@@ -38,8 +38,20 @@ class ConcediuAttachSerializer(serializers.ModelSerializer):
 
 
 class ConcediuSerializer(serializers.ModelSerializer):
+    angajat_label = serializers.SerializerMethodField()
+    tip_concediu_label = serializers.SerializerMethodField()
     attach_files = ConcediuAttachSerializer(source="attach", many=True, read_only=True)
 
     class Meta:
         model = Concediu
-        fields = "__all__"
+        fields = "__all__"  # lasă așa dacă vrei
+
+    def get_angajat_label(self, obj):
+        if obj.angajat:
+            return f"{obj.angajat.nume} {obj.angajat.prenume}"
+        return ""
+
+    def get_tip_concediu_label(self, obj):
+        if obj.tip_concediu:
+            return obj.tip_concediu.tip_zi or obj.tip_concediu.denumire or ""
+        return ""
