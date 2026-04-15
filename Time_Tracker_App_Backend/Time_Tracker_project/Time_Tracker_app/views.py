@@ -16,6 +16,20 @@ import json
 from datetime import date, datetime
 from rest_framework import parsers
 
+LUNI_RO = {
+    1: "Ianuarie",
+    2: "Februarie",
+    3: "Martie",
+    4: "Aprilie",
+    5: "Mai",
+    6: "Iunie",
+    7: "Iulie",
+    8: "August",
+    9: "Septembrie",
+    10: "Octombrie",
+    11: "Noiembrie",
+    12: "Decembrie",
+}
 
 class AngajatView(APIView):
     def get(self, request, pk=None):
@@ -430,8 +444,8 @@ def scan_fingerprint(request):
     ora_acum = datetime.now().time()
 
     tip_zi, _ = TipZi.objects.get_or_create(
-        prescurtare='L',
-        defaults={'tip_zi': 'Lucrata'}
+        prescurtare='ZL',
+        defaults={'tip_zi': 'Zi lucrătoare'}
     )
 
     pontaj = Pontaj.objects.filter(
@@ -442,7 +456,7 @@ def scan_fingerprint(request):
     if pontaj is None:
         pontaj = Pontaj.objects.create(
             angajat=angajat,
-            luna=azi.strftime('%B'),
+            luna=LUNI_RO[azi.month],
             an=azi,
             ora_start=ora_acum,
             ora_sfarsit=ora_acum,

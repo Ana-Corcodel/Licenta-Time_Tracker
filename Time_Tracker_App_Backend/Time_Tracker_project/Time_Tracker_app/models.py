@@ -1,7 +1,7 @@
 from django.db import models
 import os
 from django.conf import settings
-
+from datetime import timedelta
 
 class Angajat(models.Model):
     STATUS_CHOICES = [
@@ -55,16 +55,31 @@ class TipZi(models.Model):
 
 
 class Pontaj(models.Model):
-    angajat = models.ForeignKey(Angajat,on_delete=models.CASCADE,related_name="pontaje")
+    angajat = models.ForeignKey(Angajat, on_delete=models.CASCADE, related_name="pontaje")
+    concediu = models.ForeignKey(
+        'Concediu',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="pontaje_generate"
+    )
     luna = models.CharField(max_length=20)
     an = models.DateField()
-    ora_start = models.TimeField()
-    ora_sfarsit = models.TimeField()
+    ora_start = models.TimeField(null=True, blank=True)
+    ora_sfarsit = models.TimeField(null=True, blank=True)
     pauza_masa = models.IntegerField(help_text="Durata pauzei în minute")
     tip = models.ForeignKey(TipZi, on_delete=models.CASCADE, related_name="pontaje")
     data = models.DateField()
     ore_lucrate = models.DecimalField(max_digits=10, decimal_places=6, default=0)
     ore_lucru_suplimentare = models.DecimalField(max_digits=10, decimal_places=6, default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["angajat", "data"],
+                name="unique_pontaj_per_angajat_pe_zi"
+            )
+        ]
 
     def __str__(self):
         return f"{self.angajat} - {self.data} ({self.tip.prescurtare})"
@@ -175,7 +190,46 @@ class Concediu(models.Model):
         if self.data_start:
             self.an_concediu = self.data_start.year
 
+        este_update = self.pk is not None
+
         super().save(*args, **kwargs)
+
+        if este_update:
+            self.pontaje_generate.all().delete()
+
+        current_date = self.data_start
+        while current_date <= self.data_sfarsit:
+            Pontaj.objects.create(
+                angajat=self.angajat,
+                concediu=self,
+                luna={
+                    1: "Ianuarie",
+                    2: "Februarie",
+                    3: "Martie",
+                    4: "Aprilie",
+                    5: "Mai",
+                    6: "Iunie",
+                    7: "Iulie",
+                    8: "August",
+                    9: "Septembrie",
+                    10: "Octombrie",
+                    11: "Noiembrie",
+                    12: "Decembrie",
+                }[current_date.month],
+                an=current_date,
+                ora_start=None,
+                ora_sfarsit=None,
+                pauza_masa=0,
+                tip=self.tip_concediu,
+                data=current_date,
+                ore_lucrate=0,
+                ore_lucru_suplimentare=0
+            )
+            current_date += timedelta(days=1)
+
+    def delete(self, *args, **kwargs):
+        self.pontaje_generate.all().delete()
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.angajat} - {self.tip_concediu}"

@@ -35,7 +35,7 @@ const STATUS_DUPA_ID = {
   3: 'suspendat',
 };
 
-const useDebounce   = (valoare, intarziere) => {
+const useDebounce = (valoare, intarziere) => {
   const [valoareIntarziata, setValoareIntarziata] = useState(valoare);
 
   useEffect(() => {
@@ -110,7 +110,7 @@ const AdministrareaAngajatilor = () => {
   const [idInrolareInCurs, setIdInrolareInCurs] = useState(null);
   const [idStergereInCurs, setIdStergereInCurs] = useState(null);
 
-  const cautareIntarziata = useDebounce (textCautare, TIMP_DEBOUNCE_MS);
+  const cautareIntarziata = useDebounce(textCautare, TIMP_DEBOUNCE_MS);
 
   const preiaAngajati = useCallback(async () => {
     try {
@@ -269,10 +269,12 @@ const AdministrareaAngajatilor = () => {
       );
     }
 
-    return lista.map((angajat, index) => ({
-      id: angajat.id ?? index,
-      ...angajat,
-    }));
+    return lista
+      .map((angajat, index) => ({
+        id: angajat.id ?? index,
+        ...angajat,
+      }))
+      .sort((a, b) => Number(b.id) - Number(a.id));
   }, [angajati, cautareIntarziata]);
 
   const coloane = useMemo(
@@ -388,13 +390,16 @@ const AdministrareaAngajatilor = () => {
         disableColumnMenu: true,
         renderCell: (params) => (
           <div style={{ display: 'flex', gap: 8 }}>
-            <IconButton
-              sx={{ color: '#1976d2' }}
-              onClick={() => gestioneazaEditareAngajat(params.row)}
-              title="Editează"
-            >
-              <Edit />
-            </IconButton>
+            <Tooltip title="Editează angajat">
+              <span>
+                <IconButton
+                  sx={{ color: '#1976d2' }}
+                  onClick={() => gestioneazaEditareAngajat(params.row)}
+                >
+                  <Edit />
+                </IconButton>
+              </span>
+            </Tooltip>
 
             <Tooltip
               title={

@@ -199,8 +199,8 @@ const Concedii = () => {
         console.error("Eroare la ștergerea concediului:", eroare);
         afiseazaMesajToast(
           eroare?.response?.data?.detail ||
-            eroare?.response?.data?.error ||
-            "Nu s-a putut șterge concediul"
+          eroare?.response?.data?.error ||
+          "Nu s-a putut șterge concediul"
         );
       } finally {
         setIdStergereInCurs(null);
@@ -225,7 +225,7 @@ const Concedii = () => {
       );
     }
 
-    return lista;
+    return lista.sort((a, b) => Number(b.id) - Number(a.id));
   }, [concedii, termenCautareTemporizat]);
 
   const coloane = useMemo(
@@ -313,7 +313,7 @@ const Concedii = () => {
                 </IconButton>
               </Tooltip>
 
-              <Tooltip title="Editează">
+              <Tooltip title="Editează concediu">
                 <IconButton
                   sx={{ color: "#1976d2" }}
                   onClick={() => gestioneazaEditareConcediu(parametri.row)}
@@ -322,7 +322,7 @@ const Concedii = () => {
                 </IconButton>
               </Tooltip>
 
-              <Tooltip title="Șterge">
+              <Tooltip title="Șterge concediu">
                 <span>
                   <IconButton
                     sx={{

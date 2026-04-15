@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  Box, Button, TextField, InputAdornment, IconButton
+  Box, Button, TextField, InputAdornment, IconButton, Tooltip
 } from "@mui/material";
 import { Search, Add, Edit } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
@@ -73,10 +73,12 @@ const TipZi = () => {
       );
     }
 
-    return lista.map((tip, index) => ({
-      id: tip.id ?? index,
-      ...tip,
-    }));
+    return lista
+      .map((tip, index) => ({
+        id: tip.id ?? index,
+        ...tip,
+      }))
+      .sort((a, b) => Number(b.id) - Number(a.id));
   }, [tipuriZi, cautareCuIntarziere]);
 
   const coloane = useMemo(
@@ -100,12 +102,16 @@ const TipZi = () => {
         sortable: false,
         disableColumnMenu: true,
         renderCell: (parametri) => (
-          <IconButton
-            sx={{ color: "#1976d2" }}
-            onClick={() => gestioneazaEditareaTipului(parametri.row)}
-          >
-            <Edit />
-          </IconButton>
+          <Tooltip title="Editează tip zi">
+            <span>
+              <IconButton
+                sx={{ color: "#1976d2" }}
+                onClick={() => gestioneazaEditareaTipului(parametri.row)}
+              >
+                <Edit />
+              </IconButton>
+            </span>
+          </Tooltip>
         ),
       },
     ],

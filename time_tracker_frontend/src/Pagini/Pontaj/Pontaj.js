@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  Box, Button, TextField, InputAdornment, IconButton
+  Box, Button, TextField, InputAdornment, IconButton, Tooltip
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Search, Add, Edit } from "@mui/icons-material";
@@ -132,7 +132,7 @@ const Pontaj = () => {
       );
     }
 
-    return lista;
+    return lista.sort((a, b) => Number(b.id) - Number(a.id));
   }, [listaPontaje, termenCautareTemporizat]);
 
   const coloane = useMemo(
@@ -205,12 +205,16 @@ const Pontaj = () => {
         sortable: false,
         disableColumnMenu: true,
         renderCell: (parametri) => (
-          <IconButton
-            sx={{ color: "#1976d2" }}
-            onClick={() => gestioneazaEditarePontaj(parametri.row)}
-          >
-            <Edit />
-          </IconButton>
+          <Tooltip title="Editează pontaj">
+            <span>
+              <IconButton
+                sx={{ color: "#1976d2" }}
+                onClick={() => gestioneazaEditarePontaj(parametri.row)}
+              >
+                <Edit />
+              </IconButton>
+            </span>
+          </Tooltip>
         ),
       },
     ],

@@ -25,6 +25,27 @@ class PontajSerializer(serializers.ModelSerializer):
         model = Pontaj
         fields = '__all__'
 
+    def validate(self, attrs):
+        angajat = attrs.get("angajat")
+        data = attrs.get("data")
+        instance = getattr(self, "instance", None)
+
+        qs = Pontaj.objects.filter(angajat=angajat, data=data)
+        if instance:
+            qs = qs.exclude(pk=instance.pk)
+
+        pontaj_existent = qs.first()
+        if pontaj_existent:
+            if pontaj_existent.concediu_id:
+                raise serializers.ValidationError(
+                    "Angajatul este deja în concediu în această zi și nu se poate adăuga alt pontaj."
+                )
+            raise serializers.ValidationError(
+                "Există deja un pontaj pentru acest angajat în această zi."
+            )
+
+        return attrs
+
     def get_ore_lucrate_format(self, obj):
         return obj.ore_lucrate_hms()
 
