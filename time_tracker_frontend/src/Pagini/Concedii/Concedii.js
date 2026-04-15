@@ -9,7 +9,13 @@ import {
   Tooltip,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { Search, Edit, Add, Delete } from "@mui/icons-material";
+import {
+  Search,
+  Edit,
+  Add,
+  Delete,
+  Visibility,
+} from "@mui/icons-material";
 import axiosInstance from "../../Config/axiosInstance";
 import AddConcediu from "./AddConcediu";
 import EditConcediu from "./EditConcediu";
@@ -75,6 +81,19 @@ const extrageListaAttach = (attach) => {
   return [];
 };
 
+const obtineUrlFisier = (fisier) => {
+  if (!fisier) return null;
+
+  return (
+    fisier.file ||
+    fisier.url ||
+    fisier.attachment ||
+    fisier.document ||
+    fisier.fisier ||
+    null
+  );
+};
+
 const Concedii = () => {
   const [concedii, setConcedii] = useState([]);
   const [seIncarca, setSeIncarca] = useState(true);
@@ -112,11 +131,14 @@ const Concedii = () => {
       const concediiMapate = date.map((concediu, index) => ({
         id: concediu.id ?? index,
         ...concediu,
-        angajat_display: concediu.angajat_label,
+        angajat_display:
+          concediu.angajat_label || extrageNumeAngajat(concediu.angajat),
         data_start_display: formateazaData(concediu.data_start),
         data_sfarsit_display: formateazaData(concediu.data_sfarsit),
-        tip_concediu_display: concediu.tip_concediu_label,
-        attach_count: extrageListaAttach(concediu.attach_files).length,      }));
+        tip_concediu_display:
+          concediu.tip_concediu_label || extrageTipConcediu(concediu.tip_concediu),
+        attach_count: extrageListaAttach(concediu.attach_files).length,
+      }));
 
       setConcedii(concediiMapate);
     } catch (eroare) {
@@ -135,6 +157,28 @@ const Concedii = () => {
     setConcediuSelectat(concediu);
     setEsteDeschisModalEditare(true);
   }, []);
+
+  const gestioneazaPreviewDocumente = useCallback(
+    (concediu) => {
+      const fisiere = extrageListaAttach(concediu.attach_files);
+
+      if (!fisiere.length) {
+        afiseazaMesajToast("Nu există documente încărcate pentru acest concediu");
+        return;
+      }
+
+      const primulFisier = fisiere[0];
+      const urlFisier = obtineUrlFisier(primulFisier);
+
+      if (!urlFisier) {
+        afiseazaMesajToast("Documentul nu are un URL valid pentru previzualizare");
+        return;
+      }
+
+      window.open(urlFisier, "_blank", "noopener,noreferrer");
+    },
+    [afiseazaMesajToast]
+  );
 
   const gestioneazaStergereConcediu = useCallback(
     async (concediu) => {
@@ -155,8 +199,8 @@ const Concedii = () => {
         console.error("Eroare la ștergerea concediului:", eroare);
         afiseazaMesajToast(
           eroare?.response?.data?.detail ||
-          eroare?.response?.data?.error ||
-          "Nu s-a putut șterge concediul"
+            eroare?.response?.data?.error ||
+            "Nu s-a putut șterge concediul"
         );
       } finally {
         setIdStergereInCurs(null);
@@ -171,12 +215,13 @@ const Concedii = () => {
     if (termenCautareTemporizat) {
       const termenMic = termenCautareTemporizat.toLowerCase();
 
-      lista = lista.filter((concediu) =>
-        concediu.angajat_display?.toLowerCase().includes(termenMic) ||
-        concediu.tip_concediu_display?.toLowerCase().includes(termenMic) ||
-        String(concediu.an_concediu || "").toLowerCase().includes(termenMic) ||
-        concediu.data_start_display?.toLowerCase().includes(termenMic) ||
-        concediu.data_sfarsit_display?.toLowerCase().includes(termenMic)
+      lista = lista.filter(
+        (concediu) =>
+          concediu.angajat_display?.toLowerCase().includes(termenMic) ||
+          concediu.tip_concediu_display?.toLowerCase().includes(termenMic) ||
+          String(concediu.an_concediu || "").toLowerCase().includes(termenMic) ||
+          concediu.data_start_display?.toLowerCase().includes(termenMic) ||
+          concediu.data_sfarsit_display?.toLowerCase().includes(termenMic)
       );
     }
 
@@ -249,42 +294,62 @@ const Concedii = () => {
       {
         field: "action",
         headerName: "Acțiuni",
-        width: 120,
+        width: 170,
         sortable: false,
         disableColumnMenu: true,
-        renderCell: (parametri) => (
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <Tooltip title="Editează">
-              <IconButton
-                sx={{ color: "#1976d2" }}
-                onClick={() => gestioneazaEditareConcediu(parametri.row)}
-              >
-                <Edit />
-              </IconButton>
-            </Tooltip>
+        renderCell: (parametri) => {
+          const areDocumente = (parametri.row.attach_count || 0) > 0;
 
-            <Tooltip title="Șterge">
-              <span>
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <Tooltip title="Previzualizează documente">
                 <IconButton
                   sx={{
-                    color: "#d32f2f",
-                    "&.Mui-disabled": {
-                      color: "#d32f2f",
-                      opacity: 0.6,
-                    },
+                    color: areDocumente ? "#2e7d32" : "#8e24aa",
                   }}
-                  onClick={() => gestioneazaStergereConcediu(parametri.row)}
-                  disabled={idStergereInCurs === parametri.row.id}
+                  onClick={() => gestioneazaPreviewDocumente(parametri.row)}
                 >
-                  <Delete />
+                  <Visibility />
                 </IconButton>
-              </span>
-            </Tooltip>
-          </div>
-        ),
+              </Tooltip>
+
+              <Tooltip title="Editează">
+                <IconButton
+                  sx={{ color: "#1976d2" }}
+                  onClick={() => gestioneazaEditareConcediu(parametri.row)}
+                >
+                  <Edit />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Șterge">
+                <span>
+                  <IconButton
+                    sx={{
+                      color: "#d32f2f",
+                      "&.Mui-disabled": {
+                        color: "#d32f2f",
+                        opacity: 0.6,
+                      },
+                    }}
+                    onClick={() => gestioneazaStergereConcediu(parametri.row)}
+                    disabled={idStergereInCurs === parametri.row.id}
+                  >
+                    <Delete />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </div>
+          );
+        },
       },
     ],
-    [gestioneazaEditareConcediu, gestioneazaStergereConcediu, idStergereInCurs]
+    [
+      gestioneazaEditareConcediu,
+      gestioneazaPreviewDocumente,
+      gestioneazaStergereConcediu,
+      idStergereInCurs,
+    ]
   );
 
   return (
@@ -357,41 +422,6 @@ const Concedii = () => {
           />
         </div>
       </div>
-
-      {/* Aici pui modalele tale dacă le ai */}
-      {/* 
-      <AddConcediu
-        open={esteDeschisModalAdaugare}
-        onClose={(trebuieReincarcat, mesaj) => {
-          setEsteDeschisModalAdaugare(false);
-          if (trebuieReincarcat) {
-            preiaConcedii();
-            if (mesaj) {
-              setMesajToast(mesaj);
-              setAfiseazaToast(true);
-              setTimeout(() => setAfiseazaToast(false), 4000);
-            }
-          }
-        }}
-      />
-
-      <EditConcediu
-        open={esteDeschisModalEditare}
-        concediuData={concediuSelectat}
-        onClose={(trebuieReincarcat, mesaj) => {
-          setEsteDeschisModalEditare(false);
-          setConcediuSelectat(null);
-          if (trebuieReincarcat) {
-            preiaConcedii();
-            if (mesaj) {
-              setMesajToast(mesaj);
-              setAfiseazaToast(true);
-              setTimeout(() => setAfiseazaToast(false), 4000);
-            }
-          }
-        }}
-      />
-      */}
 
       <AddConcediu
         open={esteDeschisModalAdaugare}

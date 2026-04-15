@@ -52,6 +52,11 @@ const AddConcediu = ({ open, onClose }) => {
     };
   }, []);
 
+  const seteazaFilesReset = useCallback(() => {
+    setFiles([]);
+    setDropzoneKey(Date.now());
+  }, []);
+
   const showError = useCallback((message, timeout = 5000) => {
     setErrorNotification(message);
     setTimeout(() => setErrorNotification(""), timeout);
@@ -126,12 +131,7 @@ const AddConcediu = ({ open, onClose }) => {
       seteazaEroriCampuri({});
       setErrorNotification("");
     }
-  }, [open, obtineDateInitialeFormular]);
-
-  const seteazaFilesReset = useCallback(() => {
-    setFiles([]);
-    setDropzoneKey(Date.now());
-  }, []);
+  }, [open, obtineDateInitialeFormular, seteazaFilesReset]);
 
   const gestioneazaSchimbareAngajat = useCallback((optiuneSelectata) => {
     seteazaDateFormular((anterior) => ({
@@ -157,49 +157,58 @@ const AddConcediu = ({ open, onClose }) => {
     }));
   }, []);
 
-  const gestioneazaSchimbareDataStart = useCallback((dataSelectata) => {
-    seteazaDateFormular((anterior) => {
-      const dataSfarsitNoua =
-        anterior.data_sfarsit && dataSelectata > anterior.data_sfarsit
-          ? dataSelectata
-          : anterior.data_sfarsit;
+  const gestioneazaSchimbareDataStart = useCallback(
+    (dataSelectata) => {
+      seteazaDateFormular((anterior) => {
+        const dataSfarsitNoua =
+          anterior.data_sfarsit && dataSelectata > anterior.data_sfarsit
+            ? dataSelectata
+            : anterior.data_sfarsit;
 
-      const durataCalculata = calculeazaDurata(dataSelectata, dataSfarsitNoua);
+        const durataCalculata = calculeazaDurata(dataSelectata, dataSfarsitNoua);
 
-      return {
+        return {
+          ...anterior,
+          data_start: dataSelectata,
+          data_sfarsit: dataSfarsitNoua,
+          durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
+          an_concediu: dataSelectata
+            ? new Date(dataSelectata).getFullYear()
+            : anterior.an_concediu,
+        };
+      });
+
+      seteazaEroriCampuri((anterior) => ({
         ...anterior,
-        data_start: dataSelectata,
-        data_sfarsit: dataSfarsitNoua,
-        durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
-        an_concediu: dataSelectata
-          ? new Date(dataSelectata).getFullYear()
-          : anterior.an_concediu,
-      };
-    });
+        data_start: "",
+        data_sfarsit: "",
+      }));
+    },
+    [calculeazaDurata]
+  );
 
-    seteazaEroriCampuri((anterior) => ({
-      ...anterior,
-      data_start: "",
-      data_sfarsit: "",
-    }));
-  }, [calculeazaDurata]);
+  const gestioneazaSchimbareDataSfarsit = useCallback(
+    (dataSelectata) => {
+      seteazaDateFormular((anterior) => {
+        const durataCalculata = calculeazaDurata(
+          anterior.data_start,
+          dataSelectata
+        );
 
-  const gestioneazaSchimbareDataSfarsit = useCallback((dataSelectata) => {
-    seteazaDateFormular((anterior) => {
-      const durataCalculata = calculeazaDurata(anterior.data_start, dataSelectata);
+        return {
+          ...anterior,
+          data_sfarsit: dataSelectata,
+          durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
+        };
+      });
 
-      return {
+      seteazaEroriCampuri((anterior) => ({
         ...anterior,
-        data_sfarsit: dataSelectata,
-        durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
-      };
-    });
-
-    seteazaEroriCampuri((anterior) => ({
-      ...anterior,
-      data_sfarsit: "",
-    }));
-  }, [calculeazaDurata]);
+        data_sfarsit: "",
+      }));
+    },
+    [calculeazaDurata]
+  );
 
   const gestioneazaSchimbareDurata = useCallback((e) => {
     let valoare = e.target.value;
@@ -280,7 +289,9 @@ const AddConcediu = ({ open, onClose }) => {
 
   const handleRemoveFile = (indexToRemove) => {
     setFiles((prevFiles) => {
-      const updatedFiles = prevFiles.filter((_, index) => index !== indexToRemove);
+      const updatedFiles = prevFiles.filter(
+        (_, index) => index !== indexToRemove
+      );
       if (updatedFiles.length === 0) {
         setDropzoneKey(Date.now());
       }
@@ -293,6 +304,11 @@ const AddConcediu = ({ open, onClose }) => {
 
     if (file.type === "application/pdf") {
       const newWindow = window.open();
+      if (!newWindow) {
+        showError("Browserul a blocat fereastra de preview pentru PDF.");
+        return;
+      }
+
       newWindow.document.write(`
         <html>
           <head>
@@ -326,12 +342,14 @@ const AddConcediu = ({ open, onClose }) => {
       return <PictureAsPdfIcon style={{ fontSize: 24, color: "#d32f2f" }} />;
     } else if (
       fileType === "application/msword" ||
-      fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
       return <DescriptionIcon style={{ fontSize: 24, color: "#1976d2" }} />;
     } else if (
       fileType === "application/vnd.ms-excel" ||
-      fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ) {
       return <DescriptionIcon style={{ fontSize: 24, color: "#2e7d32" }} />;
     } else if (fileType.startsWith("image/")) {
@@ -364,9 +382,12 @@ const AddConcediu = ({ open, onClose }) => {
     const erori = {};
 
     if (!dateFormular.angajat) erori.angajat = "Angajatul este obligatoriu";
-    if (!dateFormular.data_start) erori.data_start = "Data de început este obligatorie";
-    if (!dateFormular.data_sfarsit) erori.data_sfarsit = "Data de sfârșit este obligatorie";
-    if (!dateFormular.tip_concediu) erori.tip_concediu = "Tipul concediului este obligatoriu";
+    if (!dateFormular.data_start)
+      erori.data_start = "Data de început este obligatorie";
+    if (!dateFormular.data_sfarsit)
+      erori.data_sfarsit = "Data de sfârșit este obligatorie";
+    if (!dateFormular.tip_concediu)
+      erori.tip_concediu = "Tipul concediului este obligatoriu";
 
     if (dateFormular.durata === "" || Number(dateFormular.durata) <= 0) {
       erori.durata = "Durata concediului trebuie să fie de cel puțin 1 zi";
@@ -385,7 +406,8 @@ const AddConcediu = ({ open, onClose }) => {
       dateFormular.data_sfarsit &&
       new Date(dateFormular.data_sfarsit) < new Date(dateFormular.data_start)
     ) {
-      erori.data_sfarsit = "Data de sfârșit nu poate fi mai mică decât data de început";
+      erori.data_sfarsit =
+        "Data de sfârșit nu poate fi mai mică decât data de început";
     }
 
     seteazaEroriCampuri(erori);
@@ -418,8 +440,14 @@ const AddConcediu = ({ open, onClose }) => {
       const formData = new FormData();
 
       formData.append("angajat", dateFormular.angajat.value);
-      formData.append("data_start", dateFormular.data_start.toISOString().split("T")[0]);
-      formData.append("data_sfarsit", dateFormular.data_sfarsit.toISOString().split("T")[0]);
+      formData.append(
+        "data_start",
+        dateFormular.data_start.toISOString().split("T")[0]
+      );
+      formData.append(
+        "data_sfarsit",
+        dateFormular.data_sfarsit.toISOString().split("T")[0]
+      );
       formData.append("durata", String(dateFormular.durata));
       formData.append("an_concediu", String(dateFormular.an_concediu));
       formData.append("tip_concediu", dateFormular.tip_concediu.value);
@@ -444,10 +472,13 @@ const AddConcediu = ({ open, onClose }) => {
     } catch (eroare) {
       let mesaj = "Eroare la crearea concediului";
 
-      if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
-      else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
-      else if (eroare.response?.data?.attach) {
-        mesaj = "Eroare la încărcarea fișierelor. Verifică tipul și dimensiunea acestora.";
+      if (eroare.response?.data?.detail) {
+        mesaj = eroare.response.data.detail;
+      } else if (eroare.response?.data?.message) {
+        mesaj = eroare.response.data.message;
+      } else if (eroare.response?.data?.attach) {
+        mesaj =
+          "Eroare la încărcarea fișierelor. Verifică tipul și dimensiunea acestora.";
       } else if (eroare.response?.data) {
         const eroriValidare = eroare.response.data;
         if (typeof eroriValidare === "object") {
@@ -463,7 +494,7 @@ const AddConcediu = ({ open, onClose }) => {
     } finally {
       seteazaSeIncarca(false);
     }
-  }, [dateFormular, files, valideazaFormular, onClose, validateFiles]);
+  }, [dateFormular, files, valideazaFormular, onClose]);
 
   const obtineStiluriPersonalizateSelect = (numeCamp) => ({
     control: (baza, stare) => ({
@@ -541,7 +572,11 @@ const AddConcediu = ({ open, onClose }) => {
     }),
     option: (baza, stare) => ({
       ...baza,
-      backgroundColor: stare.isSelected ? "#e6f2ff" : stare.isFocused ? "#f0f0f0" : "#fff",
+      backgroundColor: stare.isSelected
+        ? "#e6f2ff"
+        : stare.isFocused
+        ? "#f0f0f0"
+        : "#fff",
       color: stare.isSelected ? "#006ce4" : "#1a1a1a",
       fontSize: "14px",
       textAlign: "left",
@@ -559,7 +594,9 @@ const AddConcediu = ({ open, onClose }) => {
         <div className="error-notification">{errorNotification}</div>
       )}
 
-      {afiseazaToast && <div className="toast-global">✅ Concediu adăugat cu succes!</div>}
+      {afiseazaToast && (
+        <div className="toast-global">✅ Concediu adăugat cu succes!</div>
+      )}
 
       <div className="pagina-adauga-concediu">
         <div className="continut-pagina-adauga-concediu">
@@ -603,7 +640,9 @@ const AddConcediu = ({ open, onClose }) => {
                         onChange={gestioneazaSchimbareAngajat}
                         options={listaAngajati}
                         placeholder="Selectează angajat"
-                        className={`camp-multiselect ${eroriCampuri.angajat ? "select-cu-eroare" : ""}`}
+                        className={`camp-multiselect ${
+                          eroriCampuri.angajat ? "select-cu-eroare" : ""
+                        }`}
                         classNamePrefix="select"
                         isSearchable={true}
                         isClearable={true}
@@ -629,7 +668,9 @@ const AddConcediu = ({ open, onClose }) => {
                       dateFormat="dd/MM/yyyy"
                       locale="ro"
                       placeholderText="Selectează data de început"
-                      className={`input-stanga ${eroriCampuri.data_start ? "chenar-eroare-camp" : ""}`}
+                      className={`input-stanga ${
+                        eroriCampuri.data_start ? "chenar-eroare-camp" : ""
+                      }`}
                       wrapperClassName="wrapper-datepicker"
                     />
                     {eroriCampuri.data_start && (
@@ -650,7 +691,9 @@ const AddConcediu = ({ open, onClose }) => {
                       locale="ro"
                       minDate={dateFormular.data_start}
                       placeholderText="Selectează data de sfârșit"
-                      className={`input-stanga ${eroriCampuri.data_sfarsit ? "chenar-eroare-camp" : ""}`}
+                      className={`input-stanga ${
+                        eroriCampuri.data_sfarsit ? "chenar-eroare-camp" : ""
+                      }`}
                       wrapperClassName="wrapper-datepicker"
                     />
                     {eroriCampuri.data_sfarsit && (
@@ -670,7 +713,9 @@ const AddConcediu = ({ open, onClose }) => {
                       type="number"
                       value={dateFormular.durata}
                       onChange={gestioneazaSchimbareDurata}
-                      className={`input-stanga ${eroriCampuri.durata ? "chenar-eroare-camp" : ""}`}
+                      className={`input-stanga ${
+                        eroriCampuri.durata ? "chenar-eroare-camp" : ""
+                      }`}
                       min="1"
                     />
                     {eroriCampuri.durata && (
@@ -688,7 +733,9 @@ const AddConcediu = ({ open, onClose }) => {
                       type="number"
                       value={dateFormular.an_concediu}
                       onChange={gestioneazaSchimbareAnConcediu}
-                      className={`input-stanga ${eroriCampuri.an_concediu ? "chenar-eroare-camp" : ""}`}
+                      className={`input-stanga ${
+                        eroriCampuri.an_concediu ? "chenar-eroare-camp" : ""
+                      }`}
                       min="2000"
                       max="2100"
                     />
@@ -714,7 +761,9 @@ const AddConcediu = ({ open, onClose }) => {
                         onChange={gestioneazaSchimbareTipConcediu}
                         options={listaTipuriConcediu}
                         placeholder="Selectează tipul concediului"
-                        className={`camp-multiselect ${eroriCampuri.tip_concediu ? "select-cu-eroare" : ""}`}
+                        className={`camp-multiselect ${
+                          eroriCampuri.tip_concediu ? "select-cu-eroare" : ""
+                        }`}
                         classNamePrefix="select"
                         isSearchable={true}
                         isClearable={true}
@@ -741,7 +790,9 @@ const AddConcediu = ({ open, onClose }) => {
                         ) : (
                           <p>Trage fișierele aici sau apasă pentru selectare</p>
                         )}
-                        <CloudUploadIcon style={{ fontSize: 40, color: "#888" }} />
+                        <CloudUploadIcon
+                          style={{ fontSize: 40, color: "#888" }}
+                        />
                       </div>
                     </div>
 
@@ -786,9 +837,10 @@ const AddConcediu = ({ open, onClose }) => {
                   </div>
 
                   <p className="file-hint">
-                    * Tipuri acceptate: PDF, Word, Excel, Imagini, Text. Sunt permise
-                    mai multe fișiere (maxim 100MB per fișier). Apasă pe numele
-                    fișierului pentru preview PDF sau download pentru celelalte.
+                    * Tipuri acceptate: PDF, Word, Excel, Imagini, Text. Sunt
+                    permise mai multe fișiere (maxim 100MB per fișier). Apasă pe
+                    numele fișierului pentru preview PDF sau download pentru
+                    celelalte.
                   </p>
                 </div>
 

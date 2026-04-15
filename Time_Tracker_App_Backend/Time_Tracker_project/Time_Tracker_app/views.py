@@ -165,7 +165,7 @@ class ConcediuView(APIView):
     def get(self, request, pk=None):
         if pk:
             concediu = get_object_or_404(Concediu.objects.prefetch_related("attach"), pk=pk)
-            serializer = ConcediuSerializer(concediu)
+            serializer = ConcediuSerializer(concediu, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         concedii = Concediu.objects.select_related(
@@ -182,12 +182,12 @@ class ConcediuView(APIView):
         if an:
             concedii = concedii.filter(an_concediu=an)
 
-        serializer = ConcediuSerializer(concedii, many=True)
+        serializer = ConcediuSerializer(concedii, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         data = self._normalize_request_data(request)
-        serializer = ConcediuSerializer(data=data)
+        serializer = ConcediuSerializer(data=data, context={"request": request})
 
         if serializer.is_valid():
             concediu = serializer.save()
@@ -195,7 +195,7 @@ class ConcediuView(APIView):
             files = request.FILES.getlist("attach")
             self._attach_files(concediu, files)
 
-            out_serializer = ConcediuSerializer(concediu)
+            out_serializer = ConcediuSerializer(concediu, context={"request": request})
             return Response(
                 {"message": "Concediu creat cu succes", "data": out_serializer.data},
                 status=status.HTTP_201_CREATED
@@ -207,7 +207,7 @@ class ConcediuView(APIView):
         concediu = get_object_or_404(Concediu, pk=pk)
 
         data = self._normalize_request_data(request)
-        serializer = ConcediuSerializer(concediu, data=data)
+        serializer = ConcediuSerializer(concediu, data=data, context={"request": request})
 
         if serializer.is_valid():
             concediu = serializer.save()
@@ -220,7 +220,7 @@ class ConcediuView(APIView):
             files = request.FILES.getlist("attach")
             self._attach_files(concediu, files)
 
-            out_serializer = ConcediuSerializer(concediu)
+            out_serializer = ConcediuSerializer(concediu, context={"request": request})
             return Response(
                 {"message": "Concediu actualizat", "data": out_serializer.data},
                 status=status.HTTP_200_OK
@@ -244,11 +244,11 @@ class ConcediuAttachView(APIView):
     def get(self, request, pk=None):
         if pk:
             attach = get_object_or_404(ConcediuAttach, pk=pk)
-            serializer = ConcediuAttachSerializer(attach)
+            serializer = ConcediuAttachSerializer(attach, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         attaches = ConcediuAttach.objects.all().order_by("-id")
-        serializer = ConcediuAttachSerializer(attaches, many=True)
+        serializer = ConcediuAttachSerializer(attaches, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -261,7 +261,7 @@ class ConcediuAttachView(APIView):
             )
 
         attach = ConcediuAttach.objects.create(file=file)
-        serializer = ConcediuAttachSerializer(attach)
+        serializer = ConcediuAttachSerializer(attach, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, pk):

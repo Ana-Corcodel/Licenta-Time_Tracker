@@ -32,10 +32,18 @@ class PontajSerializer(serializers.ModelSerializer):
         return obj.ore_suplimentare_hms()
     
 class ConcediuAttachSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
     class Meta:
         model = ConcediuAttach
-        fields = "__all__"
+        fields = ["id", "file", "filename", "uploaded_at", "file_url"]
 
+    def get_file_url(self, obj):
+        request = self.context.get("request")
+        if obj.file and hasattr(obj.file, "url"):
+            url = obj.file.url
+            return request.build_absolute_uri(url) if request else url
+        return None
 
 class ConcediuSerializer(serializers.ModelSerializer):
     angajat_label = serializers.SerializerMethodField()
@@ -44,7 +52,7 @@ class ConcediuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Concediu
-        fields = "__all__"  # lasă așa dacă vrei
+        fields = "__all__"
 
     def get_angajat_label(self, obj):
         if obj.angajat:

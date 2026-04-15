@@ -47,15 +47,6 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
   const [afiseazaToast, seteazaAfiseazaToast] = useState(false);
   const [eroriCampuri, seteazaEroriCampuri] = useState({});
 
-  const RAW_API_BASE =
-    process.env.REACT_APP_API_URL ||
-    axiosInstance.defaults.baseURL ||
-    window.location.origin;
-
-  const API_BASE_URL = String(RAW_API_BASE)
-    .replace(/\/api\/?$/, "")
-    .replace(/\/+$/, "");
-
   const obtineDateInitialeFormular = useCallback(() => {
     const azi = new Date();
 
@@ -212,8 +203,12 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
         angajat: angajatSelectat,
         data_start: dataStart,
         data_sfarsit: dataSfarsit,
-        durata: Number(concediuData.durata) || calculeazaDurata(dataStart, dataSfarsit) || 1,
-        an_concediu: Number(concediuData.an_concediu) || dataStart.getFullYear(),
+        durata:
+          Number(concediuData.durata) ||
+          calculeazaDurata(dataStart, dataSfarsit) ||
+          1,
+        an_concediu:
+          Number(concediuData.an_concediu) || dataStart.getFullYear(),
         tip_concediu: tipConcediuSelectat,
       });
 
@@ -265,49 +260,61 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     }));
   }, []);
 
-  const gestioneazaSchimbareDataStart = useCallback((dataSelectata) => {
-    seteazaDateFormular((anterior) => {
-      const dataSfarsitNoua =
-        anterior.data_sfarsit && dataSelectata > anterior.data_sfarsit
-          ? dataSelectata
-          : anterior.data_sfarsit;
+  const gestioneazaSchimbareDataStart = useCallback(
+    (dataSelectata) => {
+      seteazaDateFormular((anterior) => {
+        const dataSfarsitNoua =
+          anterior.data_sfarsit && dataSelectata > anterior.data_sfarsit
+            ? dataSelectata
+            : anterior.data_sfarsit;
 
-      const durataCalculata = calculeazaDurata(dataSelectata, dataSfarsitNoua);
+        const durataCalculata = calculeazaDurata(
+          dataSelectata,
+          dataSfarsitNoua
+        );
 
-      return {
+        return {
+          ...anterior,
+          data_start: dataSelectata,
+          data_sfarsit: dataSfarsitNoua,
+          durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
+          an_concediu: dataSelectata
+            ? new Date(dataSelectata).getFullYear()
+            : anterior.an_concediu,
+        };
+      });
+
+      seteazaEroriCampuri((anterior) => ({
         ...anterior,
-        data_start: dataSelectata,
-        data_sfarsit: dataSfarsitNoua,
-        durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
-        an_concediu: dataSelectata
-          ? new Date(dataSelectata).getFullYear()
-          : anterior.an_concediu,
-      };
-    });
+        data_start: "",
+        data_sfarsit: "",
+      }));
+    },
+    [calculeazaDurata]
+  );
 
-    seteazaEroriCampuri((anterior) => ({
-      ...anterior,
-      data_start: "",
-      data_sfarsit: "",
-    }));
-  }, [calculeazaDurata]);
+  const gestioneazaSchimbareDataSfarsit = useCallback(
+    (dataSelectata) => {
+      seteazaDateFormular((anterior) => {
+        const durataCalculata = calculeazaDurata(
+          anterior.data_start,
+          dataSelectata
+        );
 
-  const gestioneazaSchimbareDataSfarsit = useCallback((dataSelectata) => {
-    seteazaDateFormular((anterior) => {
-      const durataCalculata = calculeazaDurata(anterior.data_start, dataSelectata);
+        return {
+          ...anterior,
+          data_sfarsit: dataSelectata,
+          durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
+        };
+      });
 
-      return {
+      seteazaEroriCampuri((anterior) => ({
         ...anterior,
-        data_sfarsit: dataSelectata,
-        durata: durataCalculata > 0 ? durataCalculata : anterior.durata,
-      };
-    });
-
-    seteazaEroriCampuri((anterior) => ({
-      ...anterior,
-      data_sfarsit: "",
-    }));
-  }, [calculeazaDurata]);
+        data_sfarsit: "",
+      }));
+    },
+    [calculeazaDurata]
+  );
 
   const gestioneazaSchimbareDurata = useCallback((e) => {
     const valoare = e.target.value;
@@ -357,29 +364,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
 
   const getFileUrl = (file) => {
     if (!file) return null;
-
-    if (file.file_url) return file.file_url;
-    if (file.url) return file.url;
-
-    if (file.file) {
-      const rawPath = String(file.file);
-
-      if (
-        rawPath.startsWith("http://") ||
-        rawPath.startsWith("https://") ||
-        rawPath.startsWith("blob:")
-      ) {
-        return rawPath;
-      }
-
-      const normalizedPath = rawPath.startsWith("/")
-        ? rawPath
-        : `/media/${rawPath.replace(/^media\//, "")}`;
-
-      return `${API_BASE_URL}${normalizedPath}`;
-    }
-
-    return null;
+    return file.file_url || null;
   };
 
   const getExistingFileName = (file) => {
@@ -402,7 +387,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     accept: {
       "application/pdf": [],
       "application/msword": [],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [],
       "image/jpeg": [],
       "image/png": [],
       "application/vnd.ms-excel": [],
@@ -438,7 +424,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       );
     } else {
       setFiles((prevFiles) => {
-        const updatedFiles = prevFiles.filter((_, index) => index !== indexToRemove);
+        const updatedFiles = prevFiles.filter(
+          (_, index) => index !== indexToRemove
+        );
         if (updatedFiles.length === 0) {
           setDropzoneKey(Date.now());
         }
@@ -452,7 +440,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       const fileUrl = getFileUrl(file);
 
       if (!fileUrl) {
-        showError("Fișierul nu are URL disponibil");
+        showError("Fișierul nu are URL disponibil.");
         return;
       }
 
@@ -469,7 +457,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
         if (isPdfExistingFile(file)) {
           const newWindow = window.open();
           if (!newWindow) {
-            showError("Popup blocat. Permite popup pentru preview PDF.");
+            showError("Popup blocat. Permite popup-urile pentru preview PDF.");
             URL.revokeObjectURL(objectUrl);
             return;
           }
@@ -503,7 +491,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
         }
       } catch (error) {
         console.error("Error opening existing file:", error);
-        showError("Fișierul selectat nu a putut fi deschis/descarcat.");
+        showError("Nu s-a putut deschide / descărca fișierul selectat.");
       }
 
       return;
@@ -514,7 +502,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     if (file.type === "application/pdf") {
       const newWindow = window.open();
       if (!newWindow) {
-        showError("Popup blocat. Permite popup pentru preview PDF.");
+        showError("Popup blocat. Permite popup-urile pentru preview PDF.");
         URL.revokeObjectURL(url);
         return;
       }
@@ -560,9 +548,13 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       } else if (["xls", "xlsx"].includes(extension)) {
         return <DescriptionIcon style={{ fontSize: 24, color: "#2e7d32" }} />;
       } else if (["jpg", "jpeg", "png", "gif", "webp"].includes(extension)) {
-        return <InsertDriveFileIcon style={{ fontSize: 24, color: "#9c27b0" }} />;
+        return (
+          <InsertDriveFileIcon style={{ fontSize: 24, color: "#9c27b0" }} />
+        );
       } else {
-        return <InsertDriveFileIcon style={{ fontSize: 24, color: "#757575" }} />;
+        return (
+          <InsertDriveFileIcon style={{ fontSize: 24, color: "#757575" }} />
+        );
       }
     }
 
@@ -572,12 +564,14 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       return <PictureAsPdfIcon style={{ fontSize: 24, color: "#d32f2f" }} />;
     } else if (
       fileType === "application/msword" ||
-      fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
       return <DescriptionIcon style={{ fontSize: 24, color: "#1976d2" }} />;
     } else if (
       fileType === "application/vnd.ms-excel" ||
-      fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ) {
       return <DescriptionIcon style={{ fontSize: 24, color: "#2e7d32" }} />;
     } else if (fileType.startsWith("image/")) {
@@ -610,9 +604,12 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     const erori = {};
 
     if (!dateFormular.angajat) erori.angajat = "Angajatul este obligatoriu";
-    if (!dateFormular.data_start) erori.data_start = "Data de început este obligatorie";
-    if (!dateFormular.data_sfarsit) erori.data_sfarsit = "Data de sfârșit este obligatorie";
-    if (!dateFormular.tip_concediu) erori.tip_concediu = "Tipul concediului este obligatoriu";
+    if (!dateFormular.data_start)
+      erori.data_start = "Data de început este obligatorie";
+    if (!dateFormular.data_sfarsit)
+      erori.data_sfarsit = "Data de sfârșit este obligatorie";
+    if (!dateFormular.tip_concediu)
+      erori.tip_concediu = "Tipul concediului este obligatoriu";
 
     if (dateFormular.durata === "" || Number(dateFormular.durata) <= 0) {
       erori.durata = "Durata concediului trebuie să fie de cel puțin 1 zi";
@@ -631,7 +628,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       dateFormular.data_sfarsit &&
       new Date(dateFormular.data_sfarsit) < new Date(dateFormular.data_start)
     ) {
-      erori.data_sfarsit = "Data de sfârșit nu poate fi mai mică decât data de început";
+      erori.data_sfarsit =
+        "Data de sfârșit nu poate fi mai mică decât data de început";
     }
 
     seteazaEroriCampuri(erori);
@@ -666,8 +664,14 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       const formData = new FormData();
 
       formData.append("angajat", dateFormular.angajat.value);
-      formData.append("data_start", dateFormular.data_start.toISOString().split("T")[0]);
-      formData.append("data_sfarsit", dateFormular.data_sfarsit.toISOString().split("T")[0]);
+      formData.append(
+        "data_start",
+        dateFormular.data_start.toISOString().split("T")[0]
+      );
+      formData.append(
+        "data_sfarsit",
+        dateFormular.data_sfarsit.toISOString().split("T")[0]
+      );
       formData.append("durata", String(dateFormular.durata));
       formData.append("an_concediu", String(dateFormular.an_concediu));
       formData.append("tip_concediu", dateFormular.tip_concediu.value);
@@ -675,7 +679,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       if (attachExistente.length > 0) {
         attachExistente.forEach((attachment) => {
           if (attachment.id) {
-            formData.append("keep_attach", attachment.id);
+            formData.append("keep_attachments", attachment.id);
           }
         });
       }
@@ -707,13 +711,15 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       let mesaj = "Eroare la actualizarea concediului";
 
       if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
-      else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
+      else if (eroare.response?.data?.message)
+        mesaj = eroare.response.data.message;
       else if (
         eroare.response?.data?.attach ||
         (typeof eroare.response?.data === "object" &&
           JSON.stringify(eroare.response.data).toLowerCase().includes("file"))
       ) {
-        mesaj = "Eroare la încărcarea fișierelor. Verifică tipul și dimensiunea acestora.";
+        mesaj =
+          "Eroare la încărcarea fișierelor. Verifică tipul și dimensiunea acestora.";
       } else if (eroare.response?.data) {
         const eroriValidare = eroare.response.data;
         if (typeof eroriValidare === "object") {
@@ -729,7 +735,14 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     } finally {
       seteazaSeIncarca(false);
     }
-  }, [dateFormular, validateFiles, valideazaFormular, attachExistente, files, concediuData, onClose]);
+  }, [
+    dateFormular,
+    attachExistente,
+    files,
+    valideazaFormular,
+    concediuData,
+    onClose,
+  ]);
 
   const obtineStiluriPersonalizateSelect = (numeCamp) => ({
     control: (baza, stare) => ({
@@ -807,7 +820,11 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     }),
     option: (baza, stare) => ({
       ...baza,
-      backgroundColor: stare.isSelected ? "#e6f2ff" : stare.isFocused ? "#f0f0f0" : "#fff",
+      backgroundColor: stare.isSelected
+        ? "#e6f2ff"
+        : stare.isFocused
+        ? "#f0f0f0"
+        : "#fff",
       color: stare.isSelected ? "#006ce4" : "#1a1a1a",
       fontSize: "14px",
       textAlign: "left",
@@ -871,7 +888,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                         onChange={gestioneazaSchimbareAngajat}
                         options={listaAngajati}
                         placeholder="Selectează angajat"
-                        className={`camp-multiselect ${eroriCampuri.angajat ? "select-cu-eroare" : ""}`}
+                        className={`camp-multiselect ${
+                          eroriCampuri.angajat ? "select-cu-eroare" : ""
+                        }`}
                         classNamePrefix="select"
                         isSearchable
                         isClearable
@@ -897,7 +916,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       dateFormat="dd/MM/yyyy"
                       locale="ro"
                       placeholderText="Selectează data de început"
-                      className={`input-stanga ${eroriCampuri.data_start ? "chenar-eroare-camp" : ""}`}
+                      className={`input-stanga ${
+                        eroriCampuri.data_start ? "chenar-eroare-camp" : ""
+                      }`}
                       wrapperClassName="wrapper-datepicker"
                     />
                     {eroriCampuri.data_start && (
@@ -918,7 +939,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       locale="ro"
                       minDate={dateFormular.data_start}
                       placeholderText="Selectează data de sfârșit"
-                      className={`input-stanga ${eroriCampuri.data_sfarsit ? "chenar-eroare-camp" : ""}`}
+                      className={`input-stanga ${
+                        eroriCampuri.data_sfarsit ? "chenar-eroare-camp" : ""
+                      }`}
                       wrapperClassName="wrapper-datepicker"
                     />
                     {eroriCampuri.data_sfarsit && (
@@ -938,7 +961,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       type="number"
                       value={dateFormular.durata}
                       onChange={gestioneazaSchimbareDurata}
-                      className={`input-stanga ${eroriCampuri.durata ? "chenar-eroare-camp" : ""}`}
+                      className={`input-stanga ${
+                        eroriCampuri.durata ? "chenar-eroare-camp" : ""
+                      }`}
                       min="1"
                     />
                     {eroriCampuri.durata && (
@@ -956,7 +981,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       type="number"
                       value={dateFormular.an_concediu}
                       onChange={gestioneazaSchimbareAnConcediu}
-                      className={`input-stanga ${eroriCampuri.an_concediu ? "chenar-eroare-camp" : ""}`}
+                      className={`input-stanga ${
+                        eroriCampuri.an_concediu ? "chenar-eroare-camp" : ""
+                      }`}
                       min="2000"
                       max="2100"
                     />
@@ -982,7 +1009,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                         onChange={gestioneazaSchimbareTipConcediu}
                         options={listaTipuriConcediu}
                         placeholder="Selectează tipul concediului"
-                        className={`camp-multiselect ${eroriCampuri.tip_concediu ? "select-cu-eroare" : ""}`}
+                        className={`camp-multiselect ${
+                          eroriCampuri.tip_concediu ? "select-cu-eroare" : ""
+                        }`}
                         classNamePrefix="select"
                         isSearchable
                         isClearable
@@ -1002,7 +1031,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
 
                   {attachExistente.length > 0 && (
                     <div className="existing-files-section">
-                      <h4>Fișiere existente ({attachExistente.length})</h4>
+                      <h4>Current Files ({attachExistente.length})</h4>
                       <div className="files-list">
                         {attachExistente.map((attachment, index) => {
                           const fileUrl = getFileUrl(attachment);
@@ -1021,14 +1050,18 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                                       ? "Fișierul nu are URL disponibil"
                                       : isPdfExistingFile(attachment)
                                       ? "Click pentru preview PDF"
-                                      : "Click pentru download fișier"
+                                      : "Click pentru descărcare"
                                   }
                                   onClick={() => handleFileClick(attachment, true)}
-                                  style={!fileUrl ? { color: "#999", cursor: "not-allowed" } : {}}
+                                  style={
+                                    !fileUrl
+                                      ? { color: "#999", cursor: "not-allowed" }
+                                      : {}
+                                  }
                                 >
                                   {attachment.filename?.length > 40
-                                    ? `${attachment.filename.substring(0, 40)}...`
-                                    : attachment.filename || "Fișier necunoscut"}
+                                    ? attachment.filename.substring(0, 40) + "..."
+                                    : attachment.filename || "Unknown file"}
                                 </span>
                                 <span className="file-size">
                                   {attachment.file_size
@@ -1041,7 +1074,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                                 type="button"
                                 className="remove-file-button"
                                 onClick={() => handleRemoveFile(index, true)}
-                                title="Șterge fișierul la salvare"
+                                title="Remove file (will be deleted on save)"
                               >
                                 <DeleteIcon fontSize="small" />
                               </button>
@@ -1057,9 +1090,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       <input {...getInputProps()} />
                       <div className="dropzone-content">
                         {isDragActive ? (
-                          <p>Lasă fișierele aici...</p>
+                          <p>Drop the files here...</p>
                         ) : (
-                          <p>Trage fișierele aici sau apasă pentru selectare</p>
+                          <p>Drag & drop files or click to select</p>
                         )}
                         <CloudUploadIcon style={{ fontSize: 40, color: "#888" }} />
                       </div>
@@ -1067,7 +1100,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
 
                     {files.length > 0 && (
                       <div className="new-files-section">
-                        <h4>Fișiere noi de încărcat ({files.length})</h4>
+                        <h4>New Files to Upload ({files.length})</h4>
                         <div className="files-list">
                           {files.map((file, index) => (
                             <div key={index} className="file-preview-item">
@@ -1077,13 +1110,13 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                                   className="file-name clickable"
                                   title={
                                     file.type === "application/pdf"
-                                      ? "Click pentru preview PDF"
-                                      : "Click pentru download fișier"
+                                      ? "Click to preview PDF"
+                                      : "Click to download file"
                                   }
                                   onClick={() => handleFileClick(file)}
                                 >
                                   {file.name.length > 40
-                                    ? `${file.name.substring(0, 40)}...`
+                                    ? file.name.substring(0, 40) + "..."
                                     : file.name}
                                 </span>
                                 <span className="file-size">
@@ -1095,7 +1128,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                                 type="button"
                                 className="remove-file-button"
                                 onClick={() => handleRemoveFile(index)}
-                                title="Șterge fișier"
+                                title="Remove file"
                               >
                                 <DeleteIcon fontSize="small" />
                               </button>
@@ -1107,9 +1140,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                   </div>
 
                   <p className="file-hint">
-                    * Tipuri acceptate: PDF, Word, Excel, Imagini, Text. Sunt permise
-                    mai multe fișiere (maxim 100MB per fișier). Apasă pe numele
-                    fișierului pentru preview PDF sau download pentru celelalte.
+                    * Accepted file types: PDF, Word, Excel, Images, Text. Multiple
+                    files allowed (max 100MB per file). Click on filename to preview
+                    PDF or download other files.
                   </p>
                 </div>
 
