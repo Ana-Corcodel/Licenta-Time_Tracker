@@ -165,7 +165,12 @@ const AddAngajati = ({ open, onClose }) => {
         try {
             const payload = {
                 ...dateFormular,
-                ora_pauza: parseInt(dateFormular.ora_pauza, 10) || 30,
+                ora_pauza:
+                    dateFormular.ora_pauza === "" ||
+                        dateFormular.ora_pauza === null ||
+                        dateFormular.ora_pauza === undefined
+                        ? 30
+                        : parseInt(dateFormular.ora_pauza, 10),
             };
 
             const raspuns = await axiosInstance.post("/angajati/", payload);
@@ -262,7 +267,7 @@ const AddAngajati = ({ open, onClose }) => {
         }),
         menuList: (baza) => ({
             ...baza,
-            maxHeight: "150px",  
+            maxHeight: "150px",
             overflowY: "auto"
         }),
         option: (baza, stare) => ({
