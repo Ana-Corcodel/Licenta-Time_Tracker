@@ -43,7 +43,7 @@ const AddAngajati = ({ open, onClose }) => {
             locatie: "",
             ora_incepere: "08:00",
             ora_sfarsit: "17:00",
-            ora_pauza: 30,
+            ora_pauza: 60,
             status: "activ",
         }),
         []
@@ -169,7 +169,7 @@ const AddAngajati = ({ open, onClose }) => {
                     dateFormular.ora_pauza === "" ||
                         dateFormular.ora_pauza === null ||
                         dateFormular.ora_pauza === undefined
-                        ? 30
+                        ? 60
                         : parseInt(dateFormular.ora_pauza, 10),
             };
 
@@ -564,7 +564,7 @@ const AddAngajati = ({ open, onClose }) => {
                                 <label className="eticheta-stanga">Pauză (minute)</label>
                                 <input
                                     type="number"
-                                    placeholder="30"
+                                    placeholder="60"
                                     value={dateFormular.ora_pauza}
                                     onChange={gestioneazaSchimbare("ora_pauza")}
                                     className="input-stanga"
