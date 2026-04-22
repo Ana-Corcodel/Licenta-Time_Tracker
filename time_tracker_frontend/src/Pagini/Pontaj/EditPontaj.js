@@ -722,7 +722,7 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                             className="input-stanga camp-readonly"
                                         />
                                         <small className="indicatie-camp">
-                                            Calculat automat după programul angajatului ({Number(dateFormular.ore_lucru_suplimentare || 0).toFixed(2)} h)
+                                            Calculat automat după programul angajatului
                                         </small>
                                     </div>
                                 </div>
@@ -744,6 +744,7 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                                 isSearchable={true}
                                                 isClearable={true}
                                                 styles={obtineStiluriPersonalizateSelect("tip")}
+                                                menuPlacement="top"
                                             />
                                             {eroriCampuri.tip && (
                                                 <span className="eroare-camp eroare-stanga">{eroriCampuri.tip}</span>

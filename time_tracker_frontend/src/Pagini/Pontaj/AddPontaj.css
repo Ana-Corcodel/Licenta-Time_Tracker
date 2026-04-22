@@ -458,3 +458,25 @@
   line-height: 1;
   margin-top: -2px;
 }
+
+/* ICONITA CALENDAR */
+.pagina-adauga-pontaj .wrapper-datepicker {
+  position: relative;
+  width: 100%;
+}
+
+.pagina-adauga-pontaj .wrapper-datepicker input {
+  padding-right: 35px !important;
+}
+
+/* iconita */
+.pagina-adauga-pontaj .wrapper-datepicker::after {
+  content: "📅";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.7;
+}

@@ -511,7 +511,7 @@ const AddPontaj = ({ open, onClose }) => {
                                     <DatePicker
                                         selected={dateFormular.data}
                                         onChange={gestioneazaSchimbareData}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         locale="ro"
                                         placeholderText="Selectează data"
                                         className={`input-stanga ${eroriCampuri.data ? "chenar-eroare-camp" : ""}`}
@@ -649,7 +649,7 @@ const AddPontaj = ({ open, onClose }) => {
                                             className="input-stanga camp-readonly"
                                         />
                                         <small className="indicatie-camp">
-                                            Calculat automat după programul angajatului ({Number(dateFormular.ore_lucru_suplimentare || 0).toFixed(2)} h)
+                                            Calculat automat după programul angajatului
                                         </small>
                                     </div>
                                 </div>
@@ -671,6 +671,7 @@ const AddPontaj = ({ open, onClose }) => {
                                                 isSearchable={true}
                                                 isClearable={true}
                                                 styles={obtineStiluriPersonalizateSelect("tip")}
+                                                menuPlacement="top"
                                             />
                                             {eroriCampuri.tip && <span className="eroare-camp eroare-stanga">{eroriCampuri.tip}</span>}
                                         </>

@@ -49,10 +49,10 @@ class Angajat(models.Model):
 class TipZi(models.Model):
     prescurtare = models.CharField(max_length=10)
     tip_zi = models.CharField(max_length=100)
+    este_concediu = models.BooleanField(default=False)  # 👈 asta lipsește
 
     def __str__(self):
         return f"{self.prescurtare} - {self.tip_zi}"
-
 
 class Pontaj(models.Model):
     angajat = models.ForeignKey(Angajat, on_delete=models.CASCADE, related_name="pontaje")

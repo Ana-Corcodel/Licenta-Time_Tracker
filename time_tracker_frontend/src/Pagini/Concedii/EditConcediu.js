@@ -86,7 +86,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     try {
       const [raspunsAngajati, raspunsTipuri] = await Promise.all([
         axiosInstance.get("/angajati/"),
-        axiosInstance.get("/tipuri-zile/"),
+        axiosInstance.get("/tipuri-zile/?doar_concedii=true")
       ]);
 
       const dateAngajati = Array.isArray(raspunsAngajati.data)
@@ -565,13 +565,13 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
     } else if (
       fileType === "application/msword" ||
       fileType ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
       return <DescriptionIcon style={{ fontSize: 24, color: "#1976d2" }} />;
     } else if (
       fileType === "application/vnd.ms-excel" ||
       fileType ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ) {
       return <DescriptionIcon style={{ fontSize: 24, color: "#2e7d32" }} />;
     } else if (fileType.startsWith("image/")) {
@@ -750,14 +750,14 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       border: eroriCampuri[numeCamp]
         ? "1px solid #d32f2f"
         : stare.isFocused
-        ? "1px solid #007BFF"
-        : "1px solid #ccc",
+          ? "1px solid #007BFF"
+          : "1px solid #ccc",
       "&:hover": {
         border: eroriCampuri[numeCamp]
           ? "1px solid #d32f2f"
           : stare.isFocused
-          ? "1px solid #007BFF"
-          : "1px solid #888",
+            ? "1px solid #007BFF"
+            : "1px solid #888",
       },
       fontSize: "14px",
       fontFamily: "Arial, sans-serif",
@@ -823,8 +823,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
       backgroundColor: stare.isSelected
         ? "#e6f2ff"
         : stare.isFocused
-        ? "#f0f0f0"
-        : "#fff",
+          ? "#f0f0f0"
+          : "#fff",
       color: stare.isSelected ? "#006ce4" : "#1a1a1a",
       fontSize: "14px",
       textAlign: "left",
@@ -888,9 +888,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                         onChange={gestioneazaSchimbareAngajat}
                         options={listaAngajati}
                         placeholder="Selectează angajat"
-                        className={`camp-multiselect ${
-                          eroriCampuri.angajat ? "select-cu-eroare" : ""
-                        }`}
+                        className={`camp-multiselect ${eroriCampuri.angajat ? "select-cu-eroare" : ""
+                          }`}
                         classNamePrefix="select"
                         isSearchable
                         isClearable
@@ -916,9 +915,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       dateFormat="dd/MM/yyyy"
                       locale="ro"
                       placeholderText="Selectează data de început"
-                      className={`input-stanga ${
-                        eroriCampuri.data_start ? "chenar-eroare-camp" : ""
-                      }`}
+                      className={`input-stanga ${eroriCampuri.data_start ? "chenar-eroare-camp" : ""
+                        }`}
                       wrapperClassName="wrapper-datepicker"
                     />
                     {eroriCampuri.data_start && (
@@ -939,9 +937,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       locale="ro"
                       minDate={dateFormular.data_start}
                       placeholderText="Selectează data de sfârșit"
-                      className={`input-stanga ${
-                        eroriCampuri.data_sfarsit ? "chenar-eroare-camp" : ""
-                      }`}
+                      className={`input-stanga ${eroriCampuri.data_sfarsit ? "chenar-eroare-camp" : ""
+                        }`}
                       wrapperClassName="wrapper-datepicker"
                     />
                     {eroriCampuri.data_sfarsit && (
@@ -960,10 +957,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                     <input
                       type="number"
                       value={dateFormular.durata}
-                      onChange={gestioneazaSchimbareDurata}
-                      className={`input-stanga ${
-                        eroriCampuri.durata ? "chenar-eroare-camp" : ""
-                      }`}
+                      readOnly
+                      className={`input-stanga camp-readonly ${eroriCampuri.durata ? "chenar-eroare-camp" : ""
+                        }`}
                       min="1"
                     />
                     {eroriCampuri.durata && (
@@ -981,9 +977,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       type="number"
                       value={dateFormular.an_concediu}
                       onChange={gestioneazaSchimbareAnConcediu}
-                      className={`input-stanga ${
-                        eroriCampuri.an_concediu ? "chenar-eroare-camp" : ""
-                      }`}
+                      className={`input-stanga ${eroriCampuri.an_concediu ? "chenar-eroare-camp" : ""
+                        }`}
                       min="2000"
                       max="2100"
                     />
@@ -1009,9 +1004,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                         onChange={gestioneazaSchimbareTipConcediu}
                         options={listaTipuriConcediu}
                         placeholder="Selectează tipul concediului"
-                        className={`camp-multiselect ${
-                          eroriCampuri.tip_concediu ? "select-cu-eroare" : ""
-                        }`}
+                        className={`camp-multiselect ${eroriCampuri.tip_concediu ? "select-cu-eroare" : ""
+                          }`}
                         classNamePrefix="select"
                         isSearchable
                         isClearable
@@ -1049,8 +1043,8 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                                     !fileUrl
                                       ? "Fișierul nu are URL disponibil"
                                       : isPdfExistingFile(attachment)
-                                      ? "Click pentru preview PDF"
-                                      : "Click pentru descărcare"
+                                        ? "Click pentru preview PDF"
+                                        : "Click pentru descărcare"
                                   }
                                   onClick={() => handleFileClick(attachment, true)}
                                   style={

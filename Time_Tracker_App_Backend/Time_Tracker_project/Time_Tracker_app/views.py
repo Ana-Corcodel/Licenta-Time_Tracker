@@ -72,7 +72,14 @@ class TipZiView(APIView):
             tip = get_object_or_404(TipZi, pk=pk)
             serializer = TipZiSerializer(tip)
             return Response(serializer.data)
+
+        doar_concedii = request.query_params.get("doar_concedii")
+
         tips = TipZi.objects.all()
+
+        if doar_concedii == "true":
+            tips = tips.filter(este_concediu=True)
+
         serializer = TipZiSerializer(tips, many=True)
         return Response(serializer.data)
 

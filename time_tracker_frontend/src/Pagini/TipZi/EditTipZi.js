@@ -175,7 +175,7 @@ const EditTipZi = ({ open, tipData, onClose }) => {
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="Ex: LU, MA, MI etc."
+                                        placeholder="Ex: CO"
                                         value={dateFormular.prescurtare}
                                         onChange={gestioneazaSchimbarea("prescurtare")}
                                         className={`input-stanga ${eroriCampuri.prescurtare ? "chenar-eroare-camp" : ""}`}
@@ -194,7 +194,7 @@ const EditTipZi = ({ open, tipData, onClose }) => {
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="Ex: Lucru, Concediu, Sărbătoare legală"
+                                        placeholder="Ex: Concediu de odihna"
                                         value={dateFormular.tip_zi}
                                         onChange={gestioneazaSchimbarea("tip_zi")}
                                         className={`input-stanga ${eroriCampuri.tip_zi ? "chenar-eroare-camp" : ""}`}
