@@ -152,6 +152,13 @@ def saving_concediu_attachments(instance, filename):
 
 
 class ConcediuAttach(models.Model):
+    concediu = models.ForeignKey(
+        "Concediu",
+        on_delete=models.CASCADE,
+        related_name="attach",
+        null=True,        
+        blank=True
+    )
     file = models.FileField(upload_to=saving_concediu_attachments)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     filename = models.CharField(max_length=255, blank=True)
@@ -181,7 +188,6 @@ class Concediu(models.Model):
         related_name="concedii"
     )
 
-    attach = models.ManyToManyField("ConcediuAttach", blank=True)
 
     def save(self, *args, **kwargs):
         if self.data_start and self.data_sfarsit:
