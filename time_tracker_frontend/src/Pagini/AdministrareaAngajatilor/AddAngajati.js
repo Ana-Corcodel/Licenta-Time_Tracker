@@ -572,21 +572,21 @@ const AddAngajati = ({ open, onClose }) => {
                                     max="120"
                                 />
                             </div>
-
-                            <div className="butoane-formular">
-                                <button className="buton-anulare" onClick={gestioneazaAnulare}>
-                                    Anulează
-                                </button>
-
-                                <button
-                                    className={`buton-salvare ${seIncarca ? "dezactivat" : ""}`}
-                                    onClick={!seIncarca ? gestioneazaSalvare : undefined}
-                                    disabled={seIncarca}
-                                >
-                                    {seIncarca ? "Se salvează..." : "Salvează"}
-                                </button>
-                            </div>
                         </div>
+                        <div className="butoane-formular">
+                            <button className="buton-anulare" onClick={gestioneazaAnulare}>
+                                Anulează
+                            </button>
+
+                            <button
+                                className={`buton-salvare ${seIncarca ? "dezactivat" : ""}`}
+                                onClick={!seIncarca ? gestioneazaSalvare : undefined}
+                                disabled={seIncarca}
+                            >
+                                {seIncarca ? "Se salvează..." : "Salvează"}
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>

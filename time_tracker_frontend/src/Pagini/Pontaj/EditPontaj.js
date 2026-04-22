@@ -500,7 +500,7 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
         }),
         menuList: (baza) => ({
             ...baza,
-            maxHeight: "200px",   
+            maxHeight: "200px",
             overflowY: "auto"
         }),
         option: (baza, stare) => ({
@@ -763,21 +763,21 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                         className="input-stanga camp-readonly"
                                     />
                                 </div>
-
-                                <div className="butoane-formular">
-                                    <button className="buton-anulare" onClick={gestioneazaAnulare}>
-                                        Anulează
-                                    </button>
-
-                                    <button
-                                        className={`buton-salvare ${seIncarca ? "dezactivat" : ""}`}
-                                        onClick={!seIncarca ? gestioneazaActualizare : undefined}
-                                        disabled={seIncarca}
-                                    >
-                                        {seIncarca ? "Se actualizează..." : "Actualizează"}
-                                    </button>
-                                </div>
                             </div>
+                            <div className="butoane-formular">
+                                <button className="buton-anulare" onClick={gestioneazaAnulare}>
+                                    Anulează
+                                </button>
+
+                                <button
+                                    className={`buton-salvare ${seIncarca ? "dezactivat" : ""}`}
+                                    onClick={!seIncarca ? gestioneazaActualizare : undefined}
+                                    disabled={seIncarca}
+                                >
+                                    {seIncarca ? "Se actualizează..." : "Actualizează"}
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>

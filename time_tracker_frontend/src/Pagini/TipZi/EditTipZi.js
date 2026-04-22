@@ -204,22 +204,22 @@ const EditTipZi = ({ open, tipData, onClose }) => {
                                         <span className="eroare-camp eroare-stanga">{eroriCampuri.tip_zi}</span>
                                     )}
                                 </div>
-
-                                {/* Butoane formular */}
-                                <div className="butoane-formular">
-                                    <button className="buton-anulare" onClick={gestioneazaAnularea}>
-                                        Anulează
-                                    </button>
-
-                                    <button
-                                        className={`buton-trimitere ${seIncarca ? "dezactivat" : ""}`}
-                                        onClick={!seIncarca ? gestioneazaTrimiterea : undefined}
-                                        disabled={seIncarca}
-                                    >
-                                        {seIncarca ? "Se actualizează..." : "Actualizează"}
-                                    </button>
-                                </div>
                             </div>
+                            {/* Butoane formular */}
+                            <div className="butoane-formular">
+                                <button className="buton-anulare" onClick={gestioneazaAnularea}>
+                                    Anulează
+                                </button>
+
+                                <button
+                                    className={`buton-trimitere ${seIncarca ? "dezactivat" : ""}`}
+                                    onClick={!seIncarca ? gestioneazaTrimiterea : undefined}
+                                    disabled={seIncarca}
+                                >
+                                    {seIncarca ? "Se actualizează..." : "Actualizează"}
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>

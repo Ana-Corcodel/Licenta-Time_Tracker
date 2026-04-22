@@ -94,6 +94,7 @@
 .pagina-adauga-pontaj .formular {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   padding: 0 24px 24px 24px;
   display: flex;
   flex-direction: column;
@@ -164,10 +165,14 @@
 }
 
 .pagina-adauga-pontaj .butoane-formular {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 24px;
+  padding: 16px 24px 24px 24px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
 }
 
 .pagina-adauga-pontaj .buton-anulare {
@@ -424,6 +429,7 @@
   }
 
   .pagina-adauga-pontaj .butoane-formular {
+    padding: 16px;
     flex-direction: column;
     gap: 10px;
   }

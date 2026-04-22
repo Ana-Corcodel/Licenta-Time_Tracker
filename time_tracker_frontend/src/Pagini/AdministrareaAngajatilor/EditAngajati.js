@@ -313,7 +313,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         }),
         menuList: (baza) => ({
             ...baza,
-            maxHeight: "150px",  
+            maxHeight: "150px",
             overflowY: "auto"
         }),
         option: (baza, stare) => ({
@@ -591,25 +591,25 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                         disabled={seIncarcaDatele}
                                     />
                                 </div>
-
-                                <div className="butoane-formular">
-                                    <button
-                                        className="buton-anulare"
-                                        onClick={gestioneazaAnulare}
-                                        disabled={seSalveaza || seIncarcaDatele}
-                                    >
-                                        Anulează
-                                    </button>
-
-                                    <button
-                                        className={`buton-salvare ${(seSalveaza || seIncarcaDatele) ? "dezactivat" : ""}`}
-                                        onClick={!seSalveaza && !seIncarcaDatele ? gestioneazaActualizare : undefined}
-                                        disabled={seSalveaza || seIncarcaDatele}
-                                    >
-                                        {seSalveaza ? "Se salvează..." : "Actualizează"}
-                                    </button>
-                                </div>
                             </div>
+                            <div className="butoane-formular">
+                                <button
+                                    className="buton-anulare"
+                                    onClick={gestioneazaAnulare}
+                                    disabled={seSalveaza || seIncarcaDatele}
+                                >
+                                    Anulează
+                                </button>
+
+                                <button
+                                    className={`buton-salvare ${(seSalveaza || seIncarcaDatele) ? "dezactivat" : ""}`}
+                                    onClick={!seSalveaza && !seIncarcaDatele ? gestioneazaActualizare : undefined}
+                                    disabled={seSalveaza || seIncarcaDatele}
+                                >
+                                    {seSalveaza ? "Se salvează..." : "Actualizează"}
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
