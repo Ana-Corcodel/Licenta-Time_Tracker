@@ -1,0 +1,283 @@
+.pagina-vizualizare-documente-concediu .overlay-modal-documente {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 1300;
+}
+
+.pagina-vizualizare-documente-concediu .fereastra-modal-documente {
+  width: 760px;
+  max-width: 95%;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.pagina-vizualizare-documente-concediu .antet-modal-documente {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 24px 12px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pagina-vizualizare-documente-concediu .antet-modal-documente h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.pagina-vizualizare-documente-concediu .subtitlu-modal-documente {
+  margin: 6px 0 0 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.pagina-vizualizare-documente-concediu .buton-inchidere-documente {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #888;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.pagina-vizualizare-documente-concediu .buton-inchidere-documente:hover {
+  transform: scale(1.08);
+  background: #f3f4f6;
+}
+
+.pagina-vizualizare-documente-concediu .separator-antet-documente {
+  display: none;
+}
+
+.pagina-vizualizare-documente-concediu .continut-modal-documente {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 20px 24px;
+  background: #fafafa;
+}
+
+.pagina-vizualizare-documente-concediu .stare-goala-documente {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 15px;
+  text-align: center;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  background: #fff;
+  padding: 24px;
+}
+
+.pagina-vizualizare-documente-concediu .lista-documente-concediu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pagina-vizualizare-documente-concediu .card-document-concediu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #1976d2;
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.pagina-vizualizare-documente-concediu .card-document-concediu:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.pagina-vizualizare-documente-concediu .stanga-document-concediu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pagina-vizualizare-documente-concediu .icon-document-concediu {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagina-vizualizare-documente-concediu .info-document-concediu {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pagina-vizualizare-documente-concediu .nume-document-concediu {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pagina-vizualizare-documente-concediu .meta-document-concediu {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.pagina-vizualizare-documente-concediu .actiuni-document-concediu {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pagina-vizualizare-documente-concediu .buton-actiune-document {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.pagina-vizualizare-documente-concediu .buton-actiune-document.preview {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.pagina-vizualizare-documente-concediu .buton-actiune-document.preview:hover {
+  background: #d4ebfc;
+}
+
+.pagina-vizualizare-documente-concediu .buton-actiune-document.download {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.pagina-vizualizare-documente-concediu .buton-actiune-document.download:hover {
+  background: #e5e7eb;
+}
+
+.pagina-vizualizare-documente-concediu .footer-modal-documente {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px 20px 24px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.pagina-vizualizare-documente-concediu .buton-inchide-footer-documente {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagina-vizualizare-documente-concediu .buton-inchide-footer-documente:hover {
+  background: #1565c0;
+}
+
+.pagina-vizualizare-documente-concediu .continut-modal-documente::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pagina-vizualizare-documente-concediu .continut-modal-documente::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.pagina-vizualizare-documente-concediu .continut-modal-documente::-webkit-scrollbar-thumb {
+  background: #bdbdbd;
+  border-radius: 10px;
+}
+
+.pagina-vizualizare-documente-concediu .continut-modal-documente::-webkit-scrollbar-thumb:hover {
+  background: #9e9e9e;
+}
+
+@media (max-width: 768px) {
+  .pagina-vizualizare-documente-concediu .card-document-concediu {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagina-vizualizare-documente-concediu .actiuni-document-concediu {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagina-vizualizare-documente-concediu .overlay-modal-documente {
+    padding: 10px;
+  }
+
+  .pagina-vizualizare-documente-concediu .fereastra-modal-documente {
+    max-width: 100%;
+    max-height: 94vh;
+  }
+
+  .pagina-vizualizare-documente-concediu .antet-modal-documente {
+    padding: 16px 16px 10px 16px;
+  }
+
+  .pagina-vizualizare-documente-concediu .continut-modal-documente {
+    padding: 16px;
+  }
+
+  .pagina-vizualizare-documente-concediu .footer-modal-documente {
+    padding: 16px;
+  }
+
+  .pagina-vizualizare-documente-concediu .actiuni-document-concediu {
+    flex-direction: column;
+  }
+
+  .pagina-vizualizare-documente-concediu .buton-actiune-document,
+  .pagina-vizualizare-documente-concediu .buton-inchide-footer-documente {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pagina-vizualizare-documente-concediu .nume-document-concediu {
+    white-space: normal;
+    word-break: break-word;
+  }
+}

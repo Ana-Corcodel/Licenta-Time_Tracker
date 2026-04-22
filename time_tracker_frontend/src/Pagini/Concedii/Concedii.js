@@ -19,6 +19,7 @@ import {
 import axiosInstance from "../../Config/axiosInstance";
 import AddConcediu from "./AddConcediu";
 import EditConcediu from "./EditConcediu";
+import VizualizareDocumenteConcediu from "./VizualizareDocumenteConcediu";
 import "./Concedii.css";
 
 const DIMENSIUNE_IMPLICITA_PAGINA = 10;
@@ -66,7 +67,13 @@ const extrageTipConcediu = (tip) => {
   if (!tip) return "-";
 
   if (typeof tip === "object") {
-    return tip.denumire || tip.label || tip.name || tip.tip || `Tip #${tip.id || ""}`;
+    return (
+      tip.denumire ||
+      tip.label ||
+      tip.name ||
+      tip.tip ||
+      `Tip #${tip.id || ""}`
+    );
   }
 
   return String(tip);
@@ -81,26 +88,15 @@ const extrageListaAttach = (attach) => {
   return [];
 };
 
-const obtineUrlFisier = (fisier) => {
-  if (!fisier) return null;
-
-  return (
-    fisier.file ||
-    fisier.url ||
-    fisier.attachment ||
-    fisier.document ||
-    fisier.fisier ||
-    null
-  );
-};
-
 const Concedii = () => {
   const [concedii, setConcedii] = useState([]);
   const [seIncarca, setSeIncarca] = useState(true);
   const [termenCautare, seteazaTermenCautare] = useState("");
   const [esteDeschisModalAdaugare, setEsteDeschisModalAdaugare] = useState(false);
   const [esteDeschisModalEditare, setEsteDeschisModalEditare] = useState(false);
+  const [esteDeschisModalDocumente, setEsteDeschisModalDocumente] = useState(false);
   const [concediuSelectat, setConcediuSelectat] = useState(null);
+  const [concediuPentruDocumente, setConcediuPentruDocumente] = useState(null);
   const [afiseazaToast, setAfiseazaToast] = useState(false);
   const [mesajToast, setMesajToast] = useState("");
   const [idStergereInCurs, setIdStergereInCurs] = useState(null);
@@ -136,7 +132,8 @@ const Concedii = () => {
         data_start_display: formateazaData(concediu.data_start),
         data_sfarsit_display: formateazaData(concediu.data_sfarsit),
         tip_concediu_display:
-          concediu.tip_concediu_label || extrageTipConcediu(concediu.tip_concediu),
+          concediu.tip_concediu_label ||
+          extrageTipConcediu(concediu.tip_concediu),
         attach_count: extrageListaAttach(concediu.attach_files).length,
       }));
 
@@ -167,15 +164,8 @@ const Concedii = () => {
         return;
       }
 
-      const primulFisier = fisiere[0];
-      const urlFisier = obtineUrlFisier(primulFisier);
-
-      if (!urlFisier) {
-        afiseazaMesajToast("Documentul nu are un URL valid pentru previzualizare");
-        return;
-      }
-
-      window.open(urlFisier, "_blank", "noopener,noreferrer");
+      setConcediuPentruDocumente(concediu);
+      setEsteDeschisModalDocumente(true);
     },
     [afiseazaMesajToast]
   );
@@ -199,8 +189,8 @@ const Concedii = () => {
         console.error("Eroare la ștergerea concediului:", eroare);
         afiseazaMesajToast(
           eroare?.response?.data?.detail ||
-          eroare?.response?.data?.error ||
-          "Nu s-a putut șterge concediul"
+            eroare?.response?.data?.error ||
+            "Nu s-a putut șterge concediul"
         );
       } finally {
         setIdStergereInCurs(null);
@@ -302,7 +292,7 @@ const Concedii = () => {
 
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <Tooltip title="Previzualizează documente">
+              <Tooltip title="Vizualizează documente">
                 <IconButton
                   sx={{
                     color: areDocumente ? "#2e7d32" : "#8e24aa",
@@ -452,6 +442,15 @@ const Concedii = () => {
               setTimeout(() => setAfiseazaToast(false), 4000);
             }
           }
+        }}
+      />
+
+      <VizualizareDocumenteConcediu
+        open={esteDeschisModalDocumente}
+        concediuData={concediuPentruDocumente}
+        onClose={() => {
+          setEsteDeschisModalDocumente(false);
+          setConcediuPentruDocumente(null);
         }}
       />
     </div>
