@@ -533,7 +533,9 @@ const AddPontaj = ({ open, onClose }) => {
 
                                 <div className="rand-formular">
                                     <div className="camp-formular">
-                                        <label className="eticheta-stanga">Ora start <span className="obligatoriu">*</span></label>
+                                        <label className="eticheta-stanga">
+                                            Ora start <span className="obligatoriu">*</span>
+                                        </label>
 
                                         <div className="grup-selecturi-timp">
                                             <div className="select-timp">
@@ -573,11 +575,21 @@ const AddPontaj = ({ open, onClose }) => {
                                             </div>
                                         </div>
 
-                                        {eroriCampuri.ora_start && <span className="eroare-camp eroare-stanga">{eroriCampuri.ora_start}</span>}
+                                        <small className="indicatie-camp">
+                                            Preluată automat din programul angajatului, dar poate fi modificată
+                                        </small>
+
+                                        {eroriCampuri.ora_start && (
+                                            <span className="eroare-camp eroare-stanga">
+                                                {eroriCampuri.ora_start}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <div className="camp-formular">
-                                        <label className="eticheta-stanga">Ora sfârșit <span className="obligatoriu">*</span></label>
+                                        <label className="eticheta-stanga">
+                                            Ora sfârșit <span className="obligatoriu">*</span>
+                                        </label>
 
                                         <div className="grup-selecturi-timp">
                                             <div className="select-timp">
@@ -617,7 +629,15 @@ const AddPontaj = ({ open, onClose }) => {
                                             </div>
                                         </div>
 
-                                        {eroriCampuri.ora_sfarsit && <span className="eroare-camp eroare-stanga">{eroriCampuri.ora_sfarsit}</span>}
+                                        <small className="indicatie-camp">
+                                            Preluată automat din programul angajatului, dar poate fi modificată
+                                        </small>
+
+                                        {eroriCampuri.ora_sfarsit && (
+                                            <span className="eroare-camp eroare-stanga">
+                                                {eroriCampuri.ora_sfarsit}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
@@ -634,7 +654,7 @@ const AddPontaj = ({ open, onClose }) => {
                                             max="180"
                                         />
                                         <small className="indicatie-camp">
-                                            Preluată automat din angajat, dar poate fi modificată
+                                            Preluată automat din programul angajatului, dar poate fi modificată
                                         </small>
                                         {eroriCampuri.pauza_masa && <span className="eroare-camp eroare-stanga">{eroriCampuri.pauza_masa}</span>}
                                     </div>

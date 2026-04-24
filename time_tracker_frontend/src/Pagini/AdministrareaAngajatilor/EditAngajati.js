@@ -454,7 +454,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                         <label className="eticheta-stanga">Email</label>
                                         <input
                                             type="email"
-                                            placeholder="Introdu email (opțional)"
+                                            placeholder="Introdu email"
                                             value={dateFormular.email || ""}
                                             onChange={gestioneazaSchimbare("email")}
                                             className={`input-stanga ${eroriCampuri.email ? "chenar-eroare-camp" : ""}`}
@@ -468,7 +468,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                     <label className="eticheta-stanga">Locație</label>
                                     <input
                                         type="text"
-                                        placeholder="Introdu locația (opțional)"
+                                        placeholder="Introdu locația"
                                         value={dateFormular.locatie || ""}
                                         onChange={gestioneazaSchimbare("locatie")}
                                         className="input-stanga"
