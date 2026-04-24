@@ -16,6 +16,20 @@ def trimite_display(ser, linia1, linia2):
     ser.write(mesaj.encode('utf-8'))
     print("Trimis la Arduino:", mesaj.strip())
 
+def format_nume_lcd(angajat):
+    prenume = angajat.get("prenume", "").strip()
+    nume = angajat.get("nume", "").strip()
+
+    if prenume and nume:
+        return f"{prenume} {nume[0].upper()}."
+
+    if prenume:
+        return prenume
+
+    if nume:
+        return nume
+
+    return "Angajat"
 
 def afiseaza_temporar(ser, linia1, linia2, stare_display, durata=2):
     trimite_display(ser, linia1, linia2)
@@ -93,7 +107,7 @@ def proceseaza_scanare(line, ser, stare_display):
 
         if response.status_code == 200:
             angajat = data.get("angajat", {})
-            nume = angajat.get("nume", "Angajat")
+            nume = format_nume_lcd(angajat)
 
             tip_actiune = data.get("tip_actiune", "")
             pontaj = data.get("pontaj", {})
