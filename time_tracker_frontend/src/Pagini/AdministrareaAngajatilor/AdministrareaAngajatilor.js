@@ -5,7 +5,12 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Chip
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Tooltip } from '@mui/material';
@@ -109,6 +114,9 @@ const AdministrareaAngajatilor = () => {
   const [mesajToast, setMesajToast] = useState('');
   const [idInrolareInCurs, setIdInrolareInCurs] = useState(null);
   const [idStergereInCurs, setIdStergereInCurs] = useState(null);
+
+  const [esteDeschisPopupStergere, setEsteDeschisPopupStergere] = useState(false);
+  const [angajatPentruStergere, setAngajatPentruStergere] = useState(null);
 
   const cautareIntarziata = useDebounce(textCautare, TIMP_DEBOUNCE_MS);
 
@@ -255,6 +263,24 @@ const AdministrareaAngajatilor = () => {
       if (interval) clearInterval(interval);
     };
   }, [preiaAngajati]);
+
+  const deschidePopupStergere = useCallback((angajat) => {
+    setAngajatPentruStergere(angajat);
+    setEsteDeschisPopupStergere(true);
+  }, []);
+
+  const inchidePopupStergere = useCallback(() => {
+    setEsteDeschisPopupStergere(false);
+    setAngajatPentruStergere(null);
+  }, []);
+
+  const confirmaStergereAmprenta = useCallback(() => {
+    if (angajatPentruStergere) {
+      gestioneazaStergereAmprenta(angajatPentruStergere);
+    }
+
+    inchidePopupStergere();
+  }, [angajatPentruStergere, gestioneazaStergereAmprenta, inchidePopupStergere]);
 
   const randuriFiltrate = useMemo(() => {
     let lista = [...angajati];
@@ -441,7 +467,7 @@ const AdministrareaAngajatilor = () => {
                       opacity: 0.7
                     }
                   }}
-                  onClick={() => gestioneazaStergereAmprenta(params.row)}
+                  onClick={() => deschidePopupStergere(params.row)}
                   disabled={idStergereInCurs === params.row.id || !params.row.are_amprenta}
                 >
                   <Delete />
@@ -452,7 +478,13 @@ const AdministrareaAngajatilor = () => {
         ),
       },
     ],
-    [gestioneazaEditareAngajat, gestioneazaInrolareAmprenta, gestioneazaStergereAmprenta, idInrolareInCurs, idStergereInCurs]
+    [
+      gestioneazaEditareAngajat,
+      gestioneazaInrolareAmprenta,
+      deschidePopupStergere,
+      idInrolareInCurs,
+      idStergereInCurs
+    ]
   );
 
   return (
@@ -549,6 +581,46 @@ const AdministrareaAngajatilor = () => {
           }
         }}
       />
+
+      <Dialog
+        open={esteDeschisPopupStergere}
+        onClose={inchidePopupStergere}
+        className="popup-confirmare-stergere-amprenta"
+      >
+        <DialogTitle className="titlu-popup-stergere">
+          Confirmare ștergere
+        </DialogTitle>
+
+        <DialogContent className="continut-popup-stergere">
+          <Typography className="text-popup-stergere">
+            Sigur vrei să ștergi amprenta pentru{' '}
+            <strong>
+              {angajatPentruStergere?.nume} {angajatPentruStergere?.prenume}
+            </strong>
+            ?
+          </Typography>
+
+          <Typography className="subtext-popup-stergere">
+            Această acțiune va elimina amprenta din senzor și angajatul va trebui înrolat din nou.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions className="actiuni-popup-stergere">
+          <Button
+            className="buton-anuleaza-stergere"
+            onClick={inchidePopupStergere}
+          >
+            Anulează
+          </Button>
+
+          <Button
+            className="buton-confirma-stergere"
+            onClick={confirmaStergereAmprenta}
+          >
+            Șterge
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

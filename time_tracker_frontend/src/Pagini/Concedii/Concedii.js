@@ -7,6 +7,11 @@ import {
   IconButton,
   Chip,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -101,6 +106,9 @@ const Concedii = () => {
   const [mesajToast, setMesajToast] = useState("");
   const [idStergereInCurs, setIdStergereInCurs] = useState(null);
 
+  const [esteDeschisPopupStergere, setEsteDeschisPopupStergere] = useState(false);
+  const [concediuPentruStergere, setConcediuPentruStergere] = useState(null);
+
   const termenCautareTemporizat = useDebounce(
     termenCautare,
     INTERVAL_DEBOUNCE_CAUTARE
@@ -170,14 +178,18 @@ const Concedii = () => {
     [afiseazaMesajToast]
   );
 
+  const deschidePopupStergere = useCallback((concediu) => {
+    setConcediuPentruStergere(concediu);
+    setEsteDeschisPopupStergere(true);
+  }, []);
+
+  const inchidePopupStergere = useCallback(() => {
+    setEsteDeschisPopupStergere(false);
+    setConcediuPentruStergere(null);
+  }, []);
+
   const gestioneazaStergereConcediu = useCallback(
     async (concediu) => {
-      const confirmare = window.confirm(
-        `Sigur vrei să ștergi concediul pentru ${extrageNumeAngajat(concediu.angajat)}?`
-      );
-
-      if (!confirmare) return;
-
       try {
         setIdStergereInCurs(concediu.id);
 
@@ -189,8 +201,8 @@ const Concedii = () => {
         console.error("Eroare la ștergerea concediului:", eroare);
         afiseazaMesajToast(
           eroare?.response?.data?.detail ||
-            eroare?.response?.data?.error ||
-            "Nu s-a putut șterge concediul"
+          eroare?.response?.data?.error ||
+          "Nu s-a putut șterge concediul"
         );
       } finally {
         setIdStergereInCurs(null);
@@ -198,6 +210,14 @@ const Concedii = () => {
     },
     [afiseazaMesajToast, preiaConcedii]
   );
+
+  const confirmaStergereConcediu = useCallback(() => {
+    if (concediuPentruStergere) {
+      gestioneazaStergereConcediu(concediuPentruStergere);
+    }
+
+    inchidePopupStergere();
+  }, [concediuPentruStergere, gestioneazaStergereConcediu, inchidePopupStergere]);
 
   const randuriFiltrate = useMemo(() => {
     let lista = [...concedii];
@@ -322,7 +342,7 @@ const Concedii = () => {
                         opacity: 0.6,
                       },
                     }}
-                    onClick={() => gestioneazaStergereConcediu(parametri.row)}
+                    onClick={() => deschidePopupStergere(parametri.row)}
                     disabled={idStergereInCurs === parametri.row.id}
                   >
                     <Delete />
@@ -337,7 +357,7 @@ const Concedii = () => {
     [
       gestioneazaEditareConcediu,
       gestioneazaPreviewDocumente,
-      gestioneazaStergereConcediu,
+      deschidePopupStergere,
       idStergereInCurs,
     ]
   );
@@ -453,6 +473,46 @@ const Concedii = () => {
           setConcediuPentruDocumente(null);
         }}
       />
+
+      <Dialog
+        open={esteDeschisPopupStergere}
+        onClose={inchidePopupStergere}
+        className="popup-confirmare-stergere-concediu"
+      >
+        <DialogTitle className="titlu-popup-stergere-concediu">
+          Confirmare ștergere
+        </DialogTitle>
+
+        <DialogContent className="continut-popup-stergere-concediu">
+          <Typography className="text-popup-stergere-concediu">
+            Sigur vrei să ștergi concediul pentru{" "}
+            <strong>
+              {concediuPentruStergere?.angajat_display}
+            </strong>
+            ?
+          </Typography>
+
+          <Typography className="subtext-popup-stergere-concediu">
+            Această acțiune va elimina definitiv concediul și documentele asociate acestuia.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions className="actiuni-popup-stergere-concediu">
+          <Button
+            className="buton-anuleaza-stergere-concediu"
+            onClick={inchidePopupStergere}
+          >
+            Anulează
+          </Button>
+
+          <Button
+            className="buton-confirma-stergere-concediu"
+            onClick={confirmaStergereConcediu}
+          >
+            Șterge
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

@@ -104,6 +104,74 @@
   background-color: #fff;
 }
 
+.popup-confirmare-stergere-amprenta .MuiPaper-root {
+  border-radius: 18px !important;
+  padding: 8px;
+  min-width: 420px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25) !important;
+}
+
+.titlu-popup-stergere {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  padding: 22px 24px 8px !important;
+}
+
+.continut-popup-stergere {
+  padding: 8px 24px 12px !important;
+}
+
+.text-popup-stergere {
+  font-size: 16px !important;
+  color: #334155 !important;
+  line-height: 1.6 !important;
+}
+
+.text-popup-stergere strong {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.subtext-popup-stergere {
+  margin-top: 10px !important;
+  font-size: 14px !important;
+  color: #64748b !important;
+}
+
+.actiuni-popup-stergere {
+  padding: 16px 24px 22px !important;
+  gap: 12px;
+}
+
+.buton-anuleaza-stergere {
+  color: #475569 !important;
+  background-color: #f1f5f9 !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  padding: 8px 18px !important;
+}
+
+.buton-anuleaza-stergere:hover {
+  background-color: #e2e8f0 !important;
+}
+
+.buton-confirma-stergere {
+  color: white !important;
+  background-color: #dc2626 !important;
+  text-transform: none !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  padding: 8px 20px !important;
+}
+
+.buton-confirma-stergere:hover {
+  background-color: #b91c1c !important;
+}
+
+
+
 @media (max-width: 768px) {
   .pagina-administrare-angajati .bara-unelte-angajati {
     flex-direction: column;
@@ -129,5 +197,12 @@
 
   .pagina-administrare-angajati .buton-adauga-angajat {
     width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .popup-confirmare-stergere-amprenta .MuiPaper-root {
+    min-width: unset;
+    width: calc(100% - 32px);
   }
 }
