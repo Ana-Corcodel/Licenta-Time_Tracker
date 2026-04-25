@@ -576,7 +576,7 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                     <DatePicker
                                         selected={dateFormular.data}
                                         onChange={gestioneazaSchimbareData}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         locale="ro"
                                         placeholderText="Selectează data"
                                         className={`input-stanga ${eroriCampuri.data ? "chenar-eroare-camp" : ""}`}

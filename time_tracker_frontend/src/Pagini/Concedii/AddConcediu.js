@@ -210,28 +210,6 @@ const AddConcediu = ({ open, onClose }) => {
     [calculeazaDurata]
   );
 
-  const gestioneazaSchimbareDurata = useCallback((e) => {
-    let valoare = e.target.value;
-
-    if (valoare === "") {
-      seteazaDateFormular((anterior) => ({
-        ...anterior,
-        durata: "",
-      }));
-    } else {
-      const numar = parseInt(valoare, 10);
-      seteazaDateFormular((anterior) => ({
-        ...anterior,
-        durata: Number.isNaN(numar) ? "" : numar,
-      }));
-    }
-
-    seteazaEroriCampuri((anterior) => ({
-      ...anterior,
-      durata: "",
-    }));
-  }, []);
-
   const gestioneazaSchimbareAnConcediu = useCallback((e) => {
     let valoare = e.target.value;
 
@@ -359,7 +337,7 @@ const AddConcediu = ({ open, onClose }) => {
     }
   };
 
-  const validateFiles = () => {
+  const validateFiles = useCallback(() => {
     if (files.length === 0) return true;
 
     const MAX_FILE_SIZE = 100 * 1024 * 1024;
@@ -376,7 +354,7 @@ const AddConcediu = ({ open, onClose }) => {
     }
 
     return true;
-  };
+  }, [files, showError]);
 
   const valideazaFormular = useCallback(() => {
     const erori = {};
@@ -494,8 +472,8 @@ const AddConcediu = ({ open, onClose }) => {
     } finally {
       seteazaSeIncarca(false);
     }
-  }, [dateFormular, files, valideazaFormular, onClose]);
-
+  }, [dateFormular, files, validateFiles, valideazaFormular, onClose]);
+  
   const obtineStiluriPersonalizateSelect = (numeCamp) => ({
     control: (baza, stare) => ({
       ...baza,
@@ -664,7 +642,7 @@ const AddConcediu = ({ open, onClose }) => {
                     <DatePicker
                       selected={dateFormular.data_start}
                       onChange={gestioneazaSchimbareDataStart}
-                      dateFormat="dd/MM/yyyy"
+                      dateFormat="dd.MM.yyyy"
                       locale="ro"
                       placeholderText="Selectează data de început"
                       className={`input-stanga ${eroriCampuri.data_start ? "chenar-eroare-camp" : ""
@@ -685,7 +663,7 @@ const AddConcediu = ({ open, onClose }) => {
                     <DatePicker
                       selected={dateFormular.data_sfarsit}
                       onChange={gestioneazaSchimbareDataSfarsit}
-                      dateFormat="dd/MM/yyyy"
+                      dateFormat="dd.MM.yyyy"
                       locale="ro"
                       minDate={dateFormular.data_start}
                       placeholderText="Selectează data de sfârșit"

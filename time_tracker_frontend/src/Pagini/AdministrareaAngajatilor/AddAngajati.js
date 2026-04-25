@@ -199,89 +199,69 @@ const AddAngajati = ({ open, onClose }) => {
     const obtineStiluriSelectPersonalizat = (numeCamp) => ({
         control: (baza, stare) => ({
             ...baza,
+            minHeight: "43px",
+            borderRadius: "12px",
             border: eroriCampuri[numeCamp]
-                ? "1px solid #d32f2f"
+                ? "1px solid #dc2626"
                 : stare.isFocused
-                    ? "1px solid #007BFF"
-                    : "1px solid #ccc",
-            "&:hover": {
-                border: eroriCampuri[numeCamp]
-                    ? "1px solid #d32f2f"
-                    : stare.isFocused
-                        ? "1px solid #007BFF"
-                        : "1px solid #888",
-            },
-            fontSize: "14px",
-            fontFamily: "Arial, sans-serif",
-            minHeight: "38px",
+                    ? "1px solid #2563eb"
+                    : "1px solid #d1d5db",
+            boxShadow: stare.isFocused
+                ? "0 0 0 4px rgba(37, 99, 235, 0.13)"
+                : "none",
             backgroundColor: "#fff",
-            boxShadow: "none",
-            borderRadius: "4px",
+            transition: "all 0.22s ease",
+            fontWeight: 400, // 🔥 FIX: nu mai e bold
         }),
         valueContainer: (baza) => ({
             ...baza,
-            padding: "0 8px",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            textAlign: "left",
+            padding: "0 12px",
         }),
         input: (baza) => ({
             ...baza,
-            color: "#1a1a1a",
-            margin: "0",
-            padding: "0",
-            "& input": {
-                boxShadow: "none !important",
-                border: "none !important",
-                outline: "none !important",
-                padding: "0",
-                margin: "0",
-                textAlign: "left",
-            },
+            color: "#111827",
+            margin: 0,
+            padding: 0,
         }),
         placeholder: (baza) => ({
             ...baza,
-            color: "#999",
+            color: "#94a3b8",
             fontSize: "14px",
-            textAlign: "left",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
         }),
         singleValue: (baza) => ({
             ...baza,
-            color: "#1a1a1a",
+            color: "#111827",
             fontSize: "14px",
-            textAlign: "left",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
+            fontWeight: 400, // aici era mai îngroșat
         }),
         menu: (baza) => ({
             ...baza,
             zIndex: 9999,
-            fontSize: "14px",
-            textAlign: "left",
+            borderRadius: "14px",
+            overflow: "hidden",
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 18px 40px rgba(15, 23, 42, 0.18)",
         }),
         menuList: (baza) => ({
             ...baza,
-            maxHeight: "150px",
-            overflowY: "auto"
+            maxHeight: "170px",
+            padding: "6px",
         }),
         option: (baza, stare) => ({
             ...baza,
-            backgroundColor: stare.isSelected
-                ? "#e6f2ff"
-                : stare.isFocused
-                    ? "#f0f0f0"
-                    : "#fff",
-            color: stare.isSelected ? "#006ce4" : "#1a1a1a",
+            borderRadius: "10px",
+            padding: "10px 12px",
+            cursor: "pointer",
             fontSize: "14px",
-            textAlign: "left",
+            backgroundColor: stare.isSelected
+                ? "#dbeafe"
+                : stare.isFocused
+                    ? "#eff6ff"
+                    : "#fff",
+            color: "#111827",
+            fontWeight: 400,
             "&:active": {
-                backgroundColor: "#e6f2ff",
+                backgroundColor: "#dbeafe",
             },
         }),
     });
@@ -432,13 +412,23 @@ const AddAngajati = ({ open, onClose }) => {
 
                                 <div className="camp-formular">
                                     <label className="eticheta-stanga">Email</label>
-                                    <input
-                                        type="email"
-                                        placeholder="Introdu email"
-                                        value={dateFormular.email || ""}
-                                        onChange={gestioneazaSchimbare("email")}
-                                        className={`input-stanga ${eroriCampuri.email ? "chenar-eroare-camp" : ""}`}
-                                    />
+
+                                    <div className="input-cu-icon">
+                                        <span className="icon-email">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                                <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 4.3 8 5 8-5V6l-8 5-8-5v2.3z" />
+                                            </svg>
+                                        </span>
+
+                                        <input
+                                            type="email"
+                                            placeholder="Introdu email"
+                                            value={dateFormular.email || ""}
+                                            onChange={gestioneazaSchimbare("email")}
+                                            className={`input-stanga ${eroriCampuri.email ? "chenar-eroare-camp" : ""}`}
+                                        />
+                                    </div>
+
                                     {eroriCampuri.email && (
                                         <span className="mesaj-eroare-camp eroare-stanga">
                                             {eroriCampuri.email}
@@ -449,13 +439,23 @@ const AddAngajati = ({ open, onClose }) => {
 
                             <div className="camp-formular">
                                 <label className="eticheta-stanga">Locație</label>
-                                <input
-                                    type="text"
-                                    placeholder="Introdu locația"
-                                    value={dateFormular.locatie || ""}
-                                    onChange={gestioneazaSchimbare("locatie")}
-                                    className="input-stanga"
-                                />
+
+                                <div className="input-cu-icon">
+                                    <span className="icon-locatie">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                                <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
+                                            </svg>
+                                        
+                                    </span>
+
+                                    <input
+                                        type="text"
+                                        placeholder="Introdu locația"
+                                        value={dateFormular.locatie || ""}
+                                        onChange={gestioneazaSchimbare("locatie")}
+                                        className="input-stanga"
+                                    />
+                                </div>
                             </div>
 
                             <div className="rand-formular">
@@ -479,6 +479,8 @@ const AddAngajati = ({ open, onClose }) => {
                                                 isSearchable={true}
                                                 isClearable={false}
                                                 styles={obtineStiluriSelectPersonalizat("ora_incepere")}
+                                                menuPlacement="top"
+                                                menuPosition="fixed"
                                             />
                                         </div>
 
@@ -498,6 +500,8 @@ const AddAngajati = ({ open, onClose }) => {
                                                 isSearchable={true}
                                                 isClearable={false}
                                                 styles={obtineStiluriSelectPersonalizat("ora_incepere")}
+                                                menuPlacement="top"
+                                                menuPosition="fixed"
                                             />
                                         </div>
                                     </div>
@@ -529,6 +533,8 @@ const AddAngajati = ({ open, onClose }) => {
                                                 isSearchable={true}
                                                 isClearable={false}
                                                 styles={obtineStiluriSelectPersonalizat("ora_sfarsit")}
+                                                menuPlacement="top"
+                                                menuPosition="fixed"
                                             />
                                         </div>
 
@@ -548,6 +554,8 @@ const AddAngajati = ({ open, onClose }) => {
                                                 isSearchable={true}
                                                 isClearable={false}
                                                 styles={obtineStiluriSelectPersonalizat("ora_sfarsit")}
+                                                menuPlacement="top"
+                                                menuPosition="fixed"
                                             />
                                         </div>
                                     </div>

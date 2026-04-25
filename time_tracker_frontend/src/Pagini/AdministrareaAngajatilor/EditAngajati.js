@@ -72,7 +72,6 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         try {
             setSeIncarcaDatele(true);
             const raspuns = await axiosInstance.get(`/angajati/${employeeData.id}/`);
-
             const angajat = raspuns.data;
 
             let valoareStatus = angajat.status;
@@ -128,16 +127,12 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
 
             if (camp === "telefon") {
                 valoare = valoare.replace(/\D/g, "");
-                if (valoare.length > 15) {
-                    valoare = valoare.slice(0, 15);
-                }
+                if (valoare.length > 15) valoare = valoare.slice(0, 15);
             }
 
             if (camp === "ora_pauza") {
                 valoare = parseInt(valoare, 10);
-                if (Number.isNaN(valoare)) {
-                    valoare = 0;
-                }
+                if (Number.isNaN(valoare)) valoare = 0;
             }
 
             setDateFormular((anterior) => ({ ...anterior, [camp]: valoare }));
@@ -159,12 +154,12 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             setDateFormular((anterior) => {
                 const { ora, minute } = extrageOraSiMinute(anterior[camp]);
 
-                const oraNoua = tip === "ora" ? valoareSelectata : ora;
-                const minuteNoi = tip === "minute" ? valoareSelectata : minute;
-
                 return {
                     ...anterior,
-                    [camp]: construiesteTimp(oraNoua, minuteNoi),
+                    [camp]: construiesteTimp(
+                        tip === "ora" ? valoareSelectata : ora,
+                        tip === "minute" ? valoareSelectata : minute
+                    ),
                 };
             });
 
@@ -205,8 +200,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
         setMesajSucces("");
         setEroriCampuri({});
 
-        const esteValid = valideazaFormular();
-        if (!esteValid) return;
+        if (!valideazaFormular()) return;
 
         setSeSalveaza(true);
 
@@ -215,8 +209,8 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                 ...dateFormular,
                 ora_pauza:
                     dateFormular.ora_pauza === "" ||
-                        dateFormular.ora_pauza === null ||
-                        dateFormular.ora_pauza === undefined
+                    dateFormular.ora_pauza === null ||
+                    dateFormular.ora_pauza === undefined
                         ? 30
                         : parseInt(dateFormular.ora_pauza, 10),
             };
@@ -232,6 +226,7 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
             }
         } catch (eroare) {
             let mesaj = "Eroare la editarea angajatului";
+
             if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
             else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
 
@@ -245,85 +240,68 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
     const obtineStiluriSelectPersonalizat = (numeCamp) => ({
         control: (baza, stare) => ({
             ...baza,
+            minHeight: "43px",
+            borderRadius: "12px",
             border: eroriCampuri[numeCamp]
-                ? "1px solid #d32f2f"
+                ? "1px solid #dc2626"
                 : stare.isFocused
-                    ? "1px solid #007BFF"
-                    : "1px solid #ccc",
-            "&:hover": {
-                border: eroriCampuri[numeCamp]
-                    ? "1px solid #d32f2f"
-                    : stare.isFocused
-                        ? "1px solid #007BFF"
-                        : "1px solid #888",
-            },
-            fontSize: "14px",
-            fontFamily: "Arial, sans-serif",
-            minHeight: "38px",
+                    ? "1px solid #2563eb"
+                    : "1px solid #d1d5db",
+            boxShadow: stare.isFocused ? "0 0 0 4px rgba(37, 99, 235, 0.13)" : "none",
             backgroundColor: "#fff",
-            boxShadow: "none",
-            borderRadius: "4px",
+            transition: "all 0.22s ease",
+            fontWeight: 400,
+            "&:hover": {
+                borderColor: eroriCampuri[numeCamp] ? "#dc2626" : "#93c5fd",
+                backgroundColor: eroriCampuri[numeCamp] ? "#fff7f7" : "#f8fbff",
+            },
         }),
         valueContainer: (baza) => ({
             ...baza,
-            padding: "0 8px",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            textAlign: "left",
+            padding: "0 12px",
         }),
         input: (baza) => ({
             ...baza,
-            color: "#1a1a1a",
-            margin: "0",
-            padding: "0",
-            "& input": {
-                boxShadow: "none !important",
-                border: "none !important",
-                outline: "none !important",
-                padding: "0",
-                margin: "0",
-                textAlign: "left",
-            },
+            color: "#111827",
+            margin: 0,
+            padding: 0,
         }),
         placeholder: (baza) => ({
             ...baza,
-            color: "#999",
+            color: "#94a3b8",
             fontSize: "14px",
-            textAlign: "left",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
+            fontWeight: 400,
         }),
         singleValue: (baza) => ({
             ...baza,
-            color: "#1a1a1a",
+            color: "#111827",
             fontSize: "14px",
-            textAlign: "left",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
+            fontWeight: 400,
         }),
         menu: (baza) => ({
             ...baza,
             zIndex: 9999,
-            fontSize: "14px",
-            textAlign: "left",
+            borderRadius: "14px",
+            overflow: "hidden",
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 18px 40px rgba(15, 23, 42, 0.18)",
         }),
         menuList: (baza) => ({
             ...baza,
-            maxHeight: "150px",
-            overflowY: "auto"
+            maxHeight: "170px",
+            padding: "6px",
         }),
         option: (baza, stare) => ({
             ...baza,
-            backgroundColor: stare.isSelected ? "#e6f2ff" : stare.isFocused ? "#f0f0f0" : "#fff",
-            color: stare.isSelected ? "#006ce4" : "#1a1a1a",
+            borderRadius: "10px",
+            padding: "10px 12px",
+            cursor: "pointer",
             fontSize: "14px",
-            textAlign: "left",
+            backgroundColor: stare.isSelected ? "#dbeafe" : stare.isFocused ? "#eff6ff" : "#fff",
+            color: "#111827",
+            fontWeight: 400,
             "&:active": {
-                backgroundColor: "#e6f2ff",
+                backgroundColor: "#dbeafe",
             },
         }),
     });
@@ -343,17 +321,15 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                         <div className="fereastra-modal">
                             <div className="antet-modal">
                                 <h2>Editează Angajat</h2>
-                                <button className="buton-inchidere" onClick={gestioneazaAnulare}>×</button>
+                                <button className="buton-inchidere" onClick={gestioneazaAnulare}>
+                                    ×
+                                </button>
                             </div>
-
-                            <hr className="linie-antet" />
 
                             {(seSalveaza || seIncarcaDatele) && (
                                 <div className="suprapunere-incarcare">
                                     <div className="incarcator"></div>
-                                    <span>
-                                        {seIncarcaDatele ? "Se încarcă datele..." : "Se salvează editările..."}
-                                    </span>
+                                    <span>{seIncarcaDatele ? "Se încarcă datele..." : "Se salvează editările..."}</span>
                                 </div>
                             )}
 
@@ -364,29 +340,13 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                 <div className="rand-formular">
                                     <div className="camp-formular">
                                         <label className="eticheta-stanga">Nume <span className="obligatoriu">*</span></label>
-                                        <input
-                                            type="text"
-                                            placeholder="Introdu numele"
-                                            value={dateFormular.nume}
-                                            onChange={gestioneazaSchimbare("nume")}
-                                            className={`input-stanga ${eroriCampuri.nume ? "chenar-eroare-camp" : ""}`}
-                                            disabled={seIncarcaDatele}
-                                            required
-                                        />
+                                        <input type="text" placeholder="Introdu numele" value={dateFormular.nume} onChange={gestioneazaSchimbare("nume")} className={`input-stanga ${eroriCampuri.nume ? "chenar-eroare-camp" : ""}`} disabled={seIncarcaDatele} required />
                                         {eroriCampuri.nume && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.nume}</span>}
                                     </div>
 
                                     <div className="camp-formular">
                                         <label className="eticheta-stanga">Prenume <span className="obligatoriu">*</span></label>
-                                        <input
-                                            type="text"
-                                            placeholder="Introdu prenumele"
-                                            value={dateFormular.prenume}
-                                            onChange={gestioneazaSchimbare("prenume")}
-                                            className={`input-stanga ${eroriCampuri.prenume ? "chenar-eroare-camp" : ""}`}
-                                            disabled={seIncarcaDatele}
-                                            required
-                                        />
+                                        <input type="text" placeholder="Introdu prenumele" value={dateFormular.prenume} onChange={gestioneazaSchimbare("prenume")} className={`input-stanga ${eroriCampuri.prenume ? "chenar-eroare-camp" : ""}`} disabled={seIncarcaDatele} required />
                                         {eroriCampuri.prenume && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.prenume}</span>}
                                     </div>
                                 </div>
@@ -394,35 +354,25 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                 <div className="rand-formular">
                                     <div className="camp-formular">
                                         <label className="eticheta-stanga">Funcție <span className="obligatoriu">*</span></label>
-                                        <input
-                                            type="text"
-                                            placeholder="Introdu funcția"
-                                            value={dateFormular.functie}
-                                            onChange={gestioneazaSchimbare("functie")}
-                                            className={`input-stanga ${eroriCampuri.functie ? "chenar-eroare-camp" : ""}`}
-                                            disabled={seIncarcaDatele}
-                                            required
-                                        />
+                                        <input type="text" placeholder="Introdu funcția" value={dateFormular.functie} onChange={gestioneazaSchimbare("functie")} className={`input-stanga ${eroriCampuri.functie ? "chenar-eroare-camp" : ""}`} disabled={seIncarcaDatele} required />
                                         {eroriCampuri.functie && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.functie}</span>}
                                     </div>
 
                                     <div className="camp-formular">
                                         <label className="eticheta-stanga">Status <span className="obligatoriu">*</span></label>
-
                                         <Select
                                             name="status"
-                                            value={optiuniStatus.find(optiune => optiune.value === dateFormular.status)}
+                                            value={optiuniStatus.find((optiune) => optiune.value === dateFormular.status)}
                                             onChange={gestioneazaSchimbareStatus}
                                             options={optiuniStatus}
                                             placeholder="Selectează status"
                                             className={`camp-select-multiplu ${eroriCampuri.status ? "select-eroare" : ""}`}
                                             classNamePrefix="select"
-                                            isSearchable={true}
-                                            isClearable={true}
+                                            isSearchable
+                                            isClearable
                                             isDisabled={seIncarcaDatele}
                                             styles={obtineStiluriSelectPersonalizat("status")}
                                         />
-
                                         {eroriCampuri.status && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.status}</span>}
                                     </div>
                                 </div>
@@ -432,184 +382,90 @@ const EditAngajati = ({ open, employeeData, onClose }) => {
                                         <label className="eticheta-stanga">Telefon <span className="obligatoriu">*</span></label>
                                         <div className="input-cu-icon">
                                             <span className="icon-telefon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 24 24">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                                     <path d="M22 16.92v3a1.999 1.999 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z" />
                                                 </svg>
                                             </span>
-
-                                            <input
-                                                type="text"
-                                                placeholder="Introdu numărul de telefon"
-                                                value={dateFormular.telefon}
-                                                onChange={gestioneazaSchimbare("telefon")}
-                                                className={`input-stanga ${eroriCampuri.telefon ? "chenar-eroare-camp" : ""}`}
-                                                disabled={seIncarcaDatele}
-                                                required
-                                            />
+                                            <input type="text" placeholder="Introdu numărul de telefon" value={dateFormular.telefon} onChange={gestioneazaSchimbare("telefon")} className={`input-stanga ${eroriCampuri.telefon ? "chenar-eroare-camp" : ""}`} disabled={seIncarcaDatele} required />
                                         </div>
                                         {eroriCampuri.telefon && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.telefon}</span>}
                                     </div>
 
                                     <div className="camp-formular">
                                         <label className="eticheta-stanga">Email</label>
-                                        <input
-                                            type="email"
-                                            placeholder="Introdu email"
-                                            value={dateFormular.email || ""}
-                                            onChange={gestioneazaSchimbare("email")}
-                                            className={`input-stanga ${eroriCampuri.email ? "chenar-eroare-camp" : ""}`}
-                                            disabled={seIncarcaDatele}
-                                        />
+                                        <div className="input-cu-icon">
+                                            <span className="icon-email">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                                    <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 4.3 8 5 8-5V6l-8 5-8-5v2.3z" />
+                                                </svg>
+                                            </span>
+                                            <input type="email" placeholder="Introdu email" value={dateFormular.email || ""} onChange={gestioneazaSchimbare("email")} className={`input-stanga ${eroriCampuri.email ? "chenar-eroare-camp" : ""}`} disabled={seIncarcaDatele} />
+                                        </div>
                                         {eroriCampuri.email && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.email}</span>}
                                     </div>
                                 </div>
 
                                 <div className="camp-formular">
                                     <label className="eticheta-stanga">Locație</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Introdu locația"
-                                        value={dateFormular.locatie || ""}
-                                        onChange={gestioneazaSchimbare("locatie")}
-                                        className="input-stanga"
-                                        disabled={seIncarcaDatele}
-                                    />
+                                    <div className="input-cu-icon">
+                                        <span className="icon-locatie">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                                <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
+                                            </svg>
+                                        </span>
+                                        <input type="text" placeholder="Introdu locația" value={dateFormular.locatie || ""} onChange={gestioneazaSchimbare("locatie")} className="input-stanga" disabled={seIncarcaDatele} />
+                                    </div>
                                 </div>
 
                                 <div className="rand-formular">
                                     <div className="camp-formular">
-                                        <label className="eticheta-stanga">
-                                            Ora începere <span className="obligatoriu">*</span>
-                                        </label>
-
+                                        <label className="eticheta-stanga">Ora începere <span className="obligatoriu">*</span></label>
                                         <div className="grup-selecturi-timp">
                                             <div className="select-timp">
-                                                <Select
-                                                    name="ora_incepere_ora"
-                                                    value={optiuniOra.find((optiune) => optiune.value === oraIncepere.ora)}
-                                                    onChange={(optiuneSelectata) =>
-                                                        gestioneazaSchimbareTimpSeparat("ora_incepere", "ora", optiuneSelectata)
-                                                    }
-                                                    options={optiuniOra}
-                                                    placeholder="Ora"
-                                                    className={`camp-select-multiplu ${eroriCampuri.ora_incepere ? "select-eroare" : ""}`}
-                                                    classNamePrefix="select"
-                                                    isSearchable={true}
-                                                    isClearable={false}
-                                                    isDisabled={seIncarcaDatele}
-                                                    styles={obtineStiluriSelectPersonalizat("ora_incepere")}
-                                                />
+                                                <Select name="ora_incepere_ora" value={optiuniOra.find((optiune) => optiune.value === oraIncepere.ora)} onChange={(optiuneSelectata) => gestioneazaSchimbareTimpSeparat("ora_incepere", "ora", optiuneSelectata)} options={optiuniOra} placeholder="Ora" className={`camp-select-multiplu ${eroriCampuri.ora_incepere ? "select-eroare" : ""}`} classNamePrefix="select" isSearchable isClearable={false} isDisabled={seIncarcaDatele} styles={obtineStiluriSelectPersonalizat("ora_incepere")} menuPlacement="top" menuPosition="fixed" />
                                             </div>
 
                                             <span className="separator-timp">:</span>
 
                                             <div className="select-timp">
-                                                <Select
-                                                    name="ora_incepere_minute"
-                                                    value={optiuniMinute.find((optiune) => optiune.value === oraIncepere.minute)}
-                                                    onChange={(optiuneSelectata) =>
-                                                        gestioneazaSchimbareTimpSeparat("ora_incepere", "minute", optiuneSelectata)
-                                                    }
-                                                    options={optiuniMinute}
-                                                    placeholder="Min"
-                                                    className={`camp-select-multiplu ${eroriCampuri.ora_incepere ? "select-eroare" : ""}`}
-                                                    classNamePrefix="select"
-                                                    isSearchable={true}
-                                                    isClearable={false}
-                                                    isDisabled={seIncarcaDatele}
-                                                    styles={obtineStiluriSelectPersonalizat("ora_incepere")}
-                                                />
+                                                <Select name="ora_incepere_minute" value={optiuniMinute.find((optiune) => optiune.value === oraIncepere.minute)} onChange={(optiuneSelectata) => gestioneazaSchimbareTimpSeparat("ora_incepere", "minute", optiuneSelectata)} options={optiuniMinute} placeholder="Min" className={`camp-select-multiplu ${eroriCampuri.ora_incepere ? "select-eroare" : ""}`} classNamePrefix="select" isSearchable isClearable={false} isDisabled={seIncarcaDatele} styles={obtineStiluriSelectPersonalizat("ora_incepere")} menuPlacement="top" menuPosition="fixed" />
                                             </div>
                                         </div>
-
-                                        {eroriCampuri.ora_incepere && (
-                                            <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_incepere}</span>
-                                        )}
+                                        {eroriCampuri.ora_incepere && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_incepere}</span>}
                                     </div>
 
                                     <div className="camp-formular">
-                                        <label className="eticheta-stanga">
-                                            Ora sfârșit <span className="obligatoriu">*</span>
-                                        </label>
-
+                                        <label className="eticheta-stanga">Ora sfârșit <span className="obligatoriu">*</span></label>
                                         <div className="grup-selecturi-timp">
                                             <div className="select-timp">
-                                                <Select
-                                                    name="ora_sfarsit_ora"
-                                                    value={optiuniOra.find((optiune) => optiune.value === oraSfarsit.ora)}
-                                                    onChange={(optiuneSelectata) =>
-                                                        gestioneazaSchimbareTimpSeparat("ora_sfarsit", "ora", optiuneSelectata)
-                                                    }
-                                                    options={optiuniOra}
-                                                    placeholder="Ora"
-                                                    className={`camp-select-multiplu ${eroriCampuri.ora_sfarsit ? "select-eroare" : ""}`}
-                                                    classNamePrefix="select"
-                                                    isSearchable={true}
-                                                    isClearable={false}
-                                                    isDisabled={seIncarcaDatele}
-                                                    styles={obtineStiluriSelectPersonalizat("ora_sfarsit")}
-                                                />
+                                                <Select name="ora_sfarsit_ora" value={optiuniOra.find((optiune) => optiune.value === oraSfarsit.ora)} onChange={(optiuneSelectata) => gestioneazaSchimbareTimpSeparat("ora_sfarsit", "ora", optiuneSelectata)} options={optiuniOra} placeholder="Ora" className={`camp-select-multiplu ${eroriCampuri.ora_sfarsit ? "select-eroare" : ""}`} classNamePrefix="select" isSearchable isClearable={false} isDisabled={seIncarcaDatele} styles={obtineStiluriSelectPersonalizat("ora_sfarsit")} menuPlacement="top" menuPosition="fixed" />
                                             </div>
 
                                             <span className="separator-timp">:</span>
 
                                             <div className="select-timp">
-                                                <Select
-                                                    name="ora_sfarsit_minute"
-                                                    value={optiuniMinute.find((optiune) => optiune.value === oraSfarsit.minute)}
-                                                    onChange={(optiuneSelectata) =>
-                                                        gestioneazaSchimbareTimpSeparat("ora_sfarsit", "minute", optiuneSelectata)
-                                                    }
-                                                    options={optiuniMinute}
-                                                    placeholder="Min"
-                                                    className={`camp-select-multiplu ${eroriCampuri.ora_sfarsit ? "select-eroare" : ""}`}
-                                                    classNamePrefix="select"
-                                                    isSearchable={true}
-                                                    isClearable={false}
-                                                    isDisabled={seIncarcaDatele}
-                                                    styles={obtineStiluriSelectPersonalizat("ora_sfarsit")}
-                                                />
+                                                <Select name="ora_sfarsit_minute" value={optiuniMinute.find((optiune) => optiune.value === oraSfarsit.minute)} onChange={(optiuneSelectata) => gestioneazaSchimbareTimpSeparat("ora_sfarsit", "minute", optiuneSelectata)} options={optiuniMinute} placeholder="Min" className={`camp-select-multiplu ${eroriCampuri.ora_sfarsit ? "select-eroare" : ""}`} classNamePrefix="select" isSearchable isClearable={false} isDisabled={seIncarcaDatele} styles={obtineStiluriSelectPersonalizat("ora_sfarsit")} menuPlacement="top" menuPosition="fixed" />
                                             </div>
                                         </div>
-
-                                        {eroriCampuri.ora_sfarsit && (
-                                            <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_sfarsit}</span>
-                                        )}
+                                        {eroriCampuri.ora_sfarsit && <span className="mesaj-eroare-camp eroare-stanga">{eroriCampuri.ora_sfarsit}</span>}
                                     </div>
                                 </div>
 
                                 <div className="camp-formular">
                                     <label className="eticheta-stanga">Pauză (minute)</label>
-                                    <input
-                                        type="number"
-                                        placeholder="30"
-                                        value={dateFormular.ora_pauza}
-                                        onChange={gestioneazaSchimbare("ora_pauza")}
-                                        className="input-stanga"
-                                        min="0"
-                                        max="120"
-                                        disabled={seIncarcaDatele}
-                                    />
+                                    <input type="number" placeholder="30" value={dateFormular.ora_pauza} onChange={gestioneazaSchimbare("ora_pauza")} className="input-stanga" min="0" max="120" disabled={seIncarcaDatele} />
                                 </div>
                             </div>
+
                             <div className="butoane-formular">
-                                <button
-                                    className="buton-anulare"
-                                    onClick={gestioneazaAnulare}
-                                    disabled={seSalveaza || seIncarcaDatele}
-                                >
+                                <button className="buton-anulare" onClick={gestioneazaAnulare} disabled={seSalveaza || seIncarcaDatele}>
                                     Anulează
                                 </button>
 
-                                <button
-                                    className={`buton-salvare ${(seSalveaza || seIncarcaDatele) ? "dezactivat" : ""}`}
-                                    onClick={!seSalveaza && !seIncarcaDatele ? gestioneazaActualizare : undefined}
-                                    disabled={seSalveaza || seIncarcaDatele}
-                                >
+                                <button className={`buton-salvare ${(seSalveaza || seIncarcaDatele) ? "dezactivat" : ""}`} onClick={!seSalveaza && !seIncarcaDatele ? gestioneazaActualizare : undefined} disabled={seSalveaza || seIncarcaDatele}>
                                     {seSalveaza ? "Se salvează..." : "Actualizează"}
                                 </button>
                             </div>
-
                         </div>
                     </div>
                 </div>

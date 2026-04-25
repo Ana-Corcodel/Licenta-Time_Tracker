@@ -14,19 +14,20 @@ const AddPontaj = ({ open, onClose }) => {
     const [listaTipuriZi, seteazaListaTipuriZi] = useState([]);
     const [seIncarcaOptiunile, seteazaSeIncarcaOptiunile] = useState(false);
 
-    const [dateFormular, seteazaDateFormular] = useState({
+    const obtineDateInitialeFormular = useCallback(() => ({
         angajat: null,
         luna: "",
         an: new Date(),
-        ora_start: "09:00",
+        ora_start: "08:00",
         ora_sfarsit: "17:00",
         pauza_masa: 30,
         tip: null,
         data: new Date(),
         ore_lucrate: 8,
         ore_lucru_suplimentare: 0,
-    });
+    }), []);
 
+    const [dateFormular, seteazaDateFormular] = useState(obtineDateInitialeFormular);
     const [seIncarca, seteazaSeIncarca] = useState(false);
     const [mesajEroare, seteazaMesajEroare] = useState("");
     const [mesajSucces, seteazaMesajSucces] = useState("");
@@ -50,19 +51,6 @@ const AddPontaj = ({ open, onClose }) => {
             }),
         []
     );
-
-    const obtineDateInitialeFormular = useCallback(() => ({
-        angajat: null,
-        luna: "",
-        an: new Date(),
-        ora_start: "08:00",
-        ora_sfarsit: "17:00",
-        pauza_masa: 30,
-        tip: null,
-        data: new Date(),
-        ore_lucrate: 8,
-        ore_lucru_suplimentare: 0,
-    }), []);
 
     const normalizeazaOra = (valoareOra) => {
         if (!valoareOra) return "";
@@ -93,27 +81,13 @@ const AddPontaj = ({ open, onClose }) => {
         return `${ore}:${String(minute).padStart(2, "0")}`;
     };
 
-    useEffect(() => {
-        if (open) {
-            incarcaOptiuni();
-        }
-    }, [open]);
-
-    useEffect(() => {
-        if (open) {
-            seteazaDateFormular(obtineDateInitialeFormular());
-            seteazaMesajEroare("");
-            seteazaMesajSucces("");
-            seteazaEroriCampuri({});
-        }
-    }, [open, obtineDateInitialeFormular]);
-
-    const incarcaOptiuni = async () => {
+    const incarcaOptiuni = useCallback(async () => {
         seteazaSeIncarcaOptiunile(true);
+
         try {
             const [raspunsAngajati, raspunsTipuri] = await Promise.all([
                 axiosInstance.get("/angajati/"),
-                axiosInstance.get("/tipuri-zile/")
+                axiosInstance.get("/tipuri-zile/"),
             ]);
 
             const dateAngajati = Array.isArray(raspunsAngajati.data)
@@ -124,19 +98,20 @@ const AddPontaj = ({ open, onClose }) => {
                 ? raspunsTipuri.data
                 : raspunsTipuri.data?.results || [];
 
-            const angajatiFormatati = dateAngajati.map(angajat => ({
+            const angajatiFormatati = dateAngajati.map((angajat) => ({
                 value: angajat.id,
                 label: `${angajat.nume} ${angajat.prenume}`,
-                ...angajat
+                ...angajat,
             }));
-            seteazaListaAngajati(angajatiFormatati);
 
-            const tipuriFormatate = dateTipuri.map(tipZi => ({
+            const tipuriFormatate = dateTipuri.map((tipZi) => ({
                 value: tipZi.id,
                 label: tipZi.tip_zi,
                 prescurtare: tipZi.prescurtare,
-                ...tipZi
+                ...tipZi,
             }));
+
+            seteazaListaAngajati(angajatiFormatati);
             seteazaListaTipuriZi(tipuriFormatate);
         } catch (eroare) {
             console.error("Eroare la încărcarea opțiunilor:", eroare);
@@ -144,7 +119,17 @@ const AddPontaj = ({ open, onClose }) => {
         } finally {
             seteazaSeIncarcaOptiunile(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (open) {
+            incarcaOptiuni();
+            seteazaDateFormular(obtineDateInitialeFormular());
+            seteazaMesajEroare("");
+            seteazaMesajSucces("");
+            seteazaEroriCampuri({});
+        }
+    }, [open, incarcaOptiuni, obtineDateInitialeFormular]);
 
     const calculeazaOreLucrate = useCallback((oraInceput, oraSfarsit, pauza) => {
         if (!oraInceput || !oraSfarsit) return 0;
@@ -174,10 +159,22 @@ const AddPontaj = ({ open, onClose }) => {
     useEffect(() => {
         if (dateFormular.data) {
             const luni = [
-                "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
-                "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
+                "Ianuarie",
+                "Februarie",
+                "Martie",
+                "Aprilie",
+                "Mai",
+                "Iunie",
+                "Iulie",
+                "August",
+                "Septembrie",
+                "Octombrie",
+                "Noiembrie",
+                "Decembrie",
             ];
+
             const lunaCurenta = luni[dateFormular.data.getMonth()];
+
             seteazaDateFormular((anterior) => {
                 if (anterior.luna === lunaCurenta) return anterior;
                 return { ...anterior, luna: lunaCurenta };
@@ -219,7 +216,7 @@ const AddPontaj = ({ open, onClose }) => {
         dateFormular.pauza_masa,
         dateFormular.angajat,
         calculeazaOreLucrate,
-        calculeazaOreSuplimentare
+        calculeazaOreSuplimentare,
     ]);
 
     const gestioneazaSchimbareCamp = useCallback((camp) => (e) => {
@@ -243,12 +240,12 @@ const AddPontaj = ({ open, onClose }) => {
             seteazaDateFormular((anterior) => {
                 const { ora, minute } = extrageOraSiMinute(anterior[camp]);
 
-                const oraNoua = tip === "ora" ? valoareSelectata : ora;
-                const minuteNoi = tip === "minute" ? valoareSelectata : minute;
-
                 return {
                     ...anterior,
-                    [camp]: construiesteTimp(oraNoua, minuteNoi),
+                    [camp]: construiesteTimp(
+                        tip === "ora" ? valoareSelectata : ora,
+                        tip === "minute" ? valoareSelectata : minute
+                    ),
                 };
             });
 
@@ -265,6 +262,7 @@ const AddPontaj = ({ open, onClose }) => {
             ora_start: normalizeazaOra(optiuneSelectata?.ora_incepere) || "09:00",
             ora_sfarsit: normalizeazaOra(optiuneSelectata?.ora_sfarsit) || "17:00",
         }));
+
         seteazaEroriCampuri((anterior) => ({
             ...anterior,
             angajat: "",
@@ -280,7 +278,12 @@ const AddPontaj = ({ open, onClose }) => {
     }, []);
 
     const gestioneazaSchimbareData = useCallback((dataSelectata) => {
-        seteazaDateFormular((anterior) => ({ ...anterior, data: dataSelectata, an: dataSelectata || new Date() }));
+        seteazaDateFormular((anterior) => ({
+            ...anterior,
+            data: dataSelectata,
+            an: dataSelectata || new Date(),
+        }));
+
         seteazaEroriCampuri((anterior) => ({ ...anterior, data: "" }));
     }, []);
 
@@ -292,7 +295,6 @@ const AddPontaj = ({ open, onClose }) => {
         if (!dateFormular.ora_start) erori.ora_start = "Ora de început este obligatorie";
         if (!dateFormular.ora_sfarsit) erori.ora_sfarsit = "Ora de sfârșit este obligatorie";
         if (!dateFormular.tip) erori.tip = "Tipul de zi este obligatoriu";
-
         if (dateFormular.pauza_masa < 0) erori.pauza_masa = "Pauza nu poate fi negativă";
 
         if (dateFormular.ora_start && dateFormular.ora_sfarsit) {
@@ -321,8 +323,7 @@ const AddPontaj = ({ open, onClose }) => {
         seteazaMesajSucces("");
         seteazaEroriCampuri({});
 
-        const esteValid = valideazaFormular();
-        if (!esteValid) return;
+        if (!valideazaFormular()) return;
 
         seteazaSeIncarca(true);
 
@@ -354,6 +355,7 @@ const AddPontaj = ({ open, onClose }) => {
             }
         } catch (eroare) {
             let mesaj = "Eroare la crearea pontajului";
+
             if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
             else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
             else if (eroare.response?.data) {
@@ -365,6 +367,7 @@ const AddPontaj = ({ open, onClose }) => {
                     }
                 }
             }
+
             seteazaMesajEroare(mesaj);
             console.error("Eroare la submit:", eroare);
         } finally {
@@ -375,80 +378,69 @@ const AddPontaj = ({ open, onClose }) => {
     const obtineStiluriPersonalizateSelect = (numeCamp) => ({
         control: (baza, stare) => ({
             ...baza,
-            border: eroriCampuri[numeCamp] ? "1px solid #d32f2f" :
-                stare.isFocused ? "1px solid #007BFF" : "1px solid #ccc",
-            "&:hover": {
-                border: eroriCampuri[numeCamp] ? "1px solid #d32f2f" :
-                    stare.isFocused ? "1px solid #007BFF" : "1px solid #888"
-            },
-            fontSize: "14px",
-            fontFamily: "Arial, sans-serif",
-            minHeight: "38px",
+            minHeight: "43px",
+            borderRadius: "12px",
+            border: eroriCampuri[numeCamp]
+                ? "1px solid #dc2626"
+                : stare.isFocused
+                    ? "1px solid #2563eb"
+                    : "1px solid #d1d5db",
+            boxShadow: stare.isFocused ? "0 0 0 4px rgba(37, 99, 235, 0.13)" : "none",
             backgroundColor: "#fff",
-            boxShadow: "none",
-            borderRadius: "4px",
+            transition: "all 0.22s ease",
+            fontWeight: 400,
+            "&:hover": {
+                borderColor: eroriCampuri[numeCamp] ? "#dc2626" : "#93c5fd",
+                backgroundColor: eroriCampuri[numeCamp] ? "#fff7f7" : "#f8fbff",
+            },
         }),
         valueContainer: (baza) => ({
             ...baza,
-            padding: "0 8px",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            textAlign: "left"
+            padding: "0 12px",
         }),
         input: (baza) => ({
             ...baza,
-            color: "#1a1a1a",
-            margin: "0",
-            padding: "0",
-            "& input": {
-                boxShadow: "none !important",
-                border: "none !important",
-                outline: "none !important",
-                padding: "0",
-                margin: "0",
-                textAlign: "left"
-            }
+            color: "#111827",
+            margin: 0,
+            padding: 0,
         }),
         placeholder: (baza) => ({
             ...baza,
-            color: "#999",
+            color: "#94a3b8",
             fontSize: "14px",
-            textAlign: "left",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start"
+            fontWeight: 400,
         }),
         singleValue: (baza) => ({
             ...baza,
-            color: "#1a1a1a",
+            color: "#111827",
             fontSize: "14px",
-            textAlign: "left",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start"
+            fontWeight: 400,
         }),
         menu: (baza) => ({
             ...baza,
             zIndex: 9999,
-            fontSize: "14px",
-            textAlign: "left"
+            borderRadius: "14px",
+            overflow: "hidden",
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 18px 40px rgba(15, 23, 42, 0.18)",
         }),
         menuList: (baza) => ({
             ...baza,
-            maxHeight: "200px",
-            overflowY: "auto"
+            maxHeight: "170px",
+            padding: "6px",
         }),
         option: (baza, stare) => ({
             ...baza,
-            backgroundColor: stare.isSelected ? "#e6f2ff" : stare.isFocused ? "#f0f0f0" : "#fff",
-            color: stare.isSelected ? "#006ce4" : "#1a1a1a",
+            borderRadius: "10px",
+            padding: "10px 12px",
+            cursor: "pointer",
             fontSize: "14px",
-            textAlign: "left",
+            backgroundColor: stare.isSelected ? "#dbeafe" : stare.isFocused ? "#eff6ff" : "#fff",
+            color: "#111827",
+            fontWeight: 400,
             "&:active": {
-                backgroundColor: "#e6f2ff",
-            }
+                backgroundColor: "#dbeafe",
+            },
         }),
     });
 
@@ -467,15 +459,19 @@ const AddPontaj = ({ open, onClose }) => {
                         <div className="fereastra-modal">
                             <div className="antet-modal">
                                 <h2>Adaugă Pontaj</h2>
-                                <button className="buton-inchidere" onClick={gestioneazaAnulare}>×</button>
+                                <button className="buton-inchidere" onClick={gestioneazaAnulare}>
+                                    ×
+                                </button>
                             </div>
-
-                            <hr className="separator-antet" />
 
                             {(seIncarca || seIncarcaOptiunile) && (
                                 <div className="overlay-incarcare">
                                     <div className="loader"></div>
-                                    <span>{seIncarcaOptiunile ? "Se încarcă opțiunile..." : "Se salvează pontajul..."}</span>
+                                    <span>
+                                        {seIncarcaOptiunile
+                                            ? "Se încarcă opțiunile..."
+                                            : "Se salvează pontajul..."}
+                                    </span>
                                 </div>
                             )}
 
@@ -484,7 +480,10 @@ const AddPontaj = ({ open, onClose }) => {
 
                             <div className="formular">
                                 <div className="camp-formular">
-                                    <label className="eticheta-stanga">Angajat <span className="obligatoriu">*</span></label>
+                                    <label className="eticheta-stanga">
+                                        Angajat <span className="obligatoriu">*</span>
+                                    </label>
+
                                     {seIncarcaOptiunile ? (
                                         <div className="skeleton"></div>
                                     ) : (
@@ -497,17 +496,25 @@ const AddPontaj = ({ open, onClose }) => {
                                                 placeholder="Selectează angajat"
                                                 className={`camp-multiselect ${eroriCampuri.angajat ? "select-cu-eroare" : ""}`}
                                                 classNamePrefix="select"
-                                                isSearchable={true}
-                                                isClearable={true}
+                                                isSearchable
+                                                isClearable
                                                 styles={obtineStiluriPersonalizateSelect("angajat")}
                                             />
-                                            {eroriCampuri.angajat && <span className="eroare-camp eroare-stanga">{eroriCampuri.angajat}</span>}
+
+                                            {eroriCampuri.angajat && (
+                                                <span className="eroare-camp eroare-stanga">
+                                                    {eroriCampuri.angajat}
+                                                </span>
+                                            )}
                                         </>
                                     )}
                                 </div>
 
                                 <div className="camp-formular">
-                                    <label className="eticheta-stanga">Data <span className="obligatoriu">*</span></label>
+                                    <label className="eticheta-stanga">
+                                        Data <span className="obligatoriu">*</span>
+                                    </label>
+
                                     <DatePicker
                                         selected={dateFormular.data}
                                         onChange={gestioneazaSchimbareData}
@@ -517,7 +524,12 @@ const AddPontaj = ({ open, onClose }) => {
                                         className={`input-stanga ${eroriCampuri.data ? "chenar-eroare-camp" : ""}`}
                                         wrapperClassName="wrapper-datepicker"
                                     />
-                                    {eroriCampuri.data && <span className="eroare-camp eroare-stanga">{eroriCampuri.data}</span>}
+
+                                    {eroriCampuri.data && (
+                                        <span className="eroare-camp eroare-stanga">
+                                            {eroriCampuri.data}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="camp-formular">
@@ -549,9 +561,11 @@ const AddPontaj = ({ open, onClose }) => {
                                                     placeholder="Ora"
                                                     className={`camp-multiselect ${eroriCampuri.ora_start ? "select-cu-eroare" : ""}`}
                                                     classNamePrefix="select"
-                                                    isSearchable={true}
+                                                    isSearchable
                                                     isClearable={false}
                                                     styles={obtineStiluriPersonalizateSelect("ora_start")}
+                                                    menuPlacement="top"
+                                                    menuPosition="fixed"
                                                 />
                                             </div>
 
@@ -568,9 +582,11 @@ const AddPontaj = ({ open, onClose }) => {
                                                     placeholder="Min"
                                                     className={`camp-multiselect ${eroriCampuri.ora_start ? "select-cu-eroare" : ""}`}
                                                     classNamePrefix="select"
-                                                    isSearchable={true}
+                                                    isSearchable
                                                     isClearable={false}
                                                     styles={obtineStiluriPersonalizateSelect("ora_start")}
+                                                    menuPlacement="top"
+                                                    menuPosition="fixed"
                                                 />
                                             </div>
                                         </div>
@@ -603,9 +619,11 @@ const AddPontaj = ({ open, onClose }) => {
                                                     placeholder="Ora"
                                                     className={`camp-multiselect ${eroriCampuri.ora_sfarsit ? "select-cu-eroare" : ""}`}
                                                     classNamePrefix="select"
-                                                    isSearchable={true}
+                                                    isSearchable
                                                     isClearable={false}
                                                     styles={obtineStiluriPersonalizateSelect("ora_sfarsit")}
+                                                    menuPlacement="top"
+                                                    menuPosition="fixed"
                                                 />
                                             </div>
 
@@ -622,9 +640,11 @@ const AddPontaj = ({ open, onClose }) => {
                                                     placeholder="Min"
                                                     className={`camp-multiselect ${eroriCampuri.ora_sfarsit ? "select-cu-eroare" : ""}`}
                                                     classNamePrefix="select"
-                                                    isSearchable={true}
+                                                    isSearchable
                                                     isClearable={false}
                                                     styles={obtineStiluriPersonalizateSelect("ora_sfarsit")}
+                                                    menuPlacement="top"
+                                                    menuPosition="fixed"
                                                 />
                                             </div>
                                         </div>
@@ -653,10 +673,16 @@ const AddPontaj = ({ open, onClose }) => {
                                             min="0"
                                             max="180"
                                         />
+
                                         <small className="indicatie-camp">
                                             Preluată automat din programul angajatului, dar poate fi modificată
                                         </small>
-                                        {eroriCampuri.pauza_masa && <span className="eroare-camp eroare-stanga">{eroriCampuri.pauza_masa}</span>}
+
+                                        {eroriCampuri.pauza_masa && (
+                                            <span className="eroare-camp eroare-stanga">
+                                                {eroriCampuri.pauza_masa}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <div className="camp-formular">
@@ -668,6 +694,7 @@ const AddPontaj = ({ open, onClose }) => {
                                             disabled
                                             className="input-stanga camp-readonly"
                                         />
+
                                         <small className="indicatie-camp">
                                             Calculat automat după programul angajatului
                                         </small>
@@ -675,7 +702,10 @@ const AddPontaj = ({ open, onClose }) => {
                                 </div>
 
                                 <div className="camp-formular">
-                                    <label className="eticheta-stanga">Tip zi <span className="obligatoriu">*</span></label>
+                                    <label className="eticheta-stanga">
+                                        Tip zi <span className="obligatoriu">*</span>
+                                    </label>
+
                                     {seIncarcaOptiunile ? (
                                         <div className="skeleton"></div>
                                     ) : (
@@ -688,12 +718,18 @@ const AddPontaj = ({ open, onClose }) => {
                                                 placeholder="Selectează tipul zilei"
                                                 className={`camp-multiselect ${eroriCampuri.tip ? "select-cu-eroare" : ""}`}
                                                 classNamePrefix="select"
-                                                isSearchable={true}
-                                                isClearable={true}
+                                                isSearchable
+                                                isClearable
                                                 styles={obtineStiluriPersonalizateSelect("tip")}
                                                 menuPlacement="top"
+                                                menuPosition="fixed"
                                             />
-                                            {eroriCampuri.tip && <span className="eroare-camp eroare-stanga">{eroriCampuri.tip}</span>}
+
+                                            {eroriCampuri.tip && (
+                                                <span className="eroare-camp eroare-stanga">
+                                                    {eroriCampuri.tip}
+                                                </span>
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -709,6 +745,7 @@ const AddPontaj = ({ open, onClose }) => {
                                     />
                                 </div>
                             </div>
+
                             <div className="butoane-formular">
                                 <button className="buton-anulare" onClick={gestioneazaAnulare}>
                                     Anulează
@@ -722,7 +759,6 @@ const AddPontaj = ({ open, onClose }) => {
                                     {seIncarca ? "Se salvează..." : "Salvează"}
                                 </button>
                             </div>
-
                         </div>
                     </div>
                 </div>
