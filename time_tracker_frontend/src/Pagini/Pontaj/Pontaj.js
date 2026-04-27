@@ -7,9 +7,14 @@ import {
   IconButton,
   Tooltip,
   Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { Search, Add, Edit } from "@mui/icons-material";
+import { Search, Add, Edit, Delete } from "@mui/icons-material";
 import axiosInstance from "../../Config/axiosInstance";
 import AddPontaj from "./AddPontaj";
 import EditPontaj from "./EditPontaj";
@@ -163,6 +168,10 @@ const Pontaj = () => {
   const [pontajSelectat, seteazaPontajSelectat] = useState(null);
   const [afiseazaToast, seteazaAfiseazaToast] = useState(false);
   const [mesajToast, seteazaMesajToast] = useState("");
+  const [idStergereInCurs, seteazaIdStergereInCurs] = useState(null);
+  const [esteDeschisPopupStergere, seteazaEsteDeschisPopupStergere] =
+    useState(false);
+  const [pontajPentruStergere, seteazaPontajPentruStergere] = useState(null);
 
   const termenCautareTemporizat = useDebounce(
     termenCautare,
@@ -170,6 +179,12 @@ const Pontaj = () => {
   );
 
   const { listaPontaje, seIncarca, preiaPontaje } = usePontaje();
+
+  const afiseazaMesajToast = useCallback((mesaj) => {
+    seteazaMesajToast(mesaj);
+    seteazaAfiseazaToast(true);
+    setTimeout(() => seteazaAfiseazaToast(false), 4000);
+  }, []);
 
   useEffect(() => {
     preiaPontaje();
@@ -179,6 +194,47 @@ const Pontaj = () => {
     seteazaPontajSelectat(pontaj);
     seteazaEsteDeschisModalEditare(true);
   }, []);
+
+  const deschidePopupStergere = useCallback((pontaj) => {
+    seteazaPontajPentruStergere(pontaj);
+    seteazaEsteDeschisPopupStergere(true);
+  }, []);
+
+  const inchidePopupStergere = useCallback(() => {
+    seteazaEsteDeschisPopupStergere(false);
+    seteazaPontajPentruStergere(null);
+  }, []);
+
+  const gestioneazaStergerePontaj = useCallback(
+    async (pontaj) => {
+      try {
+        seteazaIdStergereInCurs(pontaj.id);
+
+        await axiosInstance.delete(`/pontaje/${pontaj.id}/`);
+
+        afiseazaMesajToast("Pontajul a fost șters cu succes");
+        preiaPontaje();
+      } catch (eroare) {
+        console.error("Eroare la ștergerea pontajului:", eroare);
+        afiseazaMesajToast(
+          eroare?.response?.data?.detail ||
+            eroare?.response?.data?.error ||
+            "Nu s-a putut șterge pontajul"
+        );
+      } finally {
+        seteazaIdStergereInCurs(null);
+      }
+    },
+    [afiseazaMesajToast, preiaPontaje]
+  );
+
+  const confirmaStergerePontaj = useCallback(() => {
+    if (pontajPentruStergere) {
+      gestioneazaStergerePontaj(pontajPentruStergere);
+    }
+
+    inchidePopupStergere();
+  }, [pontajPentruStergere, gestioneazaStergerePontaj, inchidePopupStergere]);
 
   const randuriFiltrate = useMemo(() => {
     let lista = [...listaPontaje];
@@ -296,24 +352,42 @@ const Pontaj = () => {
       {
         field: "action",
         headerName: "Acțiuni",
-        width: 100,
+        width: 130,
         sortable: false,
         disableColumnMenu: true,
         renderCell: (parametri) => (
-          <Tooltip title="Editează pontaj">
-            <span>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <Tooltip title="Editează pontaj">
               <IconButton
                 sx={{ color: "#1976d2" }}
                 onClick={() => gestioneazaEditarePontaj(parametri.row)}
               >
                 <Edit />
               </IconButton>
-            </span>
-          </Tooltip>
+            </Tooltip>
+
+            <Tooltip title="Șterge pontaj">
+              <span>
+                <IconButton
+                  sx={{
+                    color: "#d32f2f",
+                    "&.Mui-disabled": {
+                      color: "#d32f2f",
+                      opacity: 0.6,
+                    },
+                  }}
+                  onClick={() => deschidePopupStergere(parametri.row)}
+                  disabled={idStergereInCurs === parametri.row.id}
+                >
+                  <Delete />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </div>
         ),
       },
     ],
-    [gestioneazaEditarePontaj]
+    [gestioneazaEditarePontaj, deschidePopupStergere, idStergereInCurs]
   );
 
   return (
@@ -396,9 +470,7 @@ const Pontaj = () => {
             preiaPontaje();
 
             if (mesaj) {
-              seteazaMesajToast(mesaj);
-              seteazaAfiseazaToast(true);
-              setTimeout(() => seteazaAfiseazaToast(false), 4000);
+              afiseazaMesajToast(mesaj);
             }
           }
         }}
@@ -415,13 +487,49 @@ const Pontaj = () => {
             preiaPontaje();
 
             if (mesaj) {
-              seteazaMesajToast(mesaj);
-              seteazaAfiseazaToast(true);
-              setTimeout(() => seteazaAfiseazaToast(false), 4000);
+              afiseazaMesajToast(mesaj);
             }
           }
         }}
       />
+
+      <Dialog
+        open={esteDeschisPopupStergere}
+        onClose={inchidePopupStergere}
+        className="popup-confirmare-stergere-pontaj"
+      >
+        <DialogTitle className="titlu-popup-stergere-pontaj">
+          Confirmare ștergere
+        </DialogTitle>
+
+        <DialogContent className="continut-popup-stergere-pontaj">
+          <Typography className="text-popup-stergere-pontaj">
+            Sigur vrei să ștergi pontajul pentru{" "}
+            <strong>{pontajPentruStergere?.angajat_nume}</strong>?
+          </Typography>
+
+          <Typography className="subtext-popup-stergere-pontaj">
+            Această acțiune va elimina definitiv pontajul din data de{" "}
+            <strong>{pontajPentruStergere?.data_display}</strong>.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions className="actiuni-popup-stergere-pontaj">
+          <Button
+            className="buton-anuleaza-stergere-pontaj"
+            onClick={inchidePopupStergere}
+          >
+            Anulează
+          </Button>
+
+          <Button
+            className="buton-confirma-stergere-pontaj"
+            onClick={confirmaStergerePontaj}
+          >
+            Șterge
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
