@@ -419,12 +419,16 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
             let mesaj = "Eroare la actualizarea pontajului";
             if (eroare.response?.data?.detail) mesaj = eroare.response.data.detail;
             else if (eroare.response?.data?.message) mesaj = eroare.response.data.message;
-            else if (eroare.response?.data) {
+            if (eroare.response?.data) {
                 const eroriValidare = eroare.response.data;
-                if (typeof eroriValidare === "object") {
-                    const primaCheie = Object.keys(eroriValidare)[0];
-                    if (primaCheie && Array.isArray(eroriValidare[primaCheie])) {
-                        mesaj = eroriValidare[primaCheie][0];
+
+                if (eroriValidare.non_field_errors) {
+                    const msg = eroriValidare.non_field_errors[0];
+
+                    if (msg.includes("must make a unique set")) {
+                        mesaj = "Există deja un pontaj pentru acest angajat în această zi.";
+                    } else {
+                        mesaj = msg;
                     }
                 }
             }

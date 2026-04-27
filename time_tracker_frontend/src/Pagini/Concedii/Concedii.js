@@ -283,23 +283,31 @@ const Concedii = () => {
             size="small"
             sx={{
               maxWidth: "100%",
+              fontWeight: 600,
+              borderRadius: "8px",
+              color: "#fff",
+              background: (() => {
+                const tip = (parametri.value || "").toLowerCase();
+
+                if (tip.includes("odihna")) return "linear-gradient(135deg, #22c55e, #16a34a)";
+                if (tip.includes("medical")) return "linear-gradient(135deg, #ef4444, #dc2626)";
+                if (tip.includes("fara plata")) return "linear-gradient(135deg, #64748b, #475569)";
+                if (tip.includes("maternitate")) return "linear-gradient(135deg, #ec4899, #db2777)";
+                if (tip.includes("paternitate")) return "linear-gradient(135deg, #3b82f6, #2563eb)";
+
+                return "linear-gradient(135deg, #6366f1, #4f46e5)";
+              })(),
+              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+
               "& .MuiChip-label": {
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
+                padding: "0 10px",
               },
             }}
           />
         ),
-      },
-      {
-        field: "attach_count",
-        headerName: "Ataș.",
-        flex: 0.7,
-        minWidth: 90,
-        align: "center",
-        headerAlign: "center",
-        renderCell: (parametri) => parametri.value ?? 0,
       },
       {
         field: "action",

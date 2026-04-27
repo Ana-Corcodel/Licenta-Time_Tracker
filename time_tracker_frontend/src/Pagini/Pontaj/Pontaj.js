@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  Box, Button, TextField, InputAdornment, IconButton, Tooltip
+  Box,
+  Button,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Tooltip,
+  Chip,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Search, Add, Edit } from "@mui/icons-material";
@@ -16,7 +22,11 @@ const useDebounce = (valoare, intarziere) => {
   const [valoareTemporizata, seteazaValoareTemporizata] = useState(valoare);
 
   useEffect(() => {
-    const temporizator = setTimeout(() => seteazaValoareTemporizata(valoare), intarziere);
+    const temporizator = setTimeout(
+      () => seteazaValoareTemporizata(valoare),
+      intarziere
+    );
+
     return () => clearTimeout(temporizator);
   }, [valoare, intarziere]);
 
@@ -37,6 +47,38 @@ const formateazaOreInHHMM = (valoare) => {
   return `${ore}:${String(minute).padStart(2, "0")}`;
 };
 
+const obtineStilTipZi = (tipZi, esteConcediu) => {
+  const tip = String(tipZi || "").toLowerCase();
+
+  if (esteConcediu) {
+    return {
+      background: "linear-gradient(135deg, #22c55e, #16a34a)",
+      color: "#ffffff",
+      label: "Concediu",
+    };
+  }
+
+  if (
+    tip.includes("nelucr") ||
+    tip.includes("liber") ||
+    tip.includes("weekend") ||
+    tip.includes("sarbatoare") ||
+    tip.includes("sărbătoare")
+  ) {
+    return {
+      background: "linear-gradient(135deg, #64748b, #475569)",
+      color: "#ffffff",
+      label: "Zi nelucrătoare",
+    };
+  }
+
+  return {
+    background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+    color: "#ffffff",
+    label: "Zi lucrătoare",
+  };
+};
+
 const usePontaje = () => {
   const [listaPontaje, seteazaListaPontaje] = useState([]);
   const [seIncarca, seteazaSeIncarca] = useState(true);
@@ -45,11 +87,12 @@ const usePontaje = () => {
     try {
       seteazaSeIncarca(true);
 
-      const [raspunsPontaje, raspunsAngajati, raspunsTipuriZi] = await Promise.all([
-        axiosInstance.get("/pontaje/"),
-        axiosInstance.get("/angajati/"),
-        axiosInstance.get("/tipuri-zile/"),
-      ]);
+      const [raspunsPontaje, raspunsAngajati, raspunsTipuriZi] =
+        await Promise.all([
+          axiosInstance.get("/pontaje/"),
+          axiosInstance.get("/angajati/"),
+          axiosInstance.get("/tipuri-zile/"),
+        ]);
 
       const datePontaje = Array.isArray(raspunsPontaje.data)
         ? raspunsPontaje.data
@@ -70,21 +113,35 @@ const usePontaje = () => {
 
       const mapaTipuriZi = {};
       dateTipuriZi.forEach((tipZi) => {
-        mapaTipuriZi[tipZi.id] = tipZi.prescurtare || tipZi.tip_zi;
+        mapaTipuriZi[tipZi.id] = {
+          label: tipZi.prescurtare || tipZi.tip_zi || "-",
+          tip_zi_complet: tipZi.tip_zi || "",
+          este_concediu: Boolean(tipZi.este_concediu),
+        };
       });
 
-      const pontajeMapate = datePontaje.map((pontaj, index) => ({
-        id: pontaj.id ?? index,
-        ...pontaj,
-        angajat_nume: mapaAngajati[pontaj.angajat] || "-",
-        tip_zi: mapaTipuriZi[pontaj.tip] || "-",
-        data_display: pontaj.data ? new Date(pontaj.data).toLocaleDateString("ro-RO") : "-",
-        an_display: pontaj.an ? new Date(pontaj.an).getFullYear() : "-",
-        ora_start_display: normalizeazaOra(pontaj.ora_start),
-        ora_sfarsit_display: normalizeazaOra(pontaj.ora_sfarsit),
-        ore_lucrate_display: formateazaOreInHHMM(pontaj.ore_lucrate),
-        ore_suplimentare_display: formateazaOreInHHMM(pontaj.ore_lucru_suplimentare),
-      }));
+      const pontajeMapate = datePontaje.map((pontaj, index) => {
+        const tipZiGasit = mapaTipuriZi[pontaj.tip];
+
+        return {
+          id: pontaj.id ?? index,
+          ...pontaj,
+          angajat_nume: mapaAngajati[pontaj.angajat] || "-",
+          tip_zi: tipZiGasit?.label || "-",
+          tip_zi_complet: tipZiGasit?.tip_zi_complet || "",
+          este_concediu: tipZiGasit?.este_concediu || false,
+          data_display: pontaj.data
+            ? new Date(pontaj.data).toLocaleDateString("ro-RO")
+            : "-",
+          an_display: pontaj.an ? new Date(pontaj.an).getFullYear() : "-",
+          ora_start_display: normalizeazaOra(pontaj.ora_start),
+          ora_sfarsit_display: normalizeazaOra(pontaj.ora_sfarsit),
+          ore_lucrate_display: formateazaOreInHHMM(pontaj.ore_lucrate),
+          ore_suplimentare_display: formateazaOreInHHMM(
+            pontaj.ore_lucru_suplimentare
+          ),
+        };
+      });
 
       seteazaListaPontaje(pontajeMapate);
     } catch (eroare) {
@@ -99,13 +156,19 @@ const usePontaje = () => {
 
 const Pontaj = () => {
   const [termenCautare, seteazaTermenCautare] = useState("");
-  const [esteDeschisModalAdaugare, seteazaEsteDeschisModalAdaugare] = useState(false);
-  const [esteDeschisModalEditare, seteazaEsteDeschisModalEditare] = useState(false);
+  const [esteDeschisModalAdaugare, seteazaEsteDeschisModalAdaugare] =
+    useState(false);
+  const [esteDeschisModalEditare, seteazaEsteDeschisModalEditare] =
+    useState(false);
   const [pontajSelectat, seteazaPontajSelectat] = useState(null);
   const [afiseazaToast, seteazaAfiseazaToast] = useState(false);
   const [mesajToast, seteazaMesajToast] = useState("");
 
-  const termenCautareTemporizat = useDebounce(termenCautare, INTERVAL_DEBOUNCE_CAUTARE);
+  const termenCautareTemporizat = useDebounce(
+    termenCautare,
+    INTERVAL_DEBOUNCE_CAUTARE
+  );
+
   const { listaPontaje, seIncarca, preiaPontaje } = usePontaje();
 
   useEffect(() => {
@@ -122,13 +185,16 @@ const Pontaj = () => {
 
     if (termenCautareTemporizat) {
       const termenMic = termenCautareTemporizat.toLowerCase();
-      lista = lista.filter((pontaj) =>
-        pontaj.angajat_nume?.toLowerCase().includes(termenMic) ||
-        pontaj.luna?.toLowerCase().includes(termenMic) ||
-        pontaj.tip_zi?.toLowerCase().includes(termenMic) ||
-        pontaj.data_display?.toLowerCase().includes(termenMic) ||
-        pontaj.ore_lucrate_display?.toLowerCase().includes(termenMic) ||
-        pontaj.ore_suplimentare_display?.toLowerCase().includes(termenMic)
+
+      lista = lista.filter(
+        (pontaj) =>
+          pontaj.angajat_nume?.toLowerCase().includes(termenMic) ||
+          pontaj.luna?.toLowerCase().includes(termenMic) ||
+          pontaj.tip_zi?.toLowerCase().includes(termenMic) ||
+          pontaj.tip_zi_complet?.toLowerCase().includes(termenMic) ||
+          pontaj.data_display?.toLowerCase().includes(termenMic) ||
+          pontaj.ore_lucrate_display?.toLowerCase().includes(termenMic) ||
+          pontaj.ore_suplimentare_display?.toLowerCase().includes(termenMic)
       );
     }
 
@@ -195,8 +261,37 @@ const Pontaj = () => {
       {
         field: "tip_zi",
         headerName: "Tip zi",
-        flex: 0.9,
-        minWidth: 110,
+        flex: 1,
+        minWidth: 140,
+        renderCell: (parametri) => {
+          const stil = obtineStilTipZi(
+            parametri.row.tip_zi_complet || parametri.value,
+            parametri.row.este_concediu
+          );
+
+          return (
+            <Tooltip title={stil.label}>
+              <Chip
+                label={parametri.value || "-"}
+                size="small"
+                sx={{
+                  maxWidth: "100%",
+                  color: stil.color,
+                  background: stil.background,
+                  fontWeight: 700,
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                  "& .MuiChip-label": {
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    padding: "0 10px",
+                  },
+                }}
+              />
+            </Tooltip>
+          );
+        },
       },
       {
         field: "action",
@@ -227,9 +322,7 @@ const Pontaj = () => {
 
       <div className="continut-pagina-pontaj">
         <Box className="bara-unelte-pontaj">
-          <h2 className="titlu-pagina">
-            PONTAJ
-          </h2>
+          <h2 className="titlu-pagina">PONTAJ</h2>
 
           <Box className="bara-unelte-dreapta">
             <TextField
@@ -267,7 +360,10 @@ const Pontaj = () => {
             pageSizeOptions={[10, 15, 20, 50]}
             initialState={{
               pagination: {
-                paginationModel: { page: 0, pageSize: DIMENSIUNE_IMPLICITA_PAGINA },
+                paginationModel: {
+                  page: 0,
+                  pageSize: DIMENSIUNE_IMPLICITA_PAGINA,
+                },
               },
             }}
             rowHeight={50}
@@ -284,8 +380,8 @@ const Pontaj = () => {
               },
               "& .MuiDataGrid-columnHeaderTitle": {
                 fontWeight: "700",
-                fontSize: "0.95rem"
-              }
+                fontSize: "0.95rem",
+              },
             }}
           />
         </div>
@@ -295,8 +391,10 @@ const Pontaj = () => {
         open={esteDeschisModalAdaugare}
         onClose={(trebuieReincarcat, mesaj) => {
           seteazaEsteDeschisModalAdaugare(false);
+
           if (trebuieReincarcat) {
             preiaPontaje();
+
             if (mesaj) {
               seteazaMesajToast(mesaj);
               seteazaAfiseazaToast(true);
@@ -312,8 +410,10 @@ const Pontaj = () => {
         onClose={(trebuieReincarcat, mesaj) => {
           seteazaEsteDeschisModalEditare(false);
           seteazaPontajSelectat(null);
+
           if (trebuieReincarcat) {
             preiaPontaje();
+
             if (mesaj) {
               seteazaMesajToast(mesaj);
               seteazaAfiseazaToast(true);
