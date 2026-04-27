@@ -621,6 +621,8 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                                     isSearchable={true}
                                                     isClearable={false}
                                                     styles={obtineStiluriPersonalizateSelect("ora_start")}
+                                                    menuPlacement="top"
+                                                    menuPosition="fixed"
                                                 />
                                             </div>
 
@@ -640,6 +642,8 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                                     isSearchable={true}
                                                     isClearable={false}
                                                     styles={obtineStiluriPersonalizateSelect("ora_start")}
+                                                    menuPlacement="top"
+                                                    menuPosition="fixed"
                                                 />
                                             </div>
                                         </div>
@@ -667,6 +671,8 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                                     isSearchable={true}
                                                     isClearable={false}
                                                     styles={obtineStiluriPersonalizateSelect("ora_sfarsit")}
+                                                    menuPlacement="top"
+                                                    menuPosition="fixed"
                                                 />
                                             </div>
 
@@ -686,6 +692,8 @@ const EditPontaj = ({ open, pontajData, onClose }) => {
                                                     isSearchable={true}
                                                     isClearable={false}
                                                     styles={obtineStiluriPersonalizateSelect("ora_sfarsit")}
+                                                    menuPlacement="top"
+                                                    menuPosition="fixed"
                                                 />
                                             </div>
                                         </div>

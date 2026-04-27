@@ -169,6 +169,7 @@
   background-color: #b91c1c !important;
 }
 
+
 @media (max-width: 600px) {
   .popup-confirmare-stergere-tipzi .MuiPaper-root {
     min-width: unset;

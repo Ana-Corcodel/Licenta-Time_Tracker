@@ -218,8 +218,8 @@ const Pontaj = () => {
         console.error("Eroare la ștergerea pontajului:", eroare);
         afiseazaMesajToast(
           eroare?.response?.data?.detail ||
-            eroare?.response?.data?.error ||
-            "Nu s-a putut șterge pontajul"
+          eroare?.response?.data?.error ||
+          "Nu s-a putut șterge pontajul"
         );
       } finally {
         seteazaIdStergereInCurs(null);
@@ -307,12 +307,52 @@ const Pontaj = () => {
         headerName: "Ore lucrate",
         flex: 0.9,
         minWidth: 120,
+        renderCell: (params) => {
+          if (params.row.este_concediu) {
+            return <span>{params.value}</span>;
+          }
+
+          const oreLucrate = Number(params.row.ore_lucrate || 0);
+          const norma = 8;
+          const diferenta = norma - oreLucrate;
+
+          let culoare = "#16a34a"; // verde
+
+          if (diferenta > 0) {
+            if (diferenta >= 1) {
+              culoare = "#dc2626"; // rosu
+            } else if (diferenta >= 0.25) {
+              culoare = "#f59e0b"; // portocaliu (15 min+ lipsa)
+            } else {
+              culoare = "#eab308"; // galben (foarte mică diferență)
+            }
+          }
+
+          return (
+            <span style={{ color: culoare, fontWeight: 700 }}>
+              {params.value}
+            </span>
+          );
+        }
       },
       {
         field: "ore_suplimentare_display",
         headerName: "Ore supl.",
         flex: 0.9,
         minWidth: 110,
+        renderCell: (params) => {
+          const oreSuplimentare = Number(params.row.ore_lucru_suplimentare || 0);
+
+          if (params.row.este_concediu || oreSuplimentare <= 0) {
+            return <span>{params.value}</span>;
+          }
+
+          return (
+            <span style={{ color: "#9333ea", fontWeight: 700 }}>
+              {params.value}
+            </span>
+          );
+        },
       },
       {
         field: "tip_zi",
