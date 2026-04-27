@@ -3,10 +3,9 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import './Meniu.css';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
-import PeopleIcon from '@mui/icons-material/People';
 import TrackChangesSharpIcon from '@mui/icons-material/TrackChangesSharp';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import SettingsIcon from '@mui/icons-material/Settings';
 import axiosInstance from '../../Config/axiosInstance';
 
 const grupuriMeniu = [
@@ -23,44 +22,32 @@ const grupuriMeniu = [
   },
   {
     sectiune: 'Administrare',
-    icon: <PeopleIcon className="icon pictograma-sectiune" />,
+    icon: <SettingsIcon className="icon pictograma-sectiune" />,
     elemente: [
       {
         nume: 'Angajați',
         url: '/administrare-angajati',
         icon: <TrackChangesSharpIcon className="icon" />
+      },
+      {
+        nume: 'Tipuri de zile',
+        url: '/tipuri-zile',
+        icon: <TrackChangesSharpIcon className="icon" />
+      },
+      {
+        nume: 'Concedii',
+        url: '/concedii',
+        icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
   },
   {
-    sectiune: 'Pontaje',
+    sectiune: 'Pontaj',
     icon: <AccessTimeIcon className="icon pictograma-sectiune" />,
     elemente: [
       {
         nume: 'Pontaje',
         url: '/pontaje',
-        icon: <TrackChangesSharpIcon className="icon" />
-      }
-    ]
-  },
-  {
-    sectiune: 'Tipuri de zile',
-    icon: <CalendarMonthIcon className="icon pictograma-sectiune" />,
-    elemente: [
-      {
-        nume: 'Tipuri de zile',
-        url: '/tipuri-zile',
-        icon: <TrackChangesSharpIcon className="icon" />
-      }
-    ]
-  },
-  {
-    sectiune: 'Concedii',
-    icon: <CalendarMonthIcon className="icon pictograma-sectiune" />,
-    elemente: [
-      {
-        nume: 'Concedii',
-        url: '/concedii',
         icon: <TrackChangesSharpIcon className="icon" />
       }
     ]
