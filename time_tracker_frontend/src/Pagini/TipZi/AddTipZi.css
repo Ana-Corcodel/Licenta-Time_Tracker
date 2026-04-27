@@ -288,18 +288,24 @@
   animation: rotireTipZi 0.8s linear infinite;
 }
 
-.toast-global {
+.pagina-adaugare-tipzi .toast-global {
   position: fixed;
-  top: 24px;
-  right: 24px;
-  z-index: 3000;
-  padding: 14px 18px;
-  border-radius: 14px;
-  background: #16a34a;
+  top: 20px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background-color: #16a34a;
   color: white;
-  font-weight: 800;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
-  animation: toastInTipZi 0.28s ease;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  min-width: 280px;
+  max-width: 500px;
+  text-align: center;
+  animation: none;
 }
 
 @keyframes fadeInTipZi {
@@ -339,16 +345,7 @@
   }
 }
 
-@keyframes toastInTipZi {
-  from {
-    opacity: 0;
-    transform: translateX(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+
 
 @media (max-width: 640px) {
   .pagina-adaugare-tipzi .suprapunere-modal {

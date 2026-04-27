@@ -486,6 +486,7 @@ const Concedii = () => {
         open={esteDeschisPopupStergere}
         onClose={inchidePopupStergere}
         className="popup-confirmare-stergere-concediu"
+        disablePortal
       >
         <DialogTitle className="titlu-popup-stergere-concediu">
           Confirmare ștergere

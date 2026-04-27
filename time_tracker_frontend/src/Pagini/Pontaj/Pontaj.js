@@ -537,6 +537,7 @@ const Pontaj = () => {
         open={esteDeschisPopupStergere}
         onClose={inchidePopupStergere}
         className="popup-confirmare-stergere-pontaj"
+        disablePortal
       >
         <DialogTitle className="titlu-popup-stergere-pontaj">
           Confirmare ștergere

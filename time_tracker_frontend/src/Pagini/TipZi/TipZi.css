@@ -103,47 +103,47 @@
   text-align: center;
 }
 
-.popup-confirmare-stergere-tipzi .MuiPaper-root {
+.pagina-tipzi .popup-confirmare-stergere-tipzi .MuiPaper-root {
   border-radius: 18px !important;
   padding: 8px;
   min-width: 430px;
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25) !important;
 }
 
-.titlu-popup-stergere-tipzi {
+.pagina-tipzi .titlu-popup-stergere-tipzi {
   font-size: 22px !important;
   font-weight: 700 !important;
   color: #0f172a !important;
   padding: 22px 24px 8px !important;
 }
 
-.continut-popup-stergere-tipzi {
+.pagina-tipzi .continut-popup-stergere-tipzi {
   padding: 8px 24px 12px !important;
 }
 
-.text-popup-stergere-tipzi {
+.pagina-tipzi .text-popup-stergere-tipzi {
   font-size: 16px !important;
   color: #334155 !important;
   line-height: 1.6 !important;
 }
 
-.text-popup-stergere-tipzi strong {
+.pagina-tipzi .text-popup-stergere-tipzi strong {
   color: #dc2626;
   font-weight: 700;
 }
 
-.subtext-popup-stergere-tipzi {
+.pagina-tipzi .subtext-popup-stergere-tipzi {
   margin-top: 10px !important;
   font-size: 14px !important;
   color: #64748b !important;
 }
 
-.actiuni-popup-stergere-tipzi {
+.pagina-tipzi .actiuni-popup-stergere-tipzi {
   padding: 16px 24px 22px !important;
   gap: 12px;
 }
 
-.buton-anuleaza-stergere-tipzi {
+.pagina-tipzi .buton-anuleaza-stergere-tipzi {
   color: #475569 !important;
   background-color: #f1f5f9 !important;
   text-transform: none !important;
@@ -152,11 +152,11 @@
   padding: 8px 18px !important;
 }
 
-.buton-anuleaza-stergere-tipzi:hover {
+.pagina-tipzi .buton-anuleaza-stergere-tipzi:hover {
   background-color: #e2e8f0 !important;
 }
 
-.buton-confirma-stergere-tipzi {
+.pagina-tipzi .buton-confirma-stergere-tipzi {
   color: white !important;
   background-color: #dc2626 !important;
   text-transform: none !important;
@@ -165,13 +165,13 @@
   padding: 8px 20px !important;
 }
 
-.buton-confirma-stergere-tipzi:hover {
+.pagina-tipzi .buton-confirma-stergere-tipzi:hover {
   background-color: #b91c1c !important;
 }
 
 
 @media (max-width: 600px) {
-  .popup-confirmare-stergere-tipzi .MuiPaper-root {
+  .pagina-tipzi .popup-confirmare-stergere-tipzi .MuiPaper-root {
     min-width: unset;
     width: calc(100% - 32px);
   }

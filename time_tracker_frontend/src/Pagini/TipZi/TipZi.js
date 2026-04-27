@@ -110,8 +110,8 @@ const TipZi = () => {
 
         afiseazaMesajToast(
           eroare?.response?.data?.detail ||
-            eroare?.response?.data?.error ||
-            "Nu s-a putut șterge tipul de zi"
+          eroare?.response?.data?.error ||
+          "Nu s-a putut șterge tipul de zi"
         );
       } finally {
         setIdStergereInCurs(null);
@@ -303,6 +303,7 @@ const TipZi = () => {
         open={popupStergereDeschis}
         onClose={inchidePopupStergere}
         className="popup-confirmare-stergere-tipzi"
+        disablePortal
       >
         <DialogTitle className="titlu-popup-stergere-tipzi">
           Confirmare ștergere
