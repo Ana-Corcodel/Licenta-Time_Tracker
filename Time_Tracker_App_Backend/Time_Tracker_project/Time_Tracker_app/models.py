@@ -49,7 +49,7 @@ class Angajat(models.Model):
 class TipZi(models.Model):
     prescurtare = models.CharField(max_length=10)
     tip_zi = models.CharField(max_length=100)
-    este_concediu = models.BooleanField(default=False)  # 👈 asta lipsește
+    este_concediu = models.BooleanField(default=False)  
 
     def __str__(self):
         return f"{self.prescurtare} - {self.tip_zi}"

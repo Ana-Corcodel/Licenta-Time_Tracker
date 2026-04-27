@@ -211,7 +211,7 @@ const AddAngajati = ({ open, onClose }) => {
                 : "none",
             backgroundColor: "#fff",
             transition: "all 0.22s ease",
-            fontWeight: 400, // 🔥 FIX: nu mai e bold
+            fontWeight: 400, 
         }),
         valueContainer: (baza) => ({
             ...baza,
@@ -232,7 +232,7 @@ const AddAngajati = ({ open, onClose }) => {
             ...baza,
             color: "#111827",
             fontSize: "14px",
-            fontWeight: 400, // aici era mai îngroșat
+            fontWeight: 400, 
         }),
         menu: (baza) => ({
             ...baza,

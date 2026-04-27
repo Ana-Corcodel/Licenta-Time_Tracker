@@ -4,7 +4,6 @@ from .models import (
     CerereAmprenta, CerereStergereAmprenta, ConcediuAttach
 )
 
-
 @admin.register(Angajat)
 class AngajatAdmin(admin.ModelAdmin):
     list_display = (

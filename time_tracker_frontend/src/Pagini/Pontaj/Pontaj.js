@@ -316,15 +316,15 @@ const Pontaj = () => {
           const norma = 8;
           const diferenta = norma - oreLucrate;
 
-          let culoare = "#16a34a"; // verde
+          let culoare = "#16a34a"; 
 
           if (diferenta > 0) {
             if (diferenta >= 1) {
-              culoare = "#dc2626"; // rosu
+              culoare = "#dc2626"; 
             } else if (diferenta >= 0.25) {
-              culoare = "#f59e0b"; // portocaliu (15 min+ lipsa)
+              culoare = "#f59e0b";
             } else {
-              culoare = "#eab308"; // galben (foarte mică diferență)
+              culoare = "#eab308"; 
             }
           }
 
