@@ -254,7 +254,12 @@ const Pontaj = () => {
       );
     }
 
-    return lista.sort((a, b) => Number(b.id) - Number(a.id));
+    return lista.sort((a, b) => {
+      const dataA = new Date(a.data);
+      const dataB = new Date(b.data);
+
+      return dataB - dataA; 
+    });
   }, [listaPontaje, termenCautareTemporizat]);
 
   const coloane = useMemo(
@@ -316,15 +321,15 @@ const Pontaj = () => {
           const norma = 8;
           const diferenta = norma - oreLucrate;
 
-          let culoare = "#16a34a"; 
+          let culoare = "#16a34a";
 
           if (diferenta > 0) {
             if (diferenta >= 1) {
-              culoare = "#dc2626"; 
+              culoare = "#dc2626";
             } else if (diferenta >= 0.25) {
               culoare = "#f59e0b";
             } else {
-              culoare = "#eab308"; 
+              culoare = "#eab308";
             }
           }
 

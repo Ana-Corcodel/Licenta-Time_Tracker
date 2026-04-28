@@ -232,6 +232,20 @@
   background: #9e9e9e;
 }
 
+.pagina-vizualizare-documente-concediu .link-document-concediu {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.pagina-vizualizare-documente-concediu .link-document-concediu:hover {
+  color: #1976d2;
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .pagina-vizualizare-documente-concediu .card-document-concediu {
     flex-direction: column;

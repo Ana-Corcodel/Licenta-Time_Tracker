@@ -2,8 +2,6 @@ import React, { useMemo, useCallback } from "react";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DescriptionIcon from "@mui/icons-material/Description";
-import DownloadIcon from "@mui/icons-material/Download";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import "./VizualizareDocumenteConcediu.css";
 
 const extrageListaAttach = (attach) => {
@@ -37,20 +35,6 @@ const normalizeazaAttachment = (fisier, index) => {
     size: fisier.file_size || fisier.size || 0,
     uploaded_at: fisier.uploaded_at || null,
   };
-};
-
-const formateazaDimensiune = (bytes) => {
-  if (!bytes || Number.isNaN(Number(bytes))) return "";
-
-  const valoare = Number(bytes);
-
-  if (valoare < 1024) return `${valoare} B`;
-  if (valoare < 1024 * 1024) return `${(valoare / 1024).toFixed(1)} KB`;
-  if (valoare < 1024 * 1024 * 1024) {
-    return `${(valoare / (1024 * 1024)).toFixed(1)} MB`;
-  }
-
-  return `${(valoare / (1024 * 1024 * 1024)).toFixed(1)} GB`;
 };
 
 const estePdf = (filename = "") => filename.toLowerCase().endsWith(".pdf");
@@ -163,34 +147,6 @@ const VizualizareDocumenteConcediu = ({
     }
   }, []);
 
-  const handleDownloadFile = useCallback(async (fisier) => {
-    if (!fisier?.url) {
-      alert("Fișierul nu are URL disponibil.");
-      return;
-    }
-
-    try {
-      const response = await fetch(fisier.url);
-      if (!response.ok) {
-        throw new Error("Nu s-a putut descărca fișierul.");
-      }
-
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = fisier.filename || "document";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-    } catch (error) {
-      console.error("Eroare la descărcarea fișierului:", error);
-      alert("Nu s-a putut descărca fișierul selectat.");
-    }
-  }, []);
 
   if (!open) return null;
 
@@ -228,34 +184,15 @@ const VizualizareDocumenteConcediu = ({
                       </div>
 
                       <div className="info-document-concediu">
-                        <div className="nume-document-concediu" title={fisier.filename}>
+                        <button
+                          type="button"
+                          className="nume-document-concediu link-document-concediu"
+                          title={fisier.filename}
+                          onClick={() => handleOpenFile(fisier)}
+                        >
                           {fisier.filename}
-                        </div>
-
-                        <div className="meta-document-concediu">
-                          {formateazaDimensiune(fisier.size) || "Dimensiune necunoscută"}
-                        </div>
+                        </button>
                       </div>
-                    </div>
-
-                    <div className="actiuni-document-concediu">
-                      <button
-                        className="buton-actiune-document preview"
-                        onClick={() => handleOpenFile(fisier)}
-                        title={estePdf(fisier.filename) ? "Previzualizează" : "Deschide / descarcă"}
-                      >
-                        <VisibilityIcon fontSize="small" />
-                        {estePdf(fisier.filename) ? "Preview" : "Deschide"}
-                      </button>
-
-                      <button
-                        className="buton-actiune-document download"
-                        onClick={() => handleDownloadFile(fisier)}
-                        title="Descarcă"
-                      >
-                        <DownloadIcon fontSize="small" />
-                        Descarcă
-                      </button>
                     </div>
                   </div>
                 ))}

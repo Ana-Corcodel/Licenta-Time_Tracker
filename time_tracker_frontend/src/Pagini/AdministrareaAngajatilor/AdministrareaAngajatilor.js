@@ -300,7 +300,23 @@ const AdministrareaAngajatilor = () => {
         id: angajat.id ?? index,
         ...angajat,
       }))
-      .sort((a, b) => Number(b.id) - Number(a.id));
+      .sort((a, b) => {
+        const statusA = normalizeazaCheiaStatusului(a.status);
+        const statusB = normalizeazaCheiaStatusului(b.status);
+
+        const ordineStatus = {
+          activ: 1,
+          suspendat: 2,
+          inactiv: 3,
+        };
+
+        const ordA = ordineStatus[statusA] || 99;
+        const ordB = ordineStatus[statusB] || 99;
+
+        if (ordA !== ordB) return ordA - ordB;
+
+        return Number(b.id) - Number(a.id);
+      });
   }, [angajati, cautareIntarziata]);
 
   const coloane = useMemo(
