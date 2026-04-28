@@ -1,7 +1,11 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
+import { useDropzone } from "react-dropzone";
+import axiosInstance from "../../Config/axiosInstance";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DescriptionIcon from "@mui/icons-material/Description";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
 import "./VizualizareDocumenteConcediu.css";
 
 const extrageListaAttach = (attach) => {
@@ -57,16 +61,37 @@ const obtineIconFisier = (filename = "") => {
   return <InsertDriveFileIcon style={{ fontSize: 28, color: "#757575" }} />;
 };
 
+const getIdValue = (valoare) => {
+  if (!valoare) return "";
+  if (typeof valoare === "object") return valoare.id || valoare.value || "";
+  return valoare;
+};
+
 const VizualizareDocumenteConcediu = ({
   open,
   onClose,
   concediuData,
+  onUploaded,
 }) => {
+  const [afiseazaGestionare, setAfiseazaGestionare] = useState(false);
+  const [documenteEditabile, setDocumenteEditabile] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [seIncarca, setSeIncarca] = useState(false);
+
   const documente = useMemo(() => {
     return extrageListaAttach(concediuData?.attach_files)
       .map((fisier, index) => normalizeazaAttachment(fisier, index))
       .filter(Boolean);
   }, [concediuData]);
+
+  useEffect(() => {
+    if (open) {
+      setDocumenteEditabile(documente);
+      setFiles([]);
+      setAfiseazaGestionare(false);
+      setSeIncarca(false);
+    }
+  }, [open, documente]);
 
   const numeAngajat = useMemo(() => {
     const angajat = concediuData?.angajat;
@@ -88,8 +113,11 @@ const VizualizareDocumenteConcediu = ({
   }, [concediuData]);
 
   const handleClose = useCallback(() => {
+    setAfiseazaGestionare(false);
+    setDocumenteEditabile(documente);
+    setFiles([]);
     onClose?.();
-  }, [onClose]);
+  }, [documente, onClose]);
 
   const handleOpenFile = useCallback(async (fisier) => {
     if (!fisier?.url) {
@@ -147,6 +175,107 @@ const VizualizareDocumenteConcediu = ({
     }
   }, []);
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      "application/pdf": [],
+      "application/msword": [],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [],
+      "image/jpeg": [],
+      "image/png": [],
+      "application/vnd.ms-excel": [],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
+      "text/plain": [],
+    },
+    multiple: true,
+    maxSize: 1024 * 1024 * 100,
+    onDrop: (acceptedFiles, rejectedFiles) => {
+      if (rejectedFiles.length > 0) {
+        const tooLarge = rejectedFiles.find(
+          (f) => f.errors?.[0]?.code === "file-too-large"
+        );
+
+        if (tooLarge) {
+          alert(`Fișierul ${tooLarge.file.name} depășește 100MB`);
+        }
+      }
+
+      if (acceptedFiles.length > 0) {
+        setFiles((prev) => [...prev, ...acceptedFiles]);
+      }
+    },
+  });
+
+  const handleRemoveFileNou = useCallback((indexToRemove) => {
+    setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
+  }, []);
+
+  const handleRemoveDocumentExistent = useCallback((idDocument) => {
+    setDocumenteEditabile((prev) =>
+      prev.filter((document) => document.id !== idDocument)
+    );
+  }, []);
+
+  const handleToggleGestionare = useCallback(() => {
+    setAfiseazaGestionare((prev) => {
+      const nouaValoare = !prev;
+
+      if (!nouaValoare) {
+        setDocumenteEditabile(documente);
+        setFiles([]);
+      }
+
+      return nouaValoare;
+    });
+  }, [documente]);
+
+  const handleUploadDocumente = useCallback(async () => {
+    if (!concediuData?.id) {
+      alert("Nu există concediu selectat.");
+      return;
+    }
+
+    setSeIncarca(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("angajat", getIdValue(concediuData.angajat));
+      formData.append("data_start", concediuData.data_start);
+      formData.append("data_sfarsit", concediuData.data_sfarsit);
+      formData.append("durata", String(concediuData.durata));
+      formData.append("an_concediu", String(concediuData.an_concediu));
+      formData.append("tip_concediu", getIdValue(concediuData.tip_concediu));
+
+      documenteEditabile.forEach((attachment) => {
+        if (attachment.id) {
+          formData.append("keep_attachments", attachment.id);
+        }
+      });
+
+      files.forEach((fisier) => {
+        formData.append("attach", fisier);
+      });
+
+      await axiosInstance.put(`/api/concedii/${concediuData.id}/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setFiles([]);
+      setAfiseazaGestionare(false);
+      onUploaded?.("Documentele au fost actualizate cu succes!");
+    } catch (error) {
+      console.error("Eroare la actualizarea documentelor:", error);
+      alert(
+        error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          "Nu s-au putut actualiza documentele."
+      );
+    } finally {
+      setSeIncarca(false);
+    }
+  }, [concediuData, documenteEditabile, files, onUploaded]);
 
   if (!open) return null;
 
@@ -170,13 +299,13 @@ const VizualizareDocumenteConcediu = ({
           <hr className="separator-antet-documente" />
 
           <div className="continut-modal-documente">
-            {documente.length === 0 ? (
+            {documenteEditabile.length === 0 ? (
               <div className="stare-goala-documente">
                 Nu există documente încărcate pentru acest concediu.
               </div>
             ) : (
               <div className="lista-documente-concediu">
-                {documente.map((fisier) => (
+                {documenteEditabile.map((fisier) => (
                   <div key={fisier.id} className="card-document-concediu">
                     <div className="stanga-document-concediu">
                       <div className="icon-document-concediu">
@@ -194,10 +323,91 @@ const VizualizareDocumenteConcediu = ({
                         </button>
                       </div>
                     </div>
+
+                    {afiseazaGestionare && (
+                      <button
+                        type="button"
+                        className="buton-stergere-document-existent"
+                        onClick={() => handleRemoveDocumentExistent(fisier.id)}
+                        title="Șterge document"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
             )}
+
+            <div className="zona-adauga-documente-concediu">
+              <button
+                type="button"
+                className="buton-adauga-documente-concediu"
+                onClick={handleToggleGestionare}
+              >
+                {afiseazaGestionare ? "Renunță" : "Gestionează documente"}
+              </button>
+
+              {afiseazaGestionare && (
+                <div className="dropzone-wrapper-documente">
+                  <div {...getRootProps({ className: "dropzone-documente" })}>
+                    <input {...getInputProps()} />
+
+                    <div className="dropzone-content-documente">
+                      <CloudUploadIcon style={{ fontSize: 40, color: "#888" }} />
+                      <p>
+                        {isDragActive
+                          ? "Lasă fișierele aici..."
+                          : "Trage fișierele aici sau apasă pentru selectare"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {files.length > 0 && (
+                    <div className="files-preview-documente">
+                      <h4>Fișiere noi selectate ({files.length})</h4>
+
+                      {files.map((file, index) => (
+                        <div
+                          key={`${file.name}-${index}`}
+                          className="file-preview-documente"
+                        >
+                          <div className="file-info-documente">
+                            {obtineIconFisier(file.name)}
+
+                            <span className="file-name-documente" title={file.name}>
+                              {file.name}
+                            </span>
+
+                            <span className="file-size-documente">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="remove-file-documente"
+                            onClick={() => handleRemoveFileNou(index)}
+                            title="Șterge fișier"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    className="buton-salveaza-documente"
+                    onClick={handleUploadDocumente}
+                    disabled={seIncarca}
+                  >
+                    {seIncarca ? "Se salvează..." : "Salvează modificările"}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="footer-modal-documente">

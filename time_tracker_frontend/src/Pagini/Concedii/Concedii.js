@@ -163,20 +163,10 @@ const Concedii = () => {
     setEsteDeschisModalEditare(true);
   }, []);
 
-  const gestioneazaPreviewDocumente = useCallback(
-    (concediu) => {
-      const fisiere = extrageListaAttach(concediu.attach_files);
-
-      if (!fisiere.length) {
-        afiseazaMesajToast("Nu există documente încărcate pentru acest concediu");
-        return;
-      }
-
-      setConcediuPentruDocumente(concediu);
-      setEsteDeschisModalDocumente(true);
-    },
-    [afiseazaMesajToast]
-  );
+  const gestioneazaPreviewDocumente = useCallback((concediu) => {
+    setConcediuPentruDocumente(concediu);
+    setEsteDeschisModalDocumente(true);
+  }, []);
 
   const deschidePopupStergere = useCallback((concediu) => {
     setConcediuPentruStergere(concediu);
@@ -476,12 +466,16 @@ const Concedii = () => {
       <VizualizareDocumenteConcediu
         open={esteDeschisModalDocumente}
         concediuData={concediuPentruDocumente}
+        onUploaded={(mesaj) => {
+          preiaConcedii();
+          afiseazaMesajToast(mesaj || "Documentele au fost actualizate cu succes");
+        }}
         onClose={() => {
           setEsteDeschisModalDocumente(false);
           setConcediuPentruDocumente(null);
         }}
       />
-
+      
       <Dialog
         open={esteDeschisPopupStergere}
         onClose={inchidePopupStergere}
