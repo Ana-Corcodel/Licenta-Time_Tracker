@@ -220,6 +220,7 @@ def main():
 
             if stare_display["activ"] and acum >= stare_display["reset_la"]:
                 stare_display["activ"] = False
+                trimite_display(ser, "Scanare", "amprenta")
 
             if (not stare_enroll["activ"] and not stare_delete["activ"]
                     and (acum - ultimul_poll_comenzi >= interval_poll_comenzi)):
