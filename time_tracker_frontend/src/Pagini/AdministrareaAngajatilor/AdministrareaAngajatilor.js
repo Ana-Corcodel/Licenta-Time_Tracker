@@ -602,6 +602,7 @@ const AdministrareaAngajatilor = () => {
         open={esteDeschisPopupStergere}
         onClose={inchidePopupStergere}
         className="popup-confirmare-stergere-amprenta"
+        disablePortal
       >
         <DialogTitle className="titlu-popup-stergere">
           Confirmare ștergere
