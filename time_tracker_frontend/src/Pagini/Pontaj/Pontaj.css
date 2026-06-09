@@ -67,10 +67,17 @@
 .pagina-pontaj .container-tabel {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: auto;
   margin-top: 10px;
   border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pagina-pontaj .tabel-pontaj-datagrid {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
 }
 
 .pagina-pontaj .MuiDataGrid-root {
@@ -83,6 +90,40 @@
 .pagina-pontaj .MuiDataGrid-columnHeaders {
   background-color: #d6d6d6;
   font-weight: bold;
+}
+
+.pagina-pontaj .MuiDataGrid-virtualScroller {
+  scrollbar-width: none;
+}
+
+.pagina-pontaj .MuiDataGrid-virtualScroller::-webkit-scrollbar {
+  display: none;
+}
+
+.pagina-pontaj .scrollbar-orizontal-pontaj {
+  height: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pagina-pontaj .scrollbar-orizontal-pontaj-content {
+  height: 1px;
+}
+
+.pagina-pontaj .scrollbar-orizontal-pontaj::-webkit-scrollbar {
+  height: 10px;
+}
+
+.pagina-pontaj .scrollbar-orizontal-pontaj::-webkit-scrollbar-thumb {
+  background: #b8c2d6;
+  border-radius: 10px;
+}
+
+.pagina-pontaj .scrollbar-orizontal-pontaj::-webkit-scrollbar-track {
+  background: #eef2f8;
 }
 
 .pagina-pontaj .toast-global {
@@ -224,8 +265,7 @@
 
   .pagina-pontaj .container-tabel {
     margin-top: 12px;
-    overflow-x: auto;
-    overflow-y: auto;
+    overflow: hidden;
   }
 
   .pagina-pontaj .MuiDataGrid-root {

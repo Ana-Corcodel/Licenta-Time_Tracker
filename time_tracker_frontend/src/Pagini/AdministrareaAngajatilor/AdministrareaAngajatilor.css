@@ -62,15 +62,17 @@
 .pagina-administrare-angajati .container-tabel-angajati {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: hidden;
   border-radius: 8px;
   margin-top: -5px;
+  display: flex;
+  flex-direction: column;
 }
 
-.pagina-administrare-angajati .container-tabel-angajati::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.pagina-administrare-angajati .tabel-angajati-datagrid {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
 }
 
 .pagina-administrare-angajati .toast-angajati {
@@ -102,6 +104,40 @@
   top: 0;
   z-index: 2;
   background-color: #fff;
+}
+
+.pagina-administrare-angajati .MuiDataGrid-virtualScroller {
+  scrollbar-width: none;
+}
+
+.pagina-administrare-angajati .MuiDataGrid-virtualScroller::-webkit-scrollbar {
+  display: none;
+}
+
+.pagina-administrare-angajati .scrollbar-orizontal-angajati {
+  height: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pagina-administrare-angajati .scrollbar-orizontal-angajati-content {
+  height: 1px;
+}
+
+.pagina-administrare-angajati .scrollbar-orizontal-angajati::-webkit-scrollbar {
+  height: 10px;
+}
+
+.pagina-administrare-angajati .scrollbar-orizontal-angajati::-webkit-scrollbar-thumb {
+  background: #b8c2d6;
+  border-radius: 10px;
+}
+
+.pagina-administrare-angajati .scrollbar-orizontal-angajati::-webkit-scrollbar-track {
+  background: #eef2f8;
 }
 
 .pagina-administrare-angajati .popup-confirmare-stergere-amprenta .MuiPaper-root {

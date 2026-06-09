@@ -1003,7 +1003,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
 
                   {attachExistente.length > 0 && (
                     <div className="existing-files-section">
-                      <h4>Current Files ({attachExistente.length})</h4>
+                      <h4>Fișiere curente ({attachExistente.length})</h4>
                       <div className="files-list">
                         {attachExistente.map((attachment, index) => {
                           const fileUrl = getFileUrl(attachment);
@@ -1062,9 +1062,9 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                       <input {...getInputProps()} />
                       <div className="dropzone-content">
                         {isDragActive ? (
-                          <p>Drop the files here...</p>
+                          <p>Lasă fișierele aici...</p>
                         ) : (
-                          <p>Drag & drop files or click to select</p>
+                          <p>Trage fișierele aici sau apasă pentru selectare</p>
                         )}
                         <CloudUploadIcon style={{ fontSize: 40, color: "#888" }} />
                       </div>
@@ -1072,7 +1072,7 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
 
                     {files.length > 0 && (
                       <div className="new-files-section">
-                        <h4>New Files to Upload ({files.length})</h4>
+                        <h4>Fișiere noi de încărcat ({files.length})</h4>
                         <div className="files-list">
                           {files.map((file, index) => (
                             <div key={index} className="file-preview-item">
@@ -1112,9 +1112,10 @@ const EditConcediu = ({ open, concediuData, onClose }) => {
                   </div>
 
                   <p className="file-hint">
-                    * Accepted file types: PDF, Word, Excel, Images, Text. Multiple
-                    files allowed (max 100MB per file). Click on filename to preview
-                    PDF or download other files.
+                    * Tipuri acceptate: PDF, Word, Excel, Imagini, Text. Sunt
+                    permise mai multe fișiere (maxim 100MB per fișier). Apasă pe
+                    numele fișierului pentru preview PDF sau download pentru
+                    celelalte.
                   </p>
                 </div>
               </div>

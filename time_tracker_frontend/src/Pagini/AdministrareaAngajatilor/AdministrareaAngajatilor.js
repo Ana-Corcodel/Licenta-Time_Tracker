@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   Box,
   Button,
@@ -117,6 +117,10 @@ const AdministrareaAngajatilor = () => {
 
   const [esteDeschisPopupStergere, setEsteDeschisPopupStergere] = useState(false);
   const [angajatPentruStergere, setAngajatPentruStergere] = useState(null);
+
+  const gridWrapperRef = useRef(null);
+  const scrollbarRef = useRef(null);
+  const scrollbarContentRef = useRef(null);
 
   const cautareIntarziata = useDebounce(textCautare, TIMP_DEBOUNCE_MS);
 
@@ -503,6 +507,53 @@ const AdministrareaAngajatilor = () => {
     ]
   );
 
+  useEffect(() => {
+    const wrapper = gridWrapperRef.current;
+    const scrollbar = scrollbarRef.current;
+    const scrollbarContent = scrollbarContentRef.current;
+
+    if (!wrapper || !scrollbar || !scrollbarContent) return;
+
+    const gasesteVirtualScroller = () =>
+      wrapper.querySelector('.MuiDataGrid-virtualScroller');
+
+    const conecteazaScrollbar = () => {
+      const virtualScroller = gasesteVirtualScroller();
+
+      if (!virtualScroller) return;
+
+      const updateScrollbarWidth = () => {
+        scrollbarContent.style.width = `${virtualScroller.scrollWidth}px`;
+      };
+
+      const syncFromGrid = () => {
+        scrollbar.scrollLeft = virtualScroller.scrollLeft;
+      };
+
+      const syncFromScrollbar = () => {
+        virtualScroller.scrollLeft = scrollbar.scrollLeft;
+      };
+
+      updateScrollbarWidth();
+
+      virtualScroller.addEventListener('scroll', syncFromGrid);
+      scrollbar.addEventListener('scroll', syncFromScrollbar);
+
+      const resizeObserver = new ResizeObserver(updateScrollbarWidth);
+      resizeObserver.observe(virtualScroller);
+
+      return () => {
+        virtualScroller.removeEventListener('scroll', syncFromGrid);
+        scrollbar.removeEventListener('scroll', syncFromScrollbar);
+        resizeObserver.disconnect();
+      };
+    };
+
+    const timeout = setTimeout(conecteazaScrollbar, 100);
+
+    return () => clearTimeout(timeout);
+  }, [randuriFiltrate.length, coloane]);
+
   return (
     <div className="pagina-administrare-angajati">
       {afiseazaToast && <div className="toast-angajati">{mesajToast}</div>}
@@ -541,36 +592,45 @@ const AdministrareaAngajatilor = () => {
           </Box>
         </Box>
 
-        <div className="container-tabel-angajati">
-          <DataGrid
-            rows={randuriFiltrate}
-            columns={coloane}
-            loading={seIncarca}
-            disableRowSelectionOnClick
-            pageSizeOptions={[6, 10, 15, 25, 50]}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: PAGINA_IMPLICITA, page: 0 },
-              },
-            }}
-            rowHeight={50}
-            autoHeight={false}
-            sx={{
-              borderRadius: '8px',
-              height: '100%',
-              '& .MuiDataGrid-cell': {
-                alignItems: 'center',
-                display: 'flex',
-              },
-              '& .MuiDataGrid-cell:focus': {
-                outline: 'none',
-              },
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontWeight: '700',
-                fontSize: '0.95rem'
-              }
-            }}
-          />
+        <div className="container-tabel-angajati" ref={gridWrapperRef}>
+          <div className="tabel-angajati-datagrid">
+            <DataGrid
+              rows={randuriFiltrate}
+              columns={coloane}
+              loading={seIncarca}
+              disableRowSelectionOnClick
+              pageSizeOptions={[6, 10, 15, 25, 50]}
+              initialState={{
+                pagination: {
+                  paginationModel: { pageSize: PAGINA_IMPLICITA, page: 0 },
+                },
+              }}
+              rowHeight={50}
+              autoHeight={false}
+              sx={{
+                borderRadius: '8px',
+                height: '100%',
+                '& .MuiDataGrid-cell': {
+                  alignItems: 'center',
+                  display: 'flex',
+                },
+                '& .MuiDataGrid-cell:focus': {
+                  outline: 'none',
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: '700',
+                  fontSize: '0.95rem'
+                }
+              }}
+            />
+          </div>
+
+          <div className="scrollbar-orizontal-angajati" ref={scrollbarRef}>
+            <div
+              className="scrollbar-orizontal-angajati-content"
+              ref={scrollbarContentRef}
+            />
+          </div>
         </div>
       </div>
 

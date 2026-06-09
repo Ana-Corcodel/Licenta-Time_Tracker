@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import axiosInstance from "../../Config/axiosInstance";
 import "./AddTipZi.css";
 
-const EditTipZi = ({ open, tipData, onClose }) => {
+const AddTipZi = ({ open, onClose }) => {
     const [dateFormular, setDateFormular] = useState({
         prescurtare: "",
         tip_zi: "",
@@ -13,18 +13,6 @@ const EditTipZi = ({ open, tipData, onClose }) => {
     const [succes, setSucces] = useState("");
     const [afiseazaToast, setAfiseazaToast] = useState(false);
     const [eroriCampuri, setEroriCampuri] = useState({});
-
-    useEffect(() => {
-        if (open && tipData) {
-            setDateFormular({
-                prescurtare: tipData.prescurtare || "",
-                tip_zi: tipData.tip_zi || "",
-            });
-            setEroare("");
-            setSucces("");
-            setEroriCampuri({});
-        }
-    }, [open, tipData]);
 
     const gestioneazaSchimbarea = useCallback((camp) => (e) => {
         let valoare = e.target.value;
@@ -50,7 +38,8 @@ const EditTipZi = ({ open, tipData, onClose }) => {
         if (!dateFormular.prescurtare.trim()) {
             erori.prescurtare = "Prescurtarea este obligatorie";
         } else if (dateFormular.prescurtare.length > 10) {
-            erori.prescurtare = "Prescurtarea nu poate depăși 10 caractere";
+            erori.prescurtare =
+                "Prescurtarea nu poate depăși 10 caractere";
         }
 
         if (!dateFormular.tip_zi.trim()) {
@@ -58,6 +47,7 @@ const EditTipZi = ({ open, tipData, onClose }) => {
         }
 
         setEroriCampuri(erori);
+
         return Object.keys(erori).length === 0;
     }, [dateFormular]);
 
@@ -66,9 +56,11 @@ const EditTipZi = ({ open, tipData, onClose }) => {
             prescurtare: "",
             tip_zi: "",
         });
+
         setEroare("");
         setSucces("");
         setEroriCampuri({});
+
         onClose(false);
     }, [onClose]);
 
@@ -87,20 +79,24 @@ const EditTipZi = ({ open, tipData, onClose }) => {
                 tip_zi: dateFormular.tip_zi.trim(),
             };
 
-            const raspuns = await axiosInstance.put(
-                `/tipuri-zile/${tipData.id}/`,
+            const raspuns = await axiosInstance.post(
+                "/tipuri-zile/",
                 payload
             );
 
-            if (raspuns.status === 200) {
+            if (raspuns.status === 201 || raspuns.status === 200) {
                 setAfiseazaToast(true);
-                setTimeout(() => setAfiseazaToast(false), 4000);
-                onClose(true, "Tip de zi actualizat cu succes!");
+
+                setTimeout(() => {
+                    setAfiseazaToast(false);
+                }, 4000);
+
+                onClose(true, "Tip de zi adăugat cu succes!");
             } else {
                 setEroare("Răspuns neașteptat de la server");
             }
         } catch (err) {
-            let mesaj = "Eroare la actualizarea tipului de zi";
+            let mesaj = "Eroare la adăugarea tipului de zi";
 
             if (err.response?.data?.detail) {
                 mesaj = err.response.data.detail;
@@ -110,16 +106,26 @@ const EditTipZi = ({ open, tipData, onClose }) => {
                 const eroriValidare = err.response.data;
 
                 if (typeof eroriValidare === "object") {
-                    if (eroriValidare.prescurtare && Array.isArray(eroriValidare.prescurtare)) {
+                    if (
+                        eroriValidare.prescurtare &&
+                        Array.isArray(eroriValidare.prescurtare)
+                    ) {
                         mesaj = eroriValidare.prescurtare[0];
+
                         setEroriCampuri((anterior) => ({
                             ...anterior,
-                            prescurtare: eroriValidare.prescurtare[0],
+                            prescurtare:
+                                eroriValidare.prescurtare[0],
                         }));
                     } else {
                         Object.keys(eroriValidare).forEach((cheie) => {
-                            if (Array.isArray(eroriValidare[cheie])) {
-                                mesaj = eroriValidare[cheie][0];
+                            if (
+                                Array.isArray(
+                                    eroriValidare[cheie]
+                                )
+                            ) {
+                                mesaj =
+                                    eroriValidare[cheie][0];
                             }
                         });
                     }
@@ -127,18 +133,24 @@ const EditTipZi = ({ open, tipData, onClose }) => {
             }
 
             setEroare(mesaj);
-            console.error("Eroare la trimitere:", err);
+
+            console.error(
+                "Eroare la trimitere:",
+                err
+            );
         } finally {
             setSeIncarca(false);
         }
-    }, [dateFormular, valideazaFormularul, tipData, onClose]);
+    }, [dateFormular, valideazaFormularul, onClose]);
 
     if (!open) return null;
 
     return (
         <>
             {afiseazaToast && (
-                <div className="toast-global">✅ Tip de zi actualizat cu succes!</div>
+                <div className="toast-global">
+                    ✅ Tip de zi adăugat cu succes!
+                </div>
             )}
 
             <div className="pagina-adaugare-tipzi">
@@ -146,7 +158,8 @@ const EditTipZi = ({ open, tipData, onClose }) => {
                     <div className="suprapunere-modal">
                         <div className="modal">
                             <div className="antet-modal">
-                                <h2>Editează Tip Zi</h2>
+                                <h2>Adaugă Tip Zi</h2>
+
                                 <button
                                     className="buton-inchidere"
                                     onClick={gestioneazaAnularea}
@@ -158,29 +171,56 @@ const EditTipZi = ({ open, tipData, onClose }) => {
                             {seIncarca && (
                                 <div className="suprapunere-incarcare">
                                     <div className="incarcator"></div>
-                                    <span>Se actualizează tipul de zi...</span>
+                                    <span>
+                                        Se adaugă tipul de zi...
+                                    </span>
                                 </div>
                             )}
 
-                            {eroare && <div className="alerta eroare">{eroare}</div>}
-                            {succes && <div className="alerta succes">{succes}</div>}
+                            {eroare && (
+                                <div className="alerta eroare">
+                                    {eroare}
+                                </div>
+                            )}
+
+                            {succes && (
+                                <div className="alerta succes">
+                                    {succes}
+                                </div>
+                            )}
 
                             <div className="formular">
                                 <div className="camp-formular">
                                     <label className="eticheta-stanga">
-                                        Prescurtare <span className="obligatoriu">*</span>
+                                        Prescurtare{" "}
+                                        <span className="obligatoriu">
+                                            *
+                                        </span>
+
                                         <span className="contor-caractere">
-                                            ({dateFormular.prescurtare.length}/10)
+                                            (
+                                            {
+                                                dateFormular
+                                                    .prescurtare
+                                                    .length
+                                            }
+                                            /10)
                                         </span>
                                     </label>
 
                                     <input
                                         type="text"
                                         placeholder="Ex: CO"
-                                        value={dateFormular.prescurtare}
-                                        onChange={gestioneazaSchimbarea("prescurtare")}
+                                        value={
+                                            dateFormular.prescurtare
+                                        }
+                                        onChange={gestioneazaSchimbarea(
+                                            "prescurtare"
+                                        )}
                                         className={`input-stanga ${
-                                            eroriCampuri.prescurtare ? "chenar-eroare-camp" : ""
+                                            eroriCampuri.prescurtare
+                                                ? "chenar-eroare-camp"
+                                                : ""
                                         }`}
                                         maxLength="10"
                                         required
@@ -188,23 +228,34 @@ const EditTipZi = ({ open, tipData, onClose }) => {
 
                                     {eroriCampuri.prescurtare && (
                                         <span className="eroare-camp eroare-stanga">
-                                            {eroriCampuri.prescurtare}
+                                            {
+                                                eroriCampuri.prescurtare
+                                            }
                                         </span>
                                     )}
                                 </div>
 
                                 <div className="camp-formular">
                                     <label className="eticheta-stanga">
-                                        Tip zi <span className="obligatoriu">*</span>
+                                        Tip zi{" "}
+                                        <span className="obligatoriu">
+                                            *
+                                        </span>
                                     </label>
 
                                     <input
                                         type="text"
                                         placeholder="Ex: Concediu de odihnă"
-                                        value={dateFormular.tip_zi}
-                                        onChange={gestioneazaSchimbarea("tip_zi")}
+                                        value={
+                                            dateFormular.tip_zi
+                                        }
+                                        onChange={gestioneazaSchimbarea(
+                                            "tip_zi"
+                                        )}
                                         className={`input-stanga ${
-                                            eroriCampuri.tip_zi ? "chenar-eroare-camp" : ""
+                                            eroriCampuri.tip_zi
+                                                ? "chenar-eroare-camp"
+                                                : ""
                                         }`}
                                         required
                                     />
@@ -227,12 +278,20 @@ const EditTipZi = ({ open, tipData, onClose }) => {
 
                                 <button
                                     className={`buton-trimitere ${
-                                        seIncarca ? "dezactivat" : ""
+                                        seIncarca
+                                            ? "dezactivat"
+                                            : ""
                                     }`}
-                                    onClick={!seIncarca ? gestioneazaTrimiterea : undefined}
+                                    onClick={
+                                        !seIncarca
+                                            ? gestioneazaTrimiterea
+                                            : undefined
+                                    }
                                     disabled={seIncarca}
                                 >
-                                    {seIncarca ? "Se actualizează..." : "Actualizează"}
+                                    {seIncarca
+                                        ? "Se salvează..."
+                                        : "Salvează"}
                                 </button>
                             </div>
                         </div>
@@ -243,4 +302,4 @@ const EditTipZi = ({ open, tipData, onClose }) => {
     );
 };
 
-export default EditTipZi;
+export default AddTipZi;

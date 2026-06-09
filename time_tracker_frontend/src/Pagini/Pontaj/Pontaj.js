@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Box,
   Button,
@@ -172,6 +172,10 @@ const Pontaj = () => {
   const [esteDeschisPopupStergere, seteazaEsteDeschisPopupStergere] =
     useState(false);
   const [pontajPentruStergere, seteazaPontajPentruStergere] = useState(null);
+
+  const gridWrapperRef = useRef(null);
+  const scrollbarRef = useRef(null);
+  const scrollbarContentRef = useRef(null);
 
   const termenCautareTemporizat = useDebounce(
     termenCautare,
@@ -435,6 +439,53 @@ const Pontaj = () => {
     [gestioneazaEditarePontaj, deschidePopupStergere, idStergereInCurs]
   );
 
+  useEffect(() => {
+    const wrapper = gridWrapperRef.current;
+    const scrollbar = scrollbarRef.current;
+    const scrollbarContent = scrollbarContentRef.current;
+
+    if (!wrapper || !scrollbar || !scrollbarContent) return;
+
+    const gasesteVirtualScroller = () =>
+      wrapper.querySelector(".MuiDataGrid-virtualScroller");
+
+    const conecteazaScrollbar = () => {
+      const virtualScroller = gasesteVirtualScroller();
+
+      if (!virtualScroller) return;
+
+      const updateScrollbarWidth = () => {
+        scrollbarContent.style.width = `${virtualScroller.scrollWidth}px`;
+      };
+
+      const syncFromGrid = () => {
+        scrollbar.scrollLeft = virtualScroller.scrollLeft;
+      };
+
+      const syncFromScrollbar = () => {
+        virtualScroller.scrollLeft = scrollbar.scrollLeft;
+      };
+
+      updateScrollbarWidth();
+
+      virtualScroller.addEventListener("scroll", syncFromGrid);
+      scrollbar.addEventListener("scroll", syncFromScrollbar);
+
+      const resizeObserver = new ResizeObserver(updateScrollbarWidth);
+      resizeObserver.observe(virtualScroller);
+
+      return () => {
+        virtualScroller.removeEventListener("scroll", syncFromGrid);
+        scrollbar.removeEventListener("scroll", syncFromScrollbar);
+        resizeObserver.disconnect();
+      };
+    };
+
+    const timeout = setTimeout(conecteazaScrollbar, 100);
+
+    return () => clearTimeout(timeout);
+  }, [randuriFiltrate.length, coloane]);
+
   return (
     <div className="pagina-pontaj">
       {afiseazaToast && <div className="toast-global">{mesajToast}</div>}
@@ -470,39 +521,48 @@ const Pontaj = () => {
           </Box>
         </Box>
 
-        <div className="container-tabel">
-          <DataGrid
-            rows={randuriFiltrate}
-            columns={coloane}
-            loading={seIncarca}
-            disableRowSelectionOnClick
-            pageSizeOptions={[10, 15, 20, 50]}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  page: 0,
-                  pageSize: DIMENSIUNE_IMPLICITA_PAGINA,
+        <div className="container-tabel" ref={gridWrapperRef}>
+          <div className="tabel-pontaj-datagrid">
+            <DataGrid
+              rows={randuriFiltrate}
+              columns={coloane}
+              loading={seIncarca}
+              disableRowSelectionOnClick
+              pageSizeOptions={[10, 15, 20, 50]}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    page: 0,
+                    pageSize: DIMENSIUNE_IMPLICITA_PAGINA,
+                  },
                 },
-              },
-            }}
-            rowHeight={50}
-            autoHeight={false}
-            sx={{
-              borderRadius: "8px",
-              height: "100%",
-              "& .MuiDataGrid-cell": {
-                alignItems: "center",
-                display: "flex",
-              },
-              "& .MuiDataGrid-cell:focus": {
-                outline: "none",
-              },
-              "& .MuiDataGrid-columnHeaderTitle": {
-                fontWeight: "700",
-                fontSize: "0.95rem",
-              },
-            }}
-          />
+              }}
+              rowHeight={50}
+              autoHeight={false}
+              sx={{
+                borderRadius: "8px",
+                height: "100%",
+                "& .MuiDataGrid-cell": {
+                  alignItems: "center",
+                  display: "flex",
+                },
+                "& .MuiDataGrid-cell:focus": {
+                  outline: "none",
+                },
+                "& .MuiDataGrid-columnHeaderTitle": {
+                  fontWeight: "700",
+                  fontSize: "0.95rem",
+                },
+              }}
+            />
+          </div>
+
+          <div className="scrollbar-orizontal-pontaj" ref={scrollbarRef}>
+            <div
+              className="scrollbar-orizontal-pontaj-content"
+              ref={scrollbarContentRef}
+            />
+          </div>
         </div>
       </div>
 
