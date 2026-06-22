@@ -68,7 +68,7 @@ class Pontaj(models.Model):
     ora_start = models.TimeField(null=True, blank=True)
     ora_sfarsit = models.TimeField(null=True, blank=True)
     pauza_masa = models.IntegerField(help_text="Durata pauzei în minute")
-    tip = models.ForeignKey(TipZi, on_delete=models.CASCADE, related_name="pontaje")
+    tip = models.ForeignKey(TipZi, on_delete=models.PROTECT, related_name="pontaje")
     data = models.DateField()
     ore_lucrate = models.DecimalField(max_digits=10, decimal_places=6, default=0)
     ore_lucru_suplimentare = models.DecimalField(max_digits=10, decimal_places=6, default=0)
@@ -184,7 +184,7 @@ class Concediu(models.Model):
     an_concediu = models.IntegerField()
     tip_concediu = models.ForeignKey(
         TipZi,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="concedii"
     )
 

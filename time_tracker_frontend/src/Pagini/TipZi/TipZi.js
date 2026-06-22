@@ -68,6 +68,10 @@ const TipZi = () => {
   const [popupStergereDeschis, setPopupStergereDeschis] = useState(false);
   const [tipPentruStergere, setTipPentruStergere] = useState(null);
 
+  const [popupEroareStergereDeschis, setPopupEroareStergereDeschis] =
+    useState(false);
+  const [mesajEroareStergere, setMesajEroareStergere] = useState("");
+
   const cautareCuIntarziere = useDebounce(termenCautare, DEBOUNCE_CAUTARE_MS);
   const { tipuriZi, seIncarca, preiaTipuriZi } = useTipZi();
 
@@ -96,6 +100,11 @@ const TipZi = () => {
     setTipPentruStergere(null);
   }, []);
 
+  const inchidePopupEroareStergere = useCallback(() => {
+    setPopupEroareStergereDeschis(false);
+    setMesajEroareStergere("");
+  }, []);
+
   const gestioneazaStergereTipZi = useCallback(
     async (tip) => {
       try {
@@ -108,11 +117,17 @@ const TipZi = () => {
       } catch (eroare) {
         console.error("Eroare la ștergerea tipului de zi:", eroare);
 
-        afiseazaMesajToast(
+        const mesajBackend =
+          eroare?.response?.data?.message ||
           eroare?.response?.data?.detail ||
-          eroare?.response?.data?.error ||
-          "Nu s-a putut șterge tipul de zi"
+          eroare?.response?.data?.error;
+
+        setMesajEroareStergere(
+          mesajBackend ||
+          "Acest tip de zi este folosit în alte înregistrări și nu poate fi șters."
         );
+
+        setPopupEroareStergereDeschis(true);
       } finally {
         setIdStergereInCurs(null);
       }
@@ -333,6 +348,32 @@ const TipZi = () => {
             onClick={confirmaStergereTipZi}
           >
             Șterge
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={popupEroareStergereDeschis}
+        onClose={inchidePopupEroareStergere}
+        className="popup-eroare-stergere-tipzi"
+        disablePortal
+      >
+        <DialogTitle className="titlu-popup-eroare-stergere-tipzi">
+          Ștergere imposibilă
+        </DialogTitle>
+
+        <DialogContent className="continut-popup-eroare-stergere-tipzi">
+          <Typography className="text-popup-eroare-stergere-tipzi">
+            {mesajEroareStergere}
+          </Typography>
+        </DialogContent>
+
+        <DialogActions className="actiuni-popup-eroare-stergere-tipzi">
+          <Button
+            className="buton-inchide-eroare-stergere-tipzi"
+            onClick={inchidePopupEroareStergere}
+          >
+            Închide
           </Button>
         </DialogActions>
       </Dialog>

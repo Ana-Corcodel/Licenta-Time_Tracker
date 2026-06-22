@@ -103,9 +103,20 @@ class TipZiView(APIView):
 
     def delete(self, request, pk):
         tip = get_object_or_404(TipZi, pk=pk)
-        tip.delete()
-        return Response({"message": "Tip de zi șters cu succes"}, status=status.HTTP_204_NO_CONTENT)
 
+        if tip.pontaje.exists() or tip.concedii.exists():
+            return Response(
+                {
+                    "message": "Acest tip de zi nu poate fi șters deoarece este folosit în pontaje sau concedii."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        tip.delete()
+        return Response(
+            {"message": "Tip de zi șters cu succes"},
+            status=status.HTTP_204_NO_CONTENT
+    )
 
 class PontajView(APIView):
     def get(self, request, pk=None):

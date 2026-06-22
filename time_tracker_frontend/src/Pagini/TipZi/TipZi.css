@@ -169,6 +169,52 @@
   background-color: #b91c1c !important;
 }
 
+.pagina-tipzi .popup-eroare-stergere-tipzi .MuiPaper-root {
+  border-radius: 18px !important;
+  padding: 8px;
+  min-width: 430px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25) !important;
+}
+
+.pagina-tipzi .titlu-popup-eroare-stergere-tipzi {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #991b1b !important;
+  padding: 22px 24px 8px !important;
+}
+
+.pagina-tipzi .continut-popup-eroare-stergere-tipzi {
+  padding: 8px 24px 12px !important;
+}
+
+.pagina-tipzi .text-popup-eroare-stergere-tipzi {
+  font-size: 16px !important;
+  color: #334155 !important;
+  line-height: 1.6 !important;
+}
+
+.pagina-tipzi .subtext-popup-eroare-stergere-tipzi {
+  margin-top: 10px !important;
+  font-size: 14px !important;
+  color: #64748b !important;
+}
+
+.pagina-tipzi .actiuni-popup-eroare-stergere-tipzi {
+  padding: 16px 24px 22px !important;
+}
+
+.pagina-tipzi .buton-inchide-eroare-stergere-tipzi {
+  color: white !important;
+  background-color: #dc2626 !important;
+  text-transform: none !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  padding: 8px 20px !important;
+}
+
+.pagina-tipzi .buton-inchide-eroare-stergere-tipzi:hover {
+  background-color: #b91c1c !important;
+}
 
 @media (max-width: 600px) {
   .pagina-tipzi .popup-confirmare-stergere-tipzi .MuiPaper-root {
