@@ -69,11 +69,74 @@ class ConcediuAttachSerializer(serializers.ModelSerializer):
 class ConcediuSerializer(serializers.ModelSerializer):
     angajat_label = serializers.SerializerMethodField()
     tip_concediu_label = serializers.SerializerMethodField()
-    attach_files = ConcediuAttachSerializer(source="attach", many=True, read_only=True)
+    attach_files = ConcediuAttachSerializer(
+        source="attach",
+        many=True,
+        read_only=True
+    )
 
     class Meta:
         model = Concediu
         fields = "__all__"
+        read_only_fields = ["durata", "an_concediu"]
+
+    def validate(self, attrs):
+        instance = self.instance
+
+        angajat = attrs.get(
+            "angajat",
+            instance.angajat if instance else None
+        )
+        data_start = attrs.get(
+            "data_start",
+            instance.data_start if instance else None
+        )
+        data_sfarsit = attrs.get(
+            "data_sfarsit",
+            instance.data_sfarsit if instance else None
+        )
+
+        if data_start and data_sfarsit and data_start > data_sfarsit:
+            raise serializers.ValidationError({
+                "data_sfarsit": (
+                    "Data de sfârșit nu poate fi înaintea datei de început."
+                )
+            })
+
+        if angajat and data_start and data_sfarsit:
+            pontaje_existente = Pontaj.objects.filter(
+                angajat=angajat,
+                data__range=(data_start, data_sfarsit)
+            )
+
+            # La editare ignorăm pontajele generate de concediul actual.
+            if instance:
+                pontaje_existente = pontaje_existente.exclude(
+                    concediu=instance
+                )
+
+            if pontaje_existente.exists():
+                zile_ocupate = list(
+                    pontaje_existente
+                    .order_by("data")
+                    .values_list("data", flat=True)
+                )
+
+                zile_formatate = ", ".join(
+                    zi.strftime("%d.%m.%Y")
+                    for zi in zile_ocupate
+                )
+
+                raise serializers.ValidationError({
+                    "non_field_errors": [
+                        (
+                            "Concediul nu poate fi salvat deoarece există "
+                            f"deja pontaj pentru: {zile_formatate}."
+                        )
+                    ]
+                })
+
+        return attrs
 
     def get_angajat_label(self, obj):
         if obj.angajat:
@@ -82,5 +145,5 @@ class ConcediuSerializer(serializers.ModelSerializer):
 
     def get_tip_concediu_label(self, obj):
         if obj.tip_concediu:
-            return obj.tip_concediu.tip_zi or obj.tip_concediu.denumire or ""
+            return obj.tip_concediu.tip_zi or ""
         return ""

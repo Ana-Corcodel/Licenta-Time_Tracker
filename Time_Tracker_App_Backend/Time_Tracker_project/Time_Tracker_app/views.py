@@ -15,6 +15,7 @@ from django.http import JsonResponse
 import json
 from datetime import date, datetime
 from rest_framework import parsers
+from django.db import transaction, IntegrityError
 
 LUNI_RO = {
     1: "Ianuarie",
@@ -219,46 +220,112 @@ class ConcediuView(APIView):
 
     def post(self, request):
         data = self._normalize_request_data(request)
-        serializer = ConcediuSerializer(data=data, context={"request": request})
 
-        if serializer.is_valid():
-            concediu = serializer.save()
+        serializer = ConcediuSerializer(
+            data=data,
+            context={"request": request}
+        )
 
-            files = request.FILES.getlist("attach")
-            self._attach_files(concediu, files)
-
-            out_serializer = ConcediuSerializer(concediu, context={"request": request})
+        if not serializer.is_valid():
             return Response(
-                {"message": "Concediu creat cu succes", "data": out_serializer.data},
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            with transaction.atomic():
+                concediu = serializer.save()
+
+                files = request.FILES.getlist("attach")
+                self._attach_files(concediu, files)
+
+                out_serializer = ConcediuSerializer(
+                    concediu,
+                    context={"request": request}
+                )
+
+                response_data = {
+                    "message": "Concediu creat cu succes",
+                    "data": out_serializer.data
+                }
+
+            return Response(
+                response_data,
                 status=status.HTTP_201_CREATED
             )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response(
+                {
+                    "non_field_errors": [
+                        (
+                            "Concediul nu poate fi salvat deoarece există deja "
+                            "un pontaj pentru una dintre zilele selectate."
+                        )
+                    ]
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     def put(self, request, pk):
         concediu = get_object_or_404(Concediu, pk=pk)
 
         data = self._normalize_request_data(request)
-        serializer = ConcediuSerializer(concediu, data=data, context={"request": request})
 
-        if serializer.is_valid():
-            concediu = serializer.save()
+        serializer = ConcediuSerializer(
+            concediu,
+            data=data,
+            context={"request": request}
+        )
 
-            keep_ids = self._parse_keep_attachments(request)
-            if keep_ids is not None:
-                qs = concediu.attach.exclude(id__in=keep_ids)
-                concediu.attach.remove(*qs)
-
-            files = request.FILES.getlist("attach")
-            self._attach_files(concediu, files)
-
-            out_serializer = ConcediuSerializer(concediu, context={"request": request})
+        if not serializer.is_valid():
             return Response(
-                {"message": "Concediu actualizat", "data": out_serializer.data},
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            with transaction.atomic():
+                concediu = serializer.save()
+
+                keep_ids = self._parse_keep_attachments(request)
+
+                if keep_ids is not None:
+                    atasamente_de_eliminat = concediu.attach.exclude(
+                        id__in=keep_ids
+                    )
+                    concediu.attach.remove(*atasamente_de_eliminat)
+
+                files = request.FILES.getlist("attach")
+                self._attach_files(concediu, files)
+
+                out_serializer = ConcediuSerializer(
+                    concediu,
+                    context={"request": request}
+                )
+
+                response_data = {
+                    "message": "Concediu actualizat",
+                    "data": out_serializer.data
+                }
+
+            return Response(
+                response_data,
                 status=status.HTTP_200_OK
             )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response(
+                {
+                    "non_field_errors": [
+                        (
+                            "Concediul nu poate fi actualizat deoarece există "
+                            "deja un pontaj pentru una dintre zilele selectate."
+                        )
+                    ]
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     def delete(self, request, pk):
         concediu = get_object_or_404(Concediu, pk=pk)
