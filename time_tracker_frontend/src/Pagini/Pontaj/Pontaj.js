@@ -88,9 +88,11 @@ const usePontaje = () => {
   const [listaPontaje, seteazaListaPontaje] = useState([]);
   const [seIncarca, seteazaSeIncarca] = useState(true);
 
-  const preiaPontaje = useCallback(async () => {
+  const preiaPontaje = useCallback(async (silent = false) => {
     try {
-      seteazaSeIncarca(true);
+      if (!silent) {
+        seteazaSeIncarca(true);
+      }
 
       const [raspunsPontaje, raspunsAngajati, raspunsTipuriZi] =
         await Promise.all([
@@ -152,7 +154,9 @@ const usePontaje = () => {
     } catch (eroare) {
       console.error("Eroare la preluarea pontajelor:", eroare);
     } finally {
-      seteazaSeIncarca(false);
+      if (!silent) {
+        seteazaSeIncarca(false);
+      }
     }
   }, []);
 
@@ -192,6 +196,16 @@ const Pontaj = () => {
 
   useEffect(() => {
     preiaPontaje();
+  }, [preiaPontaje]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        preiaPontaje(true);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [preiaPontaje]);
 
   const gestioneazaEditarePontaj = useCallback((pontaj) => {
@@ -262,7 +276,7 @@ const Pontaj = () => {
       const dataA = new Date(a.data);
       const dataB = new Date(b.data);
 
-      return dataB - dataA; 
+      return dataB - dataA;
     });
   }, [listaPontaje, termenCautareTemporizat]);
 
